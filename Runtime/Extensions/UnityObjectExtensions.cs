@@ -4,7 +4,10 @@ using UnityEngine;
 
 namespace Hertzole.UnityToolbox
 {
-	public static partial class Extensions
+	/// <summary>
+	///     Extensions methods related to Unity objects.
+	/// </summary>
+	public static class UnityObjectExtensions
 	{
 		/// <summary>
 		///     Tries to get a component first and if that fails, it will add the component instead.

@@ -3,7 +3,10 @@ using UnityEngine;
 
 namespace Hertzole.UnityToolbox
 {
-	public static partial class Extensions
+	/// <summary>
+	///     Extension methods related to Unity vectors.
+	/// </summary>
+	public static class VectorExtensions
 	{
 		/// <summary>
 		///     Converts a Vector2 to a Vector2Int.

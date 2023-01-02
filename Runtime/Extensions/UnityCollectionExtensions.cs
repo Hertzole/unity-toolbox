@@ -4,7 +4,10 @@ using UnityEngine;
 
 namespace Hertzole.UnityToolbox
 {
-	public static partial class Extensions
+	/// <summary>
+	///     Extension methods for collections with Unity types.
+	/// </summary>
+	public static class UnityCollectionExtensions
 	{
 		/// <summary>
 		///     Gets the closest object to the given position.
