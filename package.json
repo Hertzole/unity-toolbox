@@ -1,0 +1,21 @@
+{
+    "name": "se.hertzole.unitytoolbox",
+    "version": "0.1.0-preview",
+    "displayName": "Unity Toolbox",
+    "description": "A collection of useful tools and extensions for Unity games.",
+    "unity": "2022.2",
+    "unityRelease": "0f1",
+    "dependencies": {
+        "com.unity.mathematics": "1.2.6"
+    },
+    "keywords": [
+        "tool",
+        "toolbox",
+        "extensions"
+    ],
+    "author": {
+        "name": "Hertzole",
+        "email": "contact@hertzole.se",
+        "url": "https://www.hertzole.se"
+    }
+}
