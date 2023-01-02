@@ -6,7 +6,10 @@ using Random = Unity.Mathematics.Random;
 
 namespace Hertzole.UnityToolbox
 {
-	public static partial class Extensions
+	/// <summary>
+	///     Extension methods for collections.
+	/// </summary>
+	public static class CollectionExtensions
 	{
 		/// <summary>
 		///     Randomly shuffles a list.

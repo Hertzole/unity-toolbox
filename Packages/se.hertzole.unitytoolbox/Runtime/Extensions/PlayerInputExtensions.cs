@@ -4,7 +4,11 @@ using UnityEngine.InputSystem;
 
 namespace Hertzole.UnityToolbox
 {
-	public static partial class Extensions
+	/// <summary>
+	///     Extension methods for the PlayerInput class.
+	///     <b>NOTE: This class is only available if the Input System package is installed.</b>
+	/// </summary>
+	public static class PlayerInputExtensions
 	{
 		/// <summary>
 		///     A shortcut for adding a listener to the started event for this action reference on the player input.
@@ -18,15 +22,15 @@ namespace Hertzole.UnityToolbox
 		/// <example>
 		///     <code>
 		/// 	void OnEnable()
-		///  {
-		/// 		playerInput.AddStartedListener(action, OnStarted);
-		///  }
-		/// 
-		///  void OnStarted(InputAction.CallbackContext context)
-		///  {
-		/// 		Debug.Log("Started!");
-		///  }
-		///  </code>
+		///     {
+		///    		playerInput.AddStartedListener(action, OnStarted);
+		///     }
+		///     
+		///     void OnStarted(InputAction.CallbackContext context)
+		///     {
+		///    		Debug.Log("Started!");
+		///     }
+		///     </code>
 		/// </example>
 		public static void AddStartedListener(this PlayerInput input, InputActionReference action, Action<InputAction.CallbackContext> onStartedCallback)
 		{
@@ -49,15 +53,15 @@ namespace Hertzole.UnityToolbox
 		/// <example>
 		///     <code>
 		/// 	void OnEnable()
-		///  {
-		/// 		playerInput.AddPerformedListener(action, OnPerformed);
-		///  }
-		/// 
-		///  void OnPerformed(InputAction.CallbackContext context)
-		///  {
-		/// 		Debug.Log("Performed!");
-		///  }
-		///  </code>
+		///     {
+		///    		playerInput.AddPerformedListener(action, OnPerformed);
+		///     }
+		///     
+		///     void OnPerformed(InputAction.CallbackContext context)
+		///     {
+		///    		Debug.Log("Performed!");
+		///     }
+		///     </code>
 		/// </example>
 		public static void AddPerformedListener(this PlayerInput input, InputActionReference action, Action<InputAction.CallbackContext> onPerformedCallback)
 		{
@@ -80,15 +84,15 @@ namespace Hertzole.UnityToolbox
 		/// <example>
 		///     <code>
 		/// 	void OnEnable()
-		///  {
-		/// 		playerInput.AddCanceledListener(action, OnCanceled);
-		///  }
-		/// 
-		///  void OnCanceled(InputAction.CallbackContext context)
-		///  {
-		/// 		Debug.Log("Canceled!");
-		///  }
-		///  </code>
+		///     {
+		///    		playerInput.AddCanceledListener(action, OnCanceled);
+		///     }
+		///     
+		///     void OnCanceled(InputAction.CallbackContext context)
+		///     {
+		///    		Debug.Log("Canceled!");
+		///     }
+		///     </code>
 		/// </example>
 		public static void AddCanceledListener(this PlayerInput input, InputActionReference action, Action<InputAction.CallbackContext> onCanceledCallback)
 		{
@@ -111,15 +115,15 @@ namespace Hertzole.UnityToolbox
 		/// <example>
 		///     <code>
 		/// 	void OnDisable()
-		///  {
-		/// 		playerInput.RemoveStartedListener(action, OnStarted);
-		///  }
-		/// 
-		///  void OnStarted(InputAction.CallbackContext context)
-		///  {
-		/// 		Debug.Log("Started!");
-		///  }
-		///  </code>
+		///     {
+		///    		playerInput.RemoveStartedListener(action, OnStarted);
+		///     }
+		///     
+		///     void OnStarted(InputAction.CallbackContext context)
+		///     {
+		///    		Debug.Log("Started!");
+		///     }
+		///     </code>
 		/// </example>
 		public static void RemoveStartedListener(this PlayerInput input, InputActionReference action, Action<InputAction.CallbackContext> onStartedCallback)
 		{
@@ -142,15 +146,15 @@ namespace Hertzole.UnityToolbox
 		/// <example>
 		///     <code>
 		/// 	void OnDisable()
-		///  {
-		/// 		playerInput.RemovePerformedListener(action, OnPerformed);
-		///  }
-		/// 
-		///  void OnPerformed(InputAction.CallbackContext context)
-		///  {
-		/// 		Debug.Log("Performed!");
-		///  }
-		///  </code>
+		///     {
+		///    		playerInput.RemovePerformedListener(action, OnPerformed);
+		///     }
+		///     
+		///     void OnPerformed(InputAction.CallbackContext context)
+		///     {
+		///    		Debug.Log("Performed!");
+		///     }
+		///     </code>
 		/// </example>
 		public static void RemovePerformedListener(this PlayerInput input, InputActionReference action, Action<InputAction.CallbackContext> onPerformedCallback)
 		{
@@ -173,15 +177,15 @@ namespace Hertzole.UnityToolbox
 		/// <example>
 		///     <code>
 		/// 	void OnDisable()
-		///  {
-		/// 		playerInput.RemoveCanceledListener(action, OnCanceled);
-		///  }
-		/// 
-		///  void OnCanceled(InputAction.CallbackContext context)
-		///  {
-		/// 		Debug.Log("Canceled!");
-		///  }
-		///  </code>
+		///     {
+		///    		playerInput.RemoveCanceledListener(action, OnCanceled);
+		///     }
+		///     
+		///     void OnCanceled(InputAction.CallbackContext context)
+		///     {
+		///    		Debug.Log("Canceled!");
+		///     }
+		///     </code>
 		/// </example>
 		public static void RemoveCanceledListener(this PlayerInput input, InputActionReference action, Action<InputAction.CallbackContext> onCanceledCallback)
 		{
