@@ -16,9 +16,9 @@ namespace Hertzole.UnityToolbox
 		/// <example>
 		///     <code>
 		/// 	Color color = Color.red;
-		///  string hex = color.ToHex();
-		///  Debug.Log(hex); // #FF0000
-		///  </code>
+		///     string hex = color.ToHex();
+		///     Debug.Log(hex); // #FF0000
+		///     </code>
 		/// </example>
 		public static string ToHex(this Color color, bool displayAlpha = false)
 		{
@@ -34,9 +34,9 @@ namespace Hertzole.UnityToolbox
 		/// <example>
 		///     <code>
 		/// 	Color32 color = new Color32(255, 0, 0, 255);
-		///  string hex = color.ToHex();
-		///  Debug.Log(hex); // #FF0000
-		///  </code>
+		///     string hex = color.ToHex();
+		///     Debug.Log(hex); // #FF0000
+		///     </code>
 		/// </example>
 		public static string ToHex(this Color32 color, bool displayAlpha = false)
 		{
