@@ -14,17 +14,17 @@ namespace Hertzole.UnityToolbox
 		///     Is the application currently quitting?
 		/// </summary>
 		/// <example>
-		///	<code>
-		///	void CreateInstance()
-		/// {
-		///		if (QuitHelper.IsQuitting)
-		///		{
-		///			return;
-		///		}
-		///
-		///		// Create instance.
-		/// }
-		/// </code>
+		///     <code>
+		///     void CreateInstance()
+		///     {
+		///     	if (QuitHelper.IsQuitting)
+		///     	{
+		///     		return;
+		///     	}
+		///     	
+		///     	// Create instance.
+		///     }
+		///     </code>
 		/// </example>
 		public static bool IsQuitting { get; private set; }
 
@@ -66,11 +66,11 @@ namespace Hertzole.UnityToolbox
 		/// </summary>
 		/// <example>
 		///     <code>
-		///  void QuitGame()
-		///  {
-		/// 		QuitHelper.Quit();
-		///  }
-		///  </code>
+		///     void QuitGame()
+		///     {
+		///    		QuitHelper.Quit();
+		///     }
+		///     </code>
 		/// </example>
 		public static void Quit()
 		{
@@ -87,11 +87,11 @@ namespace Hertzole.UnityToolbox
 		/// <param name="exitCode">The exit code.</param>
 		/// <example>
 		///     <code>
-		///  void QuitGameWithErrorCode()
-		///  {
-		/// 		QuitHelper.Quit(1);
-		///  }
-		///  </code>
+		///     void QuitGameWithErrorCode()
+		///     {
+		///    		QuitHelper.Quit(1);
+		///     }
+		///     </code>
 		/// </example>
 		public static void Quit(int exitCode)
 		{
