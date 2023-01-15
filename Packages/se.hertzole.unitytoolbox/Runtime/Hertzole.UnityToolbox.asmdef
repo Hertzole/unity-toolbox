@@ -3,7 +3,8 @@
     "rootNamespace": "Hertzole.UnityToolbox",
     "references": [
         "GUID:d8b63aba1907145bea998dd612889d6b",
-        "GUID:75469ad4d38634e559750d17036d5f7c"
+        "GUID:75469ad4d38634e559750d17036d5f7c",
+        "GUID:1a91e603eade47d42a03c9e9f4f5e8b6"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -17,6 +18,11 @@
             "name": "com.unity.inputsystem",
             "expression": "",
             "define": "TOOLBOX_INPUT_SYSTEM"
+        },
+        {
+            "name": "com.aurorapunks.aurorascriptablevalues",
+            "expression": "",
+            "define": "TOOLBOX_SCRIPTABLE_VALUES"
         }
     ],
     "noEngineReferences": false
