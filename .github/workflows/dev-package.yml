@@ -1,6 +1,6 @@
 name: Development Package
 
-on:k
+on:
   push:
     paths-ignore:
       - '*.md'
