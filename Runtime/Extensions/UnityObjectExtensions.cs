@@ -47,6 +47,38 @@ namespace Hertzole.UnityToolbox
 			return target.gameObject.AddComponent<T>();
 		}
 
+		public static bool TryGetComponentInParent<T>(this GameObject target, out T component)
+		{
+			ThrowHelper.ThrowIfNull(target, nameof(target));
+			
+			component = target.GetComponentInParent<T>();
+			return component != null;
+		}
+		
+		public static bool TryGetComponentInParent<T>(this Component target, out T component)
+		{
+			ThrowHelper.ThrowIfNull(target, nameof(target));
+			
+			component = target.GetComponentInParent<T>();
+			return component != null;
+		}
+		
+		public static bool TryGetComponentInChildren<T>(this GameObject target, out T component)
+		{
+			ThrowHelper.ThrowIfNull(target, nameof(target));
+			
+			component = target.GetComponentInChildren<T>();
+			return component != null;
+		}
+		
+		public static bool TryGetComponentInChildren<T>(this Component target, out T component)
+		{
+			ThrowHelper.ThrowIfNull(target, nameof(target));
+			
+			component = target.GetComponentInChildren<T>();
+			return component != null;
+		}
+
 		/// <summary>
 		///     Sets the layer of the object and all of its children.
 		/// </summary>
