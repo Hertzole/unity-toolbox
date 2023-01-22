@@ -6,11 +6,14 @@ using Mirage.Serialization;
 
 namespace Hertzole.UnityToolbox
 {
-	public sealed class SyncedScriptableValue<T> : ISyncObject where T : IEquatable<T>
+	public sealed class SyncedScriptableValue<T> : ISyncObject, IDisposable where T : IEquatable<T>
 	{
 		private ScriptableValue<T> targetScriptableValue;
 
 		private bool isReadOnly;
+
+		private bool originalReadOnly;
+		private readonly bool setReadOnly;
 
 		public T Value
 		{
@@ -20,6 +23,11 @@ namespace Hertzole.UnityToolbox
 				if (isReadOnly)
 				{
 					throw new InvalidOperationException("SyncedScriptableValues can only be modified on the server.");
+				}
+
+				if (setReadOnly)
+				{
+					targetScriptableValue.IsReadOnly = false;
 				}
 
 				if (!targetScriptableValue.Value.Equals(value))
@@ -32,32 +40,45 @@ namespace Hertzole.UnityToolbox
 					IsDirty = true;
 					OnChange?.Invoke();
 				}
+
+				if (setReadOnly)
+				{
+					targetScriptableValue.IsReadOnly = true;
+				}
 			}
 		}
 
 		public bool IsDirty { get; private set; }
 
-		public event Action OnChange;
-		
-		public event ScriptableValue<T>.OldNewValue<T> OnValueChanging
+		public SyncedScriptableValue(bool setReadOnly = true)
 		{
-			add { targetScriptableValue.OnValueChanging += value; }
-			remove { targetScriptableValue.OnValueChanging -= value; }
-		} 
-		
-		public event ScriptableValue<T>.OldNewValue<T> OnValueChanged
-		{
-			add { targetScriptableValue.OnValueChanged += value; }
-			remove { targetScriptableValue.OnValueChanged -= value; }
+			this.setReadOnly = setReadOnly;
 		}
+
+		public event Action OnChange;
+
+		public event ScriptableValue<T>.OldNewValue<T> OnValueChanging { add { targetScriptableValue.OnValueChanging += value; } remove { targetScriptableValue.OnValueChanging -= value; } }
+
+		public event ScriptableValue<T>.OldNewValue<T> OnValueChanged { add { targetScriptableValue.OnValueChanged += value; } remove { targetScriptableValue.OnValueChanged -= value; } }
 
 		public void Initialize(ScriptableValue<T> targetValue)
 		{
 			targetScriptableValue = targetValue;
+
+			if (targetScriptableValue != null && setReadOnly)
+			{
+				originalReadOnly = targetScriptableValue.IsReadOnly;
+				targetScriptableValue.IsReadOnly = true;
+			}
+		}
+
+		~SyncedScriptableValue()
+		{
+			ReleaseUnmanagedResources();
 		}
 
 		/// <summary>
-		/// Called after a successful sync.
+		///     Called after a successful sync.
 		/// </summary>
 		public void Flush()
 		{
@@ -76,32 +97,54 @@ namespace Hertzole.UnityToolbox
 
 		public void OnDeserializeAll(NetworkReader reader)
 		{
-			isReadOnly = true;
-			
-			bool oldEqualityCheck = targetScriptableValue.SetEqualityCheck;
-			targetScriptableValue.SetEqualityCheck = false;
-			targetScriptableValue.Value = reader.Read<T>();
-			targetScriptableValue.SetEqualityCheck = oldEqualityCheck;
-			
-			OnChange?.Invoke();
+			Deserialize(reader);
 		}
 
 		public void OnDeserializeDelta(NetworkReader reader)
 		{
-			isReadOnly = true;
+			Deserialize(reader);
+		}
+
+		private void Deserialize(NetworkReader reader)
+		{
+			if (setReadOnly)
+			{
+				targetScriptableValue.IsReadOnly = false;
+			}
 			
+			isReadOnly = true;
+
 			bool oldEqualityCheck = targetScriptableValue.SetEqualityCheck;
 			targetScriptableValue.SetEqualityCheck = false;
 			targetScriptableValue.Value = reader.Read<T>();
 			targetScriptableValue.SetEqualityCheck = oldEqualityCheck;
-			
+
 			OnChange?.Invoke();
+
+			if (setReadOnly)
+			{
+				targetScriptableValue.IsReadOnly = true;
+			}
 		}
 
 		public void Reset()
 		{
 			isReadOnly = false;
 			IsDirty = false;
+		}
+
+		private void ReleaseUnmanagedResources()
+		{
+			if (targetScriptableValue != null && setReadOnly)
+			{
+				targetScriptableValue.IsReadOnly = originalReadOnly;
+			}
+		}
+
+		public void Dispose()
+		{
+			ReleaseUnmanagedResources();
+			GC.SuppressFinalize(this);
 		}
 	}
 }
