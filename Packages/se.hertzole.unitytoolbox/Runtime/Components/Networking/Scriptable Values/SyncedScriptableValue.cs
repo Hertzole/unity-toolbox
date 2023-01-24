@@ -1,12 +1,13 @@
 ﻿#if TOOLBOX_MIRAGE && TOOLBOX_SCRIPTABLE_VALUES
 using System;
+using System.Collections.Generic;
 using AuroraPunks.ScriptableValues;
 using Mirage.Collections;
 using Mirage.Serialization;
 
 namespace Hertzole.UnityToolbox
 {
-	public sealed class SyncedScriptableValue<T> : ISyncObject, IDisposable where T : IEquatable<T>
+	public sealed class SyncedScriptableValue<T> : ISyncObject, IDisposable
 	{
 		private ScriptableValue<T> targetScriptableValue;
 
@@ -30,7 +31,7 @@ namespace Hertzole.UnityToolbox
 					targetScriptableValue.IsReadOnly = false;
 				}
 
-				if (!targetScriptableValue.Value.Equals(value))
+				if (!EqualityComparer<T>.Default.Equals(targetScriptableValue.Value, value))
 				{
 					bool oldEqualityCheck = targetScriptableValue.SetEqualityCheck;
 					targetScriptableValue.SetEqualityCheck = false;
