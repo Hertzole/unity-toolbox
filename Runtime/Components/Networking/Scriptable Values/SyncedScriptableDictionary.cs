@@ -6,14 +6,19 @@ using Mirage.Serialization;
 
 namespace Hertzole.UnityToolbox
 {
-	public sealed class SyncedScriptableDictionary<TKey, TValue> : ISyncObject, IDisposable where TKey : IEquatable<TKey> where TValue : IEquatable<TValue>
+	public sealed class SyncedScriptableDictionary<TKey, TValue> : ISyncObject, IDisposable
 	{
 		private ScriptableDictionary<TKey, TValue> targetDictionary;
+
+		private bool didAdd;
+		private bool didSet;
+		private bool didRemove;
 
 		private bool originalIsReadOnly;
 		private readonly bool isReadOnly;
 
 		public readonly SyncDictionary<TKey, TValue> syncDictionary = new SyncDictionary<TKey, TValue>();
+		private bool didClear;
 
 		public bool IsDirty { get { return syncDictionary.IsDirty; } }
 
@@ -33,6 +38,11 @@ namespace Hertzole.UnityToolbox
 
 			targetDictionary = dictionary;
 
+			targetDictionary.OnAdded += OnTargetAddedInternal;
+			targetDictionary.OnSet += OnTargetSetInternal;
+			targetDictionary.OnRemoved += OnTargetRemovedInternal;
+			targetDictionary.OnCleared += OnTargetClearedInternal;
+
 			syncDictionary.OnSet += OnSetInternal;
 			syncDictionary.OnInsert += OnInsertInternal;
 			syncDictionary.OnRemove += OnRemoveInternal;
@@ -45,6 +55,58 @@ namespace Hertzole.UnityToolbox
 			}
 		}
 
+		private void OnTargetAddedInternal(TKey key, TValue value)
+		{
+			if (didAdd)
+			{
+				didAdd = false;
+			}
+			else
+			{
+				didAdd = true;
+				syncDictionary.Add(key, value);
+			}
+		}
+
+		private void OnTargetSetInternal(TKey key, TValue oldValue, TValue newValue)
+		{
+			if (didSet)
+			{
+				didSet = false;
+			}
+			else
+			{
+				didSet = true;
+				syncDictionary[key] = newValue;
+			}
+		}
+
+		private void OnTargetRemovedInternal(TKey key, TValue value)
+		{
+			if (didRemove)
+			{
+				didRemove = false;
+			}
+			else
+			{
+				didRemove = true;
+				syncDictionary.Remove(key);
+			}
+		}
+
+		private void OnTargetClearedInternal()
+		{
+			if (didClear)
+			{
+				didClear = false;
+			}
+			else
+			{
+				didClear = true;
+				syncDictionary.Clear();
+			}
+		}
+
 		private void OnSetInternal(TKey key, TValue oldValue, TValue newValue)
 		{
 			if (isReadOnly)
@@ -52,7 +114,15 @@ namespace Hertzole.UnityToolbox
 				targetDictionary.IsReadOnly = false;
 			}
 
-			targetDictionary[key] = newValue;
+			if (didSet)
+			{
+				didSet = false;
+			}
+			else
+			{
+				didSet = true;
+				targetDictionary[key] = newValue;
+			}
 
 			if (isReadOnly)
 			{
@@ -67,7 +137,15 @@ namespace Hertzole.UnityToolbox
 				targetDictionary.IsReadOnly = false;
 			}
 
-			targetDictionary.Add(key, value);
+			if (didAdd)
+			{
+				didAdd = false;
+			}
+			else
+			{
+				didAdd = true;
+				targetDictionary.Add(key, value);
+			}
 
 			if (isReadOnly)
 			{
@@ -82,7 +160,15 @@ namespace Hertzole.UnityToolbox
 				targetDictionary.IsReadOnly = false;
 			}
 
-			targetDictionary.Remove(key);
+			if (didRemove)
+			{
+				didRemove = false;
+			}
+			else
+			{
+				didRemove = true;
+				targetDictionary.Remove(key);
+			}
 
 			if (isReadOnly)
 			{
@@ -97,7 +183,15 @@ namespace Hertzole.UnityToolbox
 				targetDictionary.IsReadOnly = false;
 			}
 
-			targetDictionary.Clear();
+			if (didClear)
+			{
+				didClear = false;
+			}
+			else
+			{
+				didClear = true;
+				targetDictionary.Clear();
+			}
 
 			if (isReadOnly)
 			{
@@ -137,6 +231,11 @@ namespace Hertzole.UnityToolbox
 
 		public void Dispose()
 		{
+			targetDictionary.OnAdded -= OnTargetAddedInternal;
+			targetDictionary.OnSet -= OnTargetSetInternal;
+			targetDictionary.OnRemoved -= OnTargetRemovedInternal;
+			targetDictionary.OnCleared -= OnTargetClearedInternal;
+
 			syncDictionary.OnSet -= OnSetInternal;
 			syncDictionary.OnInsert -= OnInsertInternal;
 			syncDictionary.OnRemove -= OnRemoveInternal;
