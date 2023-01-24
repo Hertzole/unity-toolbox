@@ -244,5 +244,57 @@ namespace Hertzole.UnityToolbox
 			Debug.LogAssertionFormat(context, format, args);
 #endif
 		}
+
+		/// <summary>
+		///     Logs a success message to the Unity console if the application is in the editor or development build.
+		/// </summary>
+		/// <param name="message">String or object to be converted to string representation for display.</param>
+		[Conditional("DEBUG")]
+		public static void LogSuccess(object message)
+		{
+#if DEBUG
+			LoggerHelper.LogSuccess(message);
+#endif
+		}
+
+		/// <summary>
+		///     Logs a success message to the Unity console if the application is in the editor or development build.
+		/// </summary>
+		/// <param name="message">String or object to be converted to string representation for display.</param>
+		/// <param name="context">Object to which the message applies.</param>
+		[Conditional("DEBUG")]
+		public static void LogSuccess(object message, Object context)
+		{
+#if DEBUG
+			LoggerHelper.LogSuccess(message, context);
+#endif
+		}
+
+		/// <summary>
+		///     Logs a formatted success message to the Unity console if the application is in the editor or development build.
+		/// </summary>
+		/// <param name="format">A composite format string.</param>
+		/// <param name="args">Format arguments.</param>
+		[Conditional("DEBUG")]
+		public static void LogSuccessFormat(string format, params object[] args)
+		{
+#if DEBUG
+			LoggerHelper.LogSuccessFormat(format, null, args);
+#endif
+		}
+
+		/// <summary>
+		///     Logs a formatted success message to the Unity console if the application is in the editor or development build.
+		/// </summary>
+		/// <param name="context">Object to which the message applies.</param>
+		/// <param name="format">A composite format string.</param>
+		/// <param name="args">Format arguments.</param>
+		[Conditional("DEBUG")]
+		public static void LogSuccessFormat(Object context, string format, params object[] args)
+		{
+#if DEBUG
+			LoggerHelper.LogSuccessFormat(format, context, args);
+#endif
+		}
 	}
 }
