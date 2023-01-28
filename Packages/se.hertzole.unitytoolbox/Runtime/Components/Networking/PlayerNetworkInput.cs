@@ -1,5 +1,4 @@
 ﻿#if TOOLBOX_SCRIPTABLE_VALUES && TOOLBOX_MIRAGE && TOOLBOX_INPUT_SYSTEM
-using Hertzole.UnityToolbox.Interfaces;
 using Mirage;
 using UnityEngine;
 

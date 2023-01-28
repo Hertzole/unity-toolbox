@@ -1,7 +1,7 @@
 ﻿#if TOOLBOX_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 
-namespace Hertzole.UnityToolbox.Interfaces
+namespace Hertzole.UnityToolbox
 {
 	public interface IHasPlayerInput
 	{
