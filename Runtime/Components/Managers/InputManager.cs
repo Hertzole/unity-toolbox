@@ -1,5 +1,4 @@
 ﻿#if TOOLBOX_INPUT_SYSTEM && TOOLBOX_SCRIPTABLE_VALUES
-using Hertzole.UnityToolbox.Interfaces;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
