@@ -35,5 +35,17 @@ namespace Hertzole.UnityToolbox
 
 			return value;
 		}
+		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static float Percent(float value, float max)
+		{
+			return value / max;
+		}
+		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static float Percent(float value, float min, float max)
+		{
+			return (value - min) / (max - min);
+		}
 	}
 }
