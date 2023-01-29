@@ -38,8 +38,8 @@ namespace Hertzole.UnityToolbox.Editor
 				reorderMode = ListViewReorderMode.Animated,
 				selectionType = SelectionType.Single,
 				virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight,
-				makeItem = MakeListItem,
-				bindItem = BindListItem
+				// makeItem = MakeListItem,
+				// bindItem = BindListItem
 			};
 
 			root.Add(lockCursorField);
