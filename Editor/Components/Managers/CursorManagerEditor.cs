@@ -6,23 +6,22 @@ using UnityEngine.UIElements;
 namespace Hertzole.UnityToolbox.Editor
 {
 	[CustomEditor(typeof(CursorManager))]
-	public sealed class CursorManagerEditor : UnityEditor.Editor
+	public sealed class CursorManagerEditor : MonoSingletonEditor
 	{
 		private SerializedProperty lockCursor;
 		private SerializedProperty matches;
 
-		private void OnEnable()
+		protected override void OnEnable()
 		{
+			base.OnEnable();
+
 			lockCursor = serializedObject.FindProperty(nameof(lockCursor));
 			matches = serializedObject.FindProperty(nameof(matches));
 		}
 
 		public override VisualElement CreateInspectorGUI()
 		{
-			VisualElement root = new VisualElement
-			{
-				name = "cursor-manager-root"
-			};
+			VisualElement root = base.CreateInspectorGUI();
 
 			PropertyField lockCursorField = new PropertyField(lockCursor);
 			lockCursorField.Bind(serializedObject);
@@ -37,11 +36,12 @@ namespace Hertzole.UnityToolbox.Editor
 				reorderable = true,
 				reorderMode = ListViewReorderMode.Animated,
 				selectionType = SelectionType.Single,
-				virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight,
+				virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight
 				// makeItem = MakeListItem,
 				// bindItem = BindListItem
 			};
 
+			root.Add(VisualElementUtils.Header("Cursor Settings"));
 			root.Add(lockCursorField);
 			root.Add(VisualElementUtils.VerticalSpace());
 			root.Add(matchesField);

@@ -1,9 +1,24 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Hertzole.UnityToolbox
 {
+	public enum SingletonDestroyStrategy
+	{
+		DestroyNewest = 0,
+		DestroyOldest = 1,
+		KeepBoth = 2
+	}
+
 	public abstract class MonoSingleton<T> : MonoBehaviour where T : Object
 	{
+		[Header("Singleton Settings")]
+		[SerializeField]
+		private bool keepAlive = true;
+		[SerializeField]
+		private SingletonDestroyStrategy destroyStrategy = default;
+
 		private static T singletonInstance;
 
 		public static T Instance
@@ -18,20 +33,33 @@ namespace Hertzole.UnityToolbox
 				return singletonInstance;
 			}
 		}
-		
-		protected virtual bool KeepAlive { get; } = true;
 
 		protected void Awake()
 		{
 			if (singletonInstance != null && singletonInstance != this)
 			{
-				Destroy(gameObject);
-				return;
+				switch (destroyStrategy)
+				{
+					case SingletonDestroyStrategy.DestroyNewest:
+						Destroy(gameObject);
+						return;
+					case SingletonDestroyStrategy.DestroyOldest:
+						if (singletonInstance is Component comp)
+						{
+							Destroy(comp.gameObject);
+						}
+
+						break;
+					case SingletonDestroyStrategy.KeepBoth:
+						return;
+					default:
+						throw new ArgumentOutOfRangeException();
+				}
 			}
 
 			singletonInstance = (T) (object) this;
-			
-			if (KeepAlive)
+
+			if (keepAlive)
 			{
 				DontDestroyOnLoad(gameObject);
 			}
