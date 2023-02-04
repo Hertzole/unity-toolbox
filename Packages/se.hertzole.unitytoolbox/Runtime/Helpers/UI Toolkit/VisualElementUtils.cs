@@ -1,4 +1,5 @@
-﻿using UnityEngine.UIElements;
+﻿using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Hertzole.UnityToolbox
 {
@@ -22,6 +23,20 @@ namespace Hertzole.UnityToolbox
 				style =
 				{
 					width = width
+				}
+			};
+		}
+
+		public static Label Header(string text)
+		{
+			return new Label(text)
+			{
+				style =
+				{
+					unityFontStyleAndWeight = FontStyle.Bold,
+					marginTop = 13,
+					paddingLeft = 1,
+					marginLeft = 3
 				}
 			};
 		}

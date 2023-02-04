@@ -40,6 +40,11 @@ namespace Hertzole.UnityToolbox
 			}
 		}
 
+		private void Start()
+		{
+			OnValueChanged();
+		}
+
 		private void OnValueChanged()
 		{
 			lockCursor.Value = !AllMatches();
