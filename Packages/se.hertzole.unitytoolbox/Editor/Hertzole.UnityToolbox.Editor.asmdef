@@ -33,6 +33,11 @@
             "name": "com.miragenet.mirage",
             "expression": "",
             "define": "TOOLBOX_MIRAGE"
+        },
+        {
+            "name": "com.unity.modules.animation",
+            "expression": "",
+            "define": "TOOLBOX_ANIMATION"
         }
     ],
     "noEngineReferences": false

@@ -47,6 +47,11 @@
             "name": "com.unity.modules.physics",
             "expression": "",
             "define": "TOOLBOX_PHYSICS_3D"
+        },
+        {
+            "name": "com.unity.modules.animation",
+            "expression": "",
+            "define": "TOOLBOX_ANIMATION"
         }
     ],
     "noEngineReferences": false
