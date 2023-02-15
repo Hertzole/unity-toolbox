@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if TOOLBOX_PHYSICS_3D
+using System;
 using UnityEngine;
 #if TOOLBOX_CECIL_ATTRIBUTES
 using Hertzole.CecilAttributes;
@@ -75,3 +76,4 @@ namespace Hertzole.UnityToolbox
 		}
 	}
 }
+#endif

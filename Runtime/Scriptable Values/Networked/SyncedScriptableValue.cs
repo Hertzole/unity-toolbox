@@ -1,17 +1,13 @@
-﻿#if TOOLBOX_MIRAGE && TOOLBOX_SCRIPTABLE_VALUES
+﻿#if TOOLBOX_SCRIPTABLE_VALUES && (TOOLBOX_MIRAGE || FISHNET)
 using System;
 using System.Collections.Generic;
 using AuroraPunks.ScriptableValues;
-using Mirage.Collections;
-using Mirage.Serialization;
 
 namespace Hertzole.UnityToolbox
 {
-	public sealed class SyncedScriptableValue<T> : ISyncObject, IDisposable
+	public sealed partial class SyncedScriptableValue<T> : IDisposable
 	{
 		private ScriptableValue<T> targetScriptableValue;
-
-		private bool isReadOnly;
 
 		private bool originalReadOnly;
 		private readonly bool setReadOnly;
@@ -21,7 +17,7 @@ namespace Hertzole.UnityToolbox
 			get { return targetScriptableValue.Value; }
 			set
 			{
-				if (isReadOnly)
+				if (!CanModifyValue())
 				{
 					throw new InvalidOperationException("SyncedScriptableValues can only be modified on the server.");
 				}
@@ -38,8 +34,7 @@ namespace Hertzole.UnityToolbox
 					targetScriptableValue.Value = value;
 					targetScriptableValue.SetEqualityCheck = oldEqualityCheck;
 
-					IsDirty = true;
-					OnChange?.Invoke();
+					OnSetValue(value);
 				}
 
 				if (setReadOnly)
@@ -49,14 +44,10 @@ namespace Hertzole.UnityToolbox
 			}
 		}
 
-		public bool IsDirty { get; private set; }
-
 		public SyncedScriptableValue(bool setReadOnly = true)
 		{
 			this.setReadOnly = setReadOnly;
 		}
-
-		public event Action OnChange;
 
 		public event ScriptableValue<T>.OldNewValue<T> OnValueChanging { add { targetScriptableValue.OnValueChanging += value; } remove { targetScriptableValue.OnValueChanging -= value; } }
 
@@ -71,67 +62,19 @@ namespace Hertzole.UnityToolbox
 				originalReadOnly = targetScriptableValue.IsReadOnly;
 				targetScriptableValue.IsReadOnly = true;
 			}
+			
+			OnInitialized();
 		}
+
+		private partial void OnInitialized();
+
+		private partial bool CanModifyValue();
+
+		private partial void OnSetValue(T newValue);
 
 		~SyncedScriptableValue()
 		{
 			ReleaseUnmanagedResources();
-		}
-
-		/// <summary>
-		///     Called after a successful sync.
-		/// </summary>
-		public void Flush()
-		{
-			IsDirty = false;
-		}
-
-		public void OnSerializeAll(NetworkWriter writer)
-		{
-			writer.Write(targetScriptableValue.Value);
-		}
-
-		public void OnSerializeDelta(NetworkWriter writer)
-		{
-			writer.Write(targetScriptableValue.Value);
-		}
-
-		public void OnDeserializeAll(NetworkReader reader)
-		{
-			Deserialize(reader);
-		}
-
-		public void OnDeserializeDelta(NetworkReader reader)
-		{
-			Deserialize(reader);
-		}
-
-		private void Deserialize(NetworkReader reader)
-		{
-			if (setReadOnly)
-			{
-				targetScriptableValue.IsReadOnly = false;
-			}
-			
-			isReadOnly = true;
-
-			bool oldEqualityCheck = targetScriptableValue.SetEqualityCheck;
-			targetScriptableValue.SetEqualityCheck = false;
-			targetScriptableValue.Value = reader.Read<T>();
-			targetScriptableValue.SetEqualityCheck = oldEqualityCheck;
-
-			OnChange?.Invoke();
-
-			if (setReadOnly)
-			{
-				targetScriptableValue.IsReadOnly = true;
-			}
-		}
-
-		public void Reset()
-		{
-			isReadOnly = false;
-			IsDirty = false;
 		}
 
 		private void ReleaseUnmanagedResources()

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿#if TOOLBOX_PHYSICS_3D
+using UnityEngine;
 
 namespace Hertzole.UnityToolbox
 {
@@ -52,3 +53,4 @@ namespace Hertzole.UnityToolbox
 		}
 	}
 }
+#endif

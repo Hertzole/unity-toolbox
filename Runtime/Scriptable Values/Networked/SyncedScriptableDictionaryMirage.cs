@@ -1,4 +1,4 @@
-﻿#if TOOLBOX_MIRAGE && TOOLBOX_SCRIPTABLE_VALUES
+﻿#if TOOLBOX_SCRIPTABLE_VALUES && TOOLBOX_MIRAGE
 using System;
 using AuroraPunks.ScriptableValues;
 using Mirage.Collections;
@@ -6,56 +6,29 @@ using Mirage.Serialization;
 
 namespace Hertzole.UnityToolbox
 {
-	public sealed class SyncedScriptableDictionary<TKey, TValue> : ISyncObject, IDisposable
+	public partial class SyncedScriptableDictionary<TKey, TValue> : ISyncObject
 	{
-		private ScriptableDictionary<TKey, TValue> targetDictionary;
 
 		private bool didAdd;
 		private bool didSet;
 		private bool didRemove;
-
-		private bool originalIsReadOnly;
-		private readonly bool isReadOnly;
 
 		public readonly SyncDictionary<TKey, TValue> syncDictionary = new SyncDictionary<TKey, TValue>();
 		private bool didClear;
 
 		public bool IsDirty { get { return syncDictionary.IsDirty; } }
 
-		public SyncedScriptableDictionary(bool isReadOnly = true)
-		{
-			this.isReadOnly = isReadOnly;
-		}
-
 		public event Action OnChange { add { syncDictionary.OnChange += value; } remove { syncDictionary.OnChange -= value; } }
 
-		public void Initialize(ScriptableDictionary<TKey, TValue> dictionary)
+		private partial void OnInitialized()
 		{
-			if (dictionary == null)
-			{
-				throw new ArgumentNullException(nameof(dictionary));
-			}
-
-			targetDictionary = dictionary;
-
-			targetDictionary.OnAdded += OnTargetAddedInternal;
-			targetDictionary.OnSet += OnTargetSetInternal;
-			targetDictionary.OnRemoved += OnTargetRemovedInternal;
-			targetDictionary.OnCleared += OnTargetClearedInternal;
-
 			syncDictionary.OnSet += OnSetInternal;
 			syncDictionary.OnInsert += OnInsertInternal;
 			syncDictionary.OnRemove += OnRemoveInternal;
 			syncDictionary.OnClear += OnClearInternal;
-
-			if (isReadOnly)
-			{
-				originalIsReadOnly = targetDictionary.IsReadOnly;
-				targetDictionary.IsReadOnly = true;
-			}
 		}
 
-		private void OnTargetAddedInternal(TKey key, TValue value)
+		private partial void OnTargetAddedInternal(TKey key, TValue value)
 		{
 			if (didAdd)
 			{
@@ -68,7 +41,7 @@ namespace Hertzole.UnityToolbox
 			}
 		}
 
-		private void OnTargetSetInternal(TKey key, TValue oldValue, TValue newValue)
+		private partial void OnTargetSetInternal(TKey key, TValue oldValue, TValue newValue)
 		{
 			if (didSet)
 			{
@@ -81,7 +54,7 @@ namespace Hertzole.UnityToolbox
 			}
 		}
 
-		private void OnTargetRemovedInternal(TKey key, TValue value)
+		private partial void OnTargetRemovedInternal(TKey key, TValue value)
 		{
 			if (didRemove)
 			{
@@ -94,7 +67,7 @@ namespace Hertzole.UnityToolbox
 			}
 		}
 
-		private void OnTargetClearedInternal()
+		private partial void OnTargetClearedInternal()
 		{
 			if (didClear)
 			{
@@ -229,50 +202,48 @@ namespace Hertzole.UnityToolbox
 			syncDictionary.Reset();
 		}
 
-		public void Dispose()
-		{
-			targetDictionary.OnAdded -= OnTargetAddedInternal;
-			targetDictionary.OnSet -= OnTargetSetInternal;
-			targetDictionary.OnRemoved -= OnTargetRemovedInternal;
-			targetDictionary.OnCleared -= OnTargetClearedInternal;
-
-			syncDictionary.OnSet -= OnSetInternal;
-			syncDictionary.OnInsert -= OnInsertInternal;
-			syncDictionary.OnRemove -= OnRemoveInternal;
-			syncDictionary.OnClear -= OnClearInternal;
-
-			if (isReadOnly)
-			{
-				targetDictionary.IsReadOnly = originalIsReadOnly;
-			}
-		}
-
-		public void Add(TKey key, TValue value)
+		private partial void OnAdd(TKey key, TValue value)
 		{
 			syncDictionary.Add(key, value);
 		}
 
-		public void Remove(TKey key)
+		private partial void OnRemove(TKey key)
 		{
 			syncDictionary.Remove(key);
 		}
 
-		public void Clear()
+		private partial void OnClear()
 		{
 			syncDictionary.Clear();
 		}
 
-		public bool ContainsKey(TKey key)
+		private partial TValue GetValue(TKey key)
+		{
+			return syncDictionary[key];
+		}
+
+		private partial void SetValue(TKey key, TValue newValue)
+		{
+			syncDictionary[key] = newValue;
+		}
+
+		public partial bool ContainsKey(TKey key)
 		{
 			return syncDictionary.ContainsKey(key);
 		}
 
-		public bool TryGetValue(TKey key, out TValue value)
+		public partial bool TryGetValue(TKey key, out TValue value)
 		{
 			return syncDictionary.TryGetValue(key, out value);
 		}
 
-		public TValue this[TKey key] { get { return syncDictionary[key]; } set { syncDictionary[key] = value; } }
+		private partial void OnDisposed()
+		{
+			syncDictionary.OnSet -= OnSetInternal;
+			syncDictionary.OnInsert -= OnInsertInternal;
+			syncDictionary.OnRemove -= OnRemoveInternal;
+			syncDictionary.OnClear -= OnClearInternal;
+		}
 	}
 }
 #endif
