@@ -27,7 +27,11 @@ namespace Hertzole.UnityToolbox
 			{
 				if (singletonInstance == null)
 				{
-					singletonInstance = FindObjectOfType<T>();
+#if UNITY_2023_1_OR_NEWER
+					singletonInstance = FindFirstObjectByType<T>();
+#else
+					singletonInstance = FindObjectOfType<T>();					
+#endif
 				}
 
 				return singletonInstance;

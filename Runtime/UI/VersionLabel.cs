@@ -1,4 +1,5 @@
-﻿using TMPro;
+﻿#if TOOLBOX_TMP
+using TMPro;
 using UnityEngine;
 
 namespace Hertzole.UnityToolbox
@@ -14,3 +15,4 @@ namespace Hertzole.UnityToolbox
 		}
 	}
 }
+#endif
