@@ -1,4 +1,4 @@
-﻿#if TOOLBOX_MIRAGE
+﻿#if TOOLBOX_PHYSICS_3D && (TOOLBOX_MIRAGE || FISHNET)
 #if TOOLBOX_CECIL_ATTRIBUTES
 using Hertzole.CecilAttributes;
 #endif
@@ -6,8 +6,12 @@ using Hertzole.CecilAttributes;
 using AuroraPunks.ScriptableValues;
 #endif
 using System;
-using Mirage;
 using UnityEngine;
+#if TOOLBOX_MIRAGE
+using Mirage;
+#elif FISHNET
+using FishNet.Object;
+#endif
 
 namespace Hertzole.UnityToolbox
 {
@@ -50,12 +54,26 @@ namespace Hertzole.UnityToolbox
 				OnTargetChanged?.Invoke(previousTarget, currentTarget);
 			}
 		}
+
+		private bool CanRunUpdate
+		{
+			get
+			{
+#if TOOLBOX_MIRAGE
+				return HasAuthority;
+#elif FISHNET
+				return IsOwner;
+#else
+				return false;
+#endif
+			}
+		}
 		
 		public event Action<T, T> OnTargetChanged; 
 
 		protected virtual void Update()
 		{
-			if (!HasAuthority)
+			if (!CanRunUpdate)
 			{
 				return;
 			}

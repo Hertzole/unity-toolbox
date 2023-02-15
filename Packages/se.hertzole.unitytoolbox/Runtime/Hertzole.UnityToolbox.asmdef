@@ -7,7 +7,8 @@
         "GUID:75469ad4d38634e559750d17036d5f7c",
         "GUID:6055be8ebefd69e48b49212b09b47b2f",
         "GUID:1a91e603eade47d42a03c9e9f4f5e8b6",
-        "GUID:30817c1a0e6d646d99c048fc403f5979"
+        "GUID:30817c1a0e6d646d99c048fc403f5979",
+        "GUID:7c88a4a7926ee5145ad2dfa06f454c67"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -36,6 +37,16 @@
             "name": "se.hertzole.cecil-attributes",
             "expression": "",
             "define": "TOOLBOX_CECIL_ATTRIBUTES"
+        },
+        {
+            "name": "com.unity.textmeshpro",
+            "expression": "",
+            "define": "TOOLBOX_TMP"
+        },
+        {
+            "name": "com.unity.modules.physics",
+            "expression": "",
+            "define": "TOOLBOX_PHYSICS_3D"
         }
     ],
     "noEngineReferences": false

@@ -1,11 +1,10 @@
-﻿#if TOOLBOX_MIRAGE
+﻿#if TOOLBOX_MIRAGE || FISHNET
 using System;
-using Mirage;
 using UnityEngine;
 
 namespace Hertzole.UnityToolbox
 {
-	public sealed class NetworkObjects : NetworkBehaviour
+	public sealed partial class NetworkObjects
 	{
 		public enum NetworkOwner
 		{
@@ -19,25 +18,17 @@ namespace Hertzole.UnityToolbox
 
 		private void Awake()
 		{
-			Identity.OnStartServer.AddListener(UpdateObjects);
-			Identity.OnStopServer.AddListener(UpdateObjects);
-			Identity.OnStartClient.AddListener(UpdateObjects);
-			Identity.OnStopClient.AddListener(UpdateObjects);
-			Identity.OnAuthorityChanged.AddListener(OnAuthorityChanged);
-		}
-
-		private void OnDestroy()
-		{
-			Identity.OnStartServer.RemoveListener(UpdateObjects);
-			Identity.OnStopServer.RemoveListener(UpdateObjects);
-			Identity.OnStartClient.RemoveListener(UpdateObjects);
-			Identity.OnStopClient.RemoveListener(UpdateObjects);
-			Identity.OnAuthorityChanged.RemoveListener(OnAuthorityChanged);
-		}
-
-		private void OnAuthorityChanged(bool hasAuthority)
-		{
-			UpdateObjects();
+			for (int i = 0; i < objects.Length; i++)
+			{
+				if (objects[i].TargetComponent != null)
+				{
+					objects[i].TargetComponent.enabled = false;
+				}
+				else
+				{
+					objects[i].TargetObject.SetActive(false);
+				}
+			}
 		}
 
 		private void UpdateObjects()
@@ -60,15 +51,19 @@ namespace Hertzole.UnityToolbox
 			switch (enableIf)
 			{
 				case NetworkOwner.Server:
-					return IsServer;
+					return AmIServer();
 				case NetworkOwner.OtherClient:
-					return !HasAuthority;
+					return !IsMe();
 				case NetworkOwner.LocalPlayer:
-					return HasAuthority || IsLocalPlayer;
+					return IsMe();
 				default:
 					throw new ArgumentOutOfRangeException(nameof(enableIf), enableIf, null);
 			}
 		}
+
+		private partial bool AmIServer();
+
+		private partial bool IsMe();
 
 		[Serializable]
 		public class NetworkedObject
