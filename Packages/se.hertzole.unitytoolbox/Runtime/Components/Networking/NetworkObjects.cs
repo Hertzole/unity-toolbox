@@ -16,21 +16,6 @@ namespace Hertzole.UnityToolbox
 		[SerializeField]
 		private NetworkedObject[] objects = default;
 
-		private void Awake()
-		{
-			for (int i = 0; i < objects.Length; i++)
-			{
-				if (objects[i].TargetComponent != null)
-				{
-					objects[i].TargetComponent.enabled = false;
-				}
-				else
-				{
-					objects[i].TargetObject.SetActive(false);
-				}
-			}
-		}
-
 		private void UpdateObjects()
 		{
 			foreach (NetworkedObject networkedObject in objects)

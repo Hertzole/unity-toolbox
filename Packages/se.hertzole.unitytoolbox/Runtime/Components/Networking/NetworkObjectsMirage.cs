@@ -3,10 +3,22 @@ using Mirage;
 
 namespace Hertzole.UnityToolbox
 {
-	public partial class NetworkObjects : NetworkBehavior
+	public partial class NetworkObjects : NetworkBehaviour
 	{
 		private void Awake()
 		{
+			for (int i = 0; i < objects.Length; i++)
+			{
+				if (objects[i].TargetComponent != null)
+				{
+					objects[i].TargetComponent.enabled = false;
+				}
+				else
+				{
+					objects[i].TargetObject.SetActive(false);
+				}
+			}
+			
 			Identity.OnStartServer.AddListener(UpdateObjects);
 			Identity.OnStopServer.AddListener(UpdateObjects);
 			Identity.OnStartClient.AddListener(UpdateObjects);

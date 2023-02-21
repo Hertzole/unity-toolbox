@@ -20,6 +20,10 @@ namespace Hertzole.UnityToolbox.Editor
 		public override VisualElement CreatePropertyGUI(SerializedProperty property)
 		{
 			VisualElement field = CreateGUI(property);
+			if (field == null)
+			{
+				return null;
+			}
 
 			field.RegisterCallback<AttachToPanelEvent, VisualElement>((evt, args) =>
 			{

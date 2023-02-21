@@ -27,7 +27,10 @@ namespace Hertzole.UnityToolbox
 			}
 		}
 
-		protected override void DrawGUI(Rect position, SerializedProperty property, GUIContent label) { }
+		protected override void DrawGUI(Rect position, SerializedProperty property, GUIContent label)
+		{
+			EditorGUI.LabelField(position, "Animator Parameter Drawer is not supported in IMGUI.");
+		}
 
 		protected override VisualElement CreateGUI(SerializedProperty property)
 		{
