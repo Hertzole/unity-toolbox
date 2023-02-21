@@ -24,9 +24,16 @@ namespace Hertzole.UnityToolbox
 
 			OnInitialized();
 		}
+		
+		~SyncedScriptableDictionary()
+		{
+			Dispose();
+		}
 
 		public void Dispose()
 		{
+			GC.SuppressFinalize(this);
+
 			targetDictionary.OnAdded -= OnItemAdded;
 			targetDictionary.OnSet -= OnItemSet;
 			targetDictionary.OnRemoved -= OnItemRemoved;

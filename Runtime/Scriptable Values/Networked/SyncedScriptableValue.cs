@@ -9,68 +9,30 @@ namespace Hertzole.UnityToolbox
 	{
 		private ScriptableValue<T> targetScriptableValue;
 
-		private bool originalReadOnly;
-		private readonly bool setReadOnly;
-
-		public T Value
-		{
-			get { return targetScriptableValue.Value; }
-			set
-			{
-				if (!CanModifyValue())
-				{
-					throw new InvalidOperationException("SyncedScriptableValues can only be modified on the server.");
-				}
-
-				if (setReadOnly)
-				{
-					targetScriptableValue.IsReadOnly = false;
-				}
-
-				if (!EqualityComparer<T>.Default.Equals(targetScriptableValue.Value, value))
-				{
-					bool oldEqualityCheck = targetScriptableValue.SetEqualityCheck;
-					targetScriptableValue.SetEqualityCheck = false;
-					targetScriptableValue.Value = value;
-					targetScriptableValue.SetEqualityCheck = oldEqualityCheck;
-
-					OnSetValue(value);
-				}
-
-				if (setReadOnly)
-				{
-					targetScriptableValue.IsReadOnly = true;
-				}
-			}
-		}
-
-		public SyncedScriptableValue(bool setReadOnly = true)
-		{
-			this.setReadOnly = setReadOnly;
-		}
-
-		public event ScriptableValue<T>.OldNewValue<T> OnValueChanging { add { targetScriptableValue.OnValueChanging += value; } remove { targetScriptableValue.OnValueChanging -= value; } }
-
-		public event ScriptableValue<T>.OldNewValue<T> OnValueChanged { add { targetScriptableValue.OnValueChanged += value; } remove { targetScriptableValue.OnValueChanged -= value; } }
-
 		public void Initialize(ScriptableValue<T> targetValue)
 		{
 			targetScriptableValue = targetValue;
-
-			if (targetScriptableValue != null && setReadOnly)
-			{
-				originalReadOnly = targetScriptableValue.IsReadOnly;
-				targetScriptableValue.IsReadOnly = true;
-			}
 			
+			targetValue.OnValueChanged += OnValueChangedInternal;
+
 			OnInitialized();
 		}
+
+		private void OnValueChangedInternal(T previousValue, T newValue)
+		{
+			if (!CanModifyValue())
+			{
+				throw new InvalidOperationException("Only server can modify value.");
+			}
+
+			OnValueChanged(previousValue, newValue);
+		}
+		
+		private partial void OnValueChanged(T previousValue, T newValue);
 
 		private partial void OnInitialized();
 
 		private partial bool CanModifyValue();
-
-		private partial void OnSetValue(T newValue);
 
 		~SyncedScriptableValue()
 		{
@@ -79,9 +41,9 @@ namespace Hertzole.UnityToolbox
 
 		private void ReleaseUnmanagedResources()
 		{
-			if (targetScriptableValue != null && setReadOnly)
+			if (targetScriptableValue != null)
 			{
-				targetScriptableValue.IsReadOnly = originalReadOnly;
+				targetScriptableValue.OnValueChanged -= OnValueChangedInternal;
 			}
 		}
 

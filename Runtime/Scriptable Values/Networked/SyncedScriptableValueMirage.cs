@@ -11,14 +11,35 @@ namespace Hertzole.UnityToolbox
 	{
 		private bool isReadOnly;
 
+		private bool didSet;
+		
 		public event Action OnChange;
 
 		public bool IsDirty { get; private set; }
 
-		private partial void OnSetValue(T newValue)
+		private partial void OnInitialized() { }
+
+		private partial bool CanModifyValue()
 		{
-			IsDirty = true;
-			OnChange?.Invoke();
+			if (didSet)
+			{
+				return true;
+			}
+			
+			return !isReadOnly;
+		}
+
+		private partial void OnValueChanged(T previousValue, T newValue)
+		{
+			if (didSet)
+			{
+				didSet = false;
+			}
+			else
+			{
+				IsDirty = true;
+				OnChange?.Invoke();
+			}
 		}
 
 		/// <summary>
@@ -31,11 +52,15 @@ namespace Hertzole.UnityToolbox
 
 		public void OnSerializeAll(NetworkWriter writer)
 		{
+			isReadOnly = false;
+			
 			writer.Write(targetScriptableValue.Value);
 		}
 
 		public void OnSerializeDelta(NetworkWriter writer)
 		{
+			isReadOnly = false;
+			
 			writer.Write(targetScriptableValue.Value);
 		}
 
@@ -51,24 +76,15 @@ namespace Hertzole.UnityToolbox
 
 		private void Deserialize(NetworkReader reader)
 		{
-			if (setReadOnly)
-			{
-				targetScriptableValue.IsReadOnly = false;
-			}
-			
 			isReadOnly = true;
 
+			didSet = true;
 			bool oldEqualityCheck = targetScriptableValue.SetEqualityCheck;
 			targetScriptableValue.SetEqualityCheck = false;
 			targetScriptableValue.Value = reader.Read<T>();
 			targetScriptableValue.SetEqualityCheck = oldEqualityCheck;
 
 			OnChange?.Invoke();
-
-			if (setReadOnly)
-			{
-				targetScriptableValue.IsReadOnly = true;
-			}
 		}
 
 		public void Reset()
