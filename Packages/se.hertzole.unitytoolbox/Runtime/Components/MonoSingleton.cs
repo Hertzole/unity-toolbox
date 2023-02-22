@@ -67,6 +67,8 @@ namespace Hertzole.UnityToolbox
 			{
 				DontDestroyOnLoad(gameObject);
 			}
+			
+			OnAwake();
 		}
 
 		protected virtual void OnAwake() { }

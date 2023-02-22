@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using AuroraPunks.ScriptableValues;
+using AuroraPunks.ScriptableValues.Helpers;
 using UnityEngine;
 
 namespace Hertzole.UnityToolbox.Matches
@@ -33,7 +34,7 @@ namespace Hertzole.UnityToolbox.Matches
 
 		public bool Matches()
 		{
-			return EqualityComparer<T>.Default.Equals(target.Value, mustMatchValue);
+			return EqualityHelper.Equals(target.Value, mustMatchValue);
 		}
 	}
 }

@@ -12,7 +12,7 @@ namespace Hertzole.UnityToolbox
 	{
 		[SerializeField]
 #if TOOLBOX_CECIL_ATTRIBUTES
-		[Required]
+		// [Required]
 #endif
 		private ScriptableValue<bool> lockCursor = default;
 
@@ -45,9 +45,10 @@ namespace Hertzole.UnityToolbox
 			OnValueChanged();
 		}
 
+		[LogCalled]
 		private void OnValueChanged()
 		{
-			lockCursor.Value = !AllMatches();
+			lockCursor.Value = AllMatches();
 		}
 
 		private bool AllMatches()
