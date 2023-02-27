@@ -38,7 +38,7 @@ namespace Hertzole.UnityToolbox
 		public T CurrentTarget
 		{
 			get { return currentTarget; }
-			private set
+			protected set
 			{
 				T previousTarget = currentTarget;
 				currentTarget = value;
