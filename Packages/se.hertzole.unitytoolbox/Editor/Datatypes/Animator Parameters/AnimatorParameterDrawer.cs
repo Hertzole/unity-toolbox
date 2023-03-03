@@ -1,10 +1,12 @@
 ﻿#if TOOLBOX_ANIMATION
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Hertzole.UnityToolbox.Editor;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
+using UnityEngine.Profiling;
 using UnityEngine.UIElements;
 
 namespace Hertzole.UnityToolbox
@@ -12,6 +14,12 @@ namespace Hertzole.UnityToolbox
 	public abstract class AnimatorParameterDrawer : ToolboxPropertyDrawer
 	{
 		private readonly List<ParameterData> parameters = new List<ParameterData>();
+		private readonly HashSet<AnimatorController> controllers = new HashSet<AnimatorController>();
+		private static readonly StringBuilder stringBuilder = new StringBuilder();
+		private readonly List<int> choices = new List<int>();
+		private readonly List<string> availableChoices = new List<string>();
+
+		private GUIContent[] choicesArray;
 
 		public abstract AnimatorControllerParameterType ParameterType { get; }
 
@@ -29,13 +37,61 @@ namespace Hertzole.UnityToolbox
 
 		protected override void DrawGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
-			EditorGUI.LabelField(position, "Animator Parameter Drawer is not supported in IMGUI.");
+			FindAnimators(property);
+			availableChoices.Clear();
+
+			for (int i = 0; i < parameters.Count; i++)
+			{
+				availableChoices.Add(parameters[i].path);
+			}
+
+			if (!IsArrayAndListEqual(availableChoices, choicesArray))
+			{
+				choicesArray = new GUIContent[availableChoices.Count];
+				for (int i = 0; i < availableChoices.Count; i++)
+				{
+					choicesArray[i] = new GUIContent(availableChoices[i]);
+				}
+			}
+
+			SerializedProperty nameProperty = property.FindPropertyRelative("name");
+			int selectedIndex = GetSelectedIndex(parameters, nameProperty.stringValue);
+
+			EditorGUI.BeginChangeCheck();
+			int value = EditorGUI.Popup(position, label, selectedIndex, choicesArray);
+			if (EditorGUI.EndChangeCheck())
+			{
+				nameProperty.stringValue = parameters[value].name;
+			}
+		}
+
+		private static bool IsArrayAndListEqual(IReadOnlyList<string> list, IReadOnlyList<GUIContent> array)
+		{
+			if (array == null)
+			{
+				return false;
+			}
+
+			if (list.Count != array.Count)
+			{
+				return false;
+			}
+
+			for (int i = 0; i < list.Count; i++)
+			{
+				if (!string.Equals(list[i], array[i].text, StringComparison.Ordinal))
+				{
+					return false;
+				}
+			}
+
+			return true;
 		}
 
 		protected override VisualElement CreateGUI(SerializedProperty property)
 		{
 			FindAnimators(property);
-			List<int> choices = new List<int>(parameters.Count);
+			choices.Clear();
 
 			for (int i = 0; i < parameters.Count; i++)
 			{
@@ -46,11 +102,11 @@ namespace Hertzole.UnityToolbox
 			int selectedIndex = GetSelectedIndex(parameters, nameProperty.stringValue);
 
 			PopupField<int> popupField = new PopupField<int>(property.displayName, choices, selectedIndex, FormatParameterName, FormatParameterName);
-			popupField.RegisterValueChangedCallback(evt =>
+			popupField.RegisterCallback<ChangeEvent<int>, SerializedProperty>((evt, prop) =>
 			{
-				nameProperty.stringValue = parameters[evt.newValue].name;
-				nameProperty.serializedObject.ApplyModifiedProperties();
-			});
+				prop.stringValue = parameters[evt.newValue].name;
+				prop.serializedObject.ApplyModifiedProperties();
+			}, nameProperty);
 
 			popupField.SetEnabled(parameters.Count != 0);
 
@@ -74,7 +130,9 @@ namespace Hertzole.UnityToolbox
 
 		private void FindAnimators(SerializedProperty property)
 		{
-			HashSet<AnimatorController> controllers = new HashSet<AnimatorController>();
+			Profiler.BeginSample("Find Animators");
+
+			controllers.Clear();
 
 			SerializedProperty iterator = property.serializedObject.GetIterator();
 			while (iterator.Next(true))
@@ -113,10 +171,14 @@ namespace Hertzole.UnityToolbox
 
 			bool isSingle = controllers.Count == 1;
 
+			parameters.Clear();
+
 			foreach (AnimatorController controller in controllers)
 			{
 				FindParameters(controller, parameters, isSingle, ParameterType);
 			}
+
+			Profiler.EndSample();
 		}
 
 		private static AnimatorController FindController(Animator animator)
@@ -139,8 +201,6 @@ namespace Hertzole.UnityToolbox
 
 		private static void FindParameters(AnimatorController controller, List<ParameterData> parameters, bool isSingle, AnimatorControllerParameterType type)
 		{
-			StringBuilder sb = new StringBuilder();
-
 			foreach (AnimatorControllerParameter parameter in controller.parameters)
 			{
 				if (parameter.type != type)
@@ -148,15 +208,15 @@ namespace Hertzole.UnityToolbox
 					continue;
 				}
 
-				sb.Clear();
+				stringBuilder.Clear();
 				if (!isSingle)
 				{
-					sb.Append($"{controller.name}/");
+					stringBuilder.Append($"{controller.name}/");
 				}
 
-				sb.Append(parameter.name);
+				stringBuilder.Append(parameter.name);
 
-				parameters.Add(new ParameterData(sb.ToString(), parameter.name));
+				parameters.Add(new ParameterData(stringBuilder.ToString(), parameter.name));
 			}
 		}
 
