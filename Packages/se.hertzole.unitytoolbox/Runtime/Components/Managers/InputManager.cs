@@ -1,6 +1,10 @@
 ﻿#if TOOLBOX_INPUT_SYSTEM && TOOLBOX_SCRIPTABLE_VALUES
 using UnityEngine;
 using UnityEngine.InputSystem;
+#if TOOLBOX_ADDRESSABLES
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
+#endif
 
 namespace Hertzole.UnityToolbox
 {
@@ -10,13 +14,18 @@ namespace Hertzole.UnityToolbox
 	[DefaultExecutionOrder(-1_000_000)]
 	public class InputManager : MonoBehaviour
 	{
+#if TOOLBOX_ADDRESSABLES
+		[SerializeField]
+		private bool useAddressables = false;
+		[SerializeField]
+		private AssetReferenceT<ScriptablePlayerInputsList> inputsListReference = default;
+#endif
 		[SerializeField]
 		private ScriptablePlayerInputsList inputsList = default;
 		[SerializeField]
 		[HideInInspector]
 		private PlayerInput playerInput = default;
-
-		[Space]
+		
 		[SerializeField]
 		private bool enableOnStart = true;
 		[SerializeField]
@@ -25,9 +34,22 @@ namespace Hertzole.UnityToolbox
 		private bool autoDisableRemovedInputs = true;
 
 		private bool isEnabled;
+		private bool hasSubscribed;
+
+#if TOOLBOX_ADDRESSABLES
+		private AsyncOperationHandle<ScriptablePlayerInputsList>? assetHandle;
+#endif
 
 		private void Start()
 		{
+#if TOOLBOX_ADDRESSABLES
+			if (useAddressables)
+			{
+				assetHandle = Addressables.LoadAssetAsync<ScriptablePlayerInputsList>(inputsListReference);
+				assetHandle.Value.Completed += OnLoadedAsset;
+			}
+			else
+#endif
 			if (enableOnStart)
 			{
 				EnableInput();
@@ -36,22 +58,40 @@ namespace Hertzole.UnityToolbox
 
 		private void OnEnable()
 		{
-			inputsList.OnAddedOrInserted += OnInputAdded;
-			inputsList.OnRemoved += OnInputRemoved;
+			if (inputsList != null && !hasSubscribed)
+			{
+				SubscribeToEvents();
+			}
 		}
 
 		private void OnDisable()
 		{
-			inputsList.OnAddedOrInserted -= OnInputAdded;
-			inputsList.OnRemoved -= OnInputRemoved;
+			if (inputsList != null && hasSubscribed)
+			{
+				inputsList.OnAddedOrInserted -= OnInputAdded;
+				inputsList.OnRemoved -= OnInputRemoved;
+				hasSubscribed = false;
+			}
 		}
 
 		private void OnDestroy()
 		{
+			if (inputsList == null)
+			{
+				return;
+			}
+
 			if (isEnabled)
 			{
 				DisableInput();
 			}
+
+#if TOOLBOX_ADDRESSABLES
+			if (assetHandle != null)
+			{
+				Addressables.Release(assetHandle.Value);
+			}
+#endif
 		}
 
 		public void EnableInput()
@@ -72,6 +112,30 @@ namespace Hertzole.UnityToolbox
 			{
 				inputsList[i].DisableInput(playerInput);
 			}
+		}
+
+#if TOOLBOX_ADDRESSABLES
+		private void OnLoadedAsset(AsyncOperationHandle<ScriptablePlayerInputsList> operation)
+		{
+			inputsList = operation.Result;
+
+			if (!hasSubscribed)
+			{
+				SubscribeToEvents();
+			}
+
+			if (enableOnStart)
+			{
+				EnableInput();
+			}
+		}
+#endif
+
+		private void SubscribeToEvents()
+		{
+			inputsList.OnAddedOrInserted += OnInputAdded;
+			inputsList.OnRemoved += OnInputRemoved;
+			hasSubscribed = true;
 		}
 
 		private void OnInputAdded(int arg1, IHasPlayerInput arg2)
@@ -107,6 +171,13 @@ namespace Hertzole.UnityToolbox
 			{
 				playerInput = GetComponent<PlayerInput>();
 			}
+
+#if TOOLBOX_ADDRESSABLES
+			if (useAddressables && inputsList != null && !Application.isPlaying)
+			{
+				inputsList = null;
+			}
+#endif
 		}
 #endif
 	}
