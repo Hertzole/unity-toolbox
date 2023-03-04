@@ -14,10 +14,7 @@ namespace Hertzole.UnityToolbox
 		{
 			if (HasAuthority)
 			{
-				foreach (IHasPlayerInput input in inputs)
-				{
-					inputsList.Remove(input);
-				}
+				RemoveInputs();
 			}
 		}
 
@@ -27,17 +24,20 @@ namespace Hertzole.UnityToolbox
 			{
 				inputs ??= GetComponentsInChildren<IHasPlayerInput>();
 
-				foreach (IHasPlayerInput input in inputs)
+#if TOOLBOX_ADDRESSABLES
+				if (useAddressable)
 				{
-					inputsList.Add(input);
+					LoadInputs();
+				}
+				else
+#endif
+				{
+					AddInputs();
 				}
 			}
 			else
 			{
-				foreach (IHasPlayerInput input in inputs)
-				{
-					inputsList.Remove(input);
-				}
+				RemoveInputs();
 			}
 		}
 	}
