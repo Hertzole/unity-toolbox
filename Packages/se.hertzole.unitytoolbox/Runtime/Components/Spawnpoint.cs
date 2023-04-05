@@ -1,4 +1,8 @@
 using UnityEngine;
+#if TOOLBOX_SCRIPTABLE_VALUES && TOOLBOX_ADDRESSABLES
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
+#endif
 
 namespace Hertzole.UnityToolbox
 {
@@ -15,6 +19,12 @@ namespace Hertzole.UnityToolbox
 		[SerializeField]
 		private Vector3 size = new Vector3(0.8f, 2f, 0.8f);
 #if TOOLBOX_SCRIPTABLE_VALUES
+#if TOOLBOX_ADDRESSABLES
+		[SerializeField] 
+		private bool useAddressables = false;
+		[SerializeField] 
+		private AssetReferenceT<ScriptableSpawnpointsList> spawnpointsListReference = default;
+#endif
 		[SerializeField]
 		private ScriptableSpawnpointsList spawnpointsList = default;
 #endif
@@ -22,7 +32,13 @@ namespace Hertzole.UnityToolbox
 		[HideInInspector]
 		private Vector3[] corners = default;
 
+		private bool hasAddedToList;
+		
 		public const int CORNERS_COUNT = 8;
+		
+#if TOOLBOX_ADDRESSABLES && TOOLBOX_SCRIPTABLE_VALUES
+		private AsyncOperationHandle<ScriptableSpawnpointsList>? spawnpointsListHandle;
+#endif
 
 		public Vector3 GetRandomRotation()
 		{
@@ -40,19 +56,49 @@ namespace Hertzole.UnityToolbox
 		}
 
 #if TOOLBOX_SCRIPTABLE_VALUES
+#if TOOLBOX_ADDRESSABLES
+		private void Awake()
+		{
+			if (useAddressables)
+			{
+				spawnpointsListHandle = spawnpointsListReference.LoadAsync();
+				spawnpointsListHandle.Value.Completed += handle =>
+				{
+					if (handle.Status == AsyncOperationStatus.Succeeded)
+					{
+						spawnpointsList = handle.Result;
+						
+						if (spawnpointsList != null && !hasAddedToList)
+						{
+							spawnpointsList.Add(this);
+							hasAddedToList = true;
+						}
+					}
+				};
+			}
+		}
+
+		private void OnDestroy()
+		{
+			spawnpointsListHandle.Release();
+		}
+#endif
+		
 		private void OnEnable()
 		{
-			if (spawnpointsList != null)
+			if (spawnpointsList != null && !hasAddedToList)
 			{
 				spawnpointsList.Add(this);
+				hasAddedToList = true;
 			}
 		}
 
 		private void OnDisable()
 		{
-			if (spawnpointsList != null)
+			if (spawnpointsList != null && hasAddedToList)
 			{
 				spawnpointsList.Remove(this);
+				hasAddedToList = false;
 			}
 		}
 #endif
@@ -128,6 +174,16 @@ namespace Hertzole.UnityToolbox
 		{
 			// Does nothing.
 		}
+		
+#if TOOLBOX_ADDRESSABLES && TOOLBOX_SCRIPTABLE_VALUES
+		private void OnValidate()
+		{
+			if (useAddressables)
+			{
+				spawnpointsList = null;
+			}
+		}
+#endif
 #endif
 	}
 }

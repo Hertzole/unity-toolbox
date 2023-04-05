@@ -53,13 +53,11 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_ADDRESSABLES
 		private void LoadInputs()
 		{
-			Debug.Log("Load inputs");
 			inputsHandle = inputsListReference.LoadAsync(handle =>
 			{
 				if (handle.Status == AsyncOperationStatus.Succeeded)
 				{
 					inputsList = handle.Result;
-					Debug.Log("Loaded inputs");
 					AddInputs();
 				}
 			});
