@@ -1,5 +1,6 @@
 ﻿#if TOOLBOX_SCRIPTABLE_VALUES && TOOLBOX_MIRAGE
 using System;
+using System.Collections.Generic;
 using Mirage.Collections;
 using Mirage.Serialization;
 
@@ -11,7 +12,7 @@ namespace Hertzole.UnityToolbox
 		private bool didSet;
 		private bool didRemove;
 
-		public readonly SyncDictionary<TKey, TValue> syncDictionary = new SyncDictionary<TKey, TValue>();
+		private readonly SyncDictionary<TKey, TValue> syncDictionary = new SyncDictionary<TKey, TValue>();
 		private bool didClear;
 
 		public bool IsDirty { get { return syncDictionary.IsDirty; } }
@@ -20,6 +21,21 @@ namespace Hertzole.UnityToolbox
 
 		private partial void OnInitialized()
 		{
+			// Add all the existing values from the sync dictionary to the target dictionary.
+			foreach (KeyValuePair<TKey, TValue> valuePair in syncDictionary)
+			{
+				if (targetDictionary.ContainsKey(valuePair.Key))
+				{
+					didSet = true;
+					targetDictionary[valuePair.Key] = valuePair.Value;
+				}
+				else
+				{
+					didAdd = true;
+					targetDictionary.Add(valuePair.Key, valuePair.Value);
+				}
+			}
+
 			syncDictionary.OnSet += OnSetInternal;
 			syncDictionary.OnInsert += OnInsertInternal;
 			syncDictionary.OnRemove += OnRemoveInternal;
@@ -86,8 +102,16 @@ namespace Hertzole.UnityToolbox
 			}
 			else
 			{
-				didSet = true;
-				targetDictionary[key] = newValue;
+				if (targetDictionary.ContainsKey(key))
+				{
+					didSet = true;
+					targetDictionary[key] = newValue;
+				}
+				else
+				{
+					didAdd = true;
+					targetDictionary.Add(key, newValue);
+				}
 			}
 		}
 

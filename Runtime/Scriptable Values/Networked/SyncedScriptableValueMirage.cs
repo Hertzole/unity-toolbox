@@ -9,15 +9,27 @@ namespace Hertzole.UnityToolbox
 {
 	public sealed partial class SyncedScriptableValue<T> : ISyncObject
 	{
+		private T value;
+		
 		private bool isReadOnly;
-
 		private bool didSet;
+		private bool hasValue;
 		
 		public event Action OnChange;
 
 		public bool IsDirty { get; private set; }
 
-		private partial void OnInitialized() { }
+		private partial void OnInitialized()
+		{
+			if (hasValue)
+			{
+				didSet = true;
+				bool oldEqualityCheck = targetScriptableValue.SetEqualityCheck;
+				targetScriptableValue.SetEqualityCheck = false;
+				targetScriptableValue.Value = value;
+				targetScriptableValue.SetEqualityCheck = oldEqualityCheck;
+			}
+		}
 
 		private partial bool CanModifyValue()
 		{
@@ -53,15 +65,18 @@ namespace Hertzole.UnityToolbox
 		public void OnSerializeAll(NetworkWriter writer)
 		{
 			isReadOnly = false;
+
+			if (targetScriptableValue == null)
+			{
+				return;
+			}
 			
 			writer.Write(targetScriptableValue.Value);
 		}
 
 		public void OnSerializeDelta(NetworkWriter writer)
 		{
-			isReadOnly = false;
-			
-			writer.Write(targetScriptableValue.Value);
+			OnSerializeAll(writer);
 		}
 
 		public void OnDeserializeAll(NetworkReader reader)
@@ -78,11 +93,19 @@ namespace Hertzole.UnityToolbox
 		{
 			isReadOnly = true;
 
+			if (targetScriptableValue == null)
+			{
+				value = reader.Read<T>();
+				hasValue = true;
+				return;
+			}
+
 			didSet = true;
 			bool oldEqualityCheck = targetScriptableValue.SetEqualityCheck;
 			targetScriptableValue.SetEqualityCheck = false;
 			targetScriptableValue.Value = reader.Read<T>();
 			targetScriptableValue.SetEqualityCheck = oldEqualityCheck;
+			hasValue = false;
 
 			OnChange?.Invoke();
 		}
