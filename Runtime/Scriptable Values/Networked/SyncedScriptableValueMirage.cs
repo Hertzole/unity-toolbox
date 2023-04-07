@@ -1,7 +1,7 @@
 ﻿#if TOOLBOX_MIRAGE && TOOLBOX_SCRIPTABLE_VALUES
 using System;
 using System.Collections.Generic;
-using AuroraPunks.ScriptableValues;
+using Hertzole.ScriptableValues;
 using Mirage.Collections;
 using Mirage.Serialization;
 

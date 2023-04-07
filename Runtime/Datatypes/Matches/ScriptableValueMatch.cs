@@ -1,8 +1,7 @@
 ﻿#if TOOLBOX_SCRIPTABLE_VALUES
 using System;
-using System.Collections.Generic;
-using AuroraPunks.ScriptableValues;
-using AuroraPunks.ScriptableValues.Helpers;
+using Hertzole.ScriptableValues;
+using Hertzole.ScriptableValues.Helpers;
 using UnityEngine;
 
 namespace Hertzole.UnityToolbox.Matches

@@ -1,5 +1,5 @@
 ﻿#if TOOLBOX_INPUT_SYSTEM && TOOLBOX_SCRIPTABLE_VALUES
-using AuroraPunks.ScriptableValues;
+using Hertzole.ScriptableValues;
 using UnityEngine;
 
 namespace Hertzole.UnityToolbox

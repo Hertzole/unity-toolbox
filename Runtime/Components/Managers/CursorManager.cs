@@ -1,5 +1,5 @@
 ﻿#if TOOLBOX_SCRIPTABLE_VALUES
-using AuroraPunks.ScriptableValues;
+using Hertzole.ScriptableValues;
 using UnityEngine;
 #if TOOLBOX_CECIL_ATTRIBUTES
 using Hertzole.CecilAttributes;

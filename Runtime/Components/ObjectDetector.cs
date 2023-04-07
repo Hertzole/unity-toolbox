@@ -5,7 +5,7 @@ using UnityEngine;
 using Hertzole.CecilAttributes;
 #endif
 #if TOOLBOX_SCRIPTABLE_VALUES
-using AuroraPunks.ScriptableValues;
+using Hertzole.ScriptableValues;
 #endif
 
 namespace Hertzole.UnityToolbox

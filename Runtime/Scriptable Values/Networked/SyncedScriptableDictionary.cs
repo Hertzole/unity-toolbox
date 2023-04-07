@@ -1,6 +1,6 @@
 ﻿#if TOOLBOX_SCRIPTABLE_VALUES && (TOOLBOX_MIRAGE || FISHNET)
 using System;
-using AuroraPunks.ScriptableValues;
+using Hertzole.ScriptableValues;
 
 namespace Hertzole.UnityToolbox
 {
