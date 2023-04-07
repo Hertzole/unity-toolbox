@@ -27,7 +27,7 @@
             "define": "TOOLBOX_INPUT_SYSTEM"
         },
         {
-            "name": "com.aurorapunks.aurorascriptablevalues",
+            "name": "se.hertzole.scriptable-values",
             "expression": "",
             "define": "TOOLBOX_SCRIPTABLE_VALUES"
         },

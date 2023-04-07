@@ -1,10 +1,11 @@
-﻿using UnityEditor;
+﻿#if TOOLBOX_INPUT_SYSTEM && TOOLBOX_SCRIPTABLE_VALUES
+using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
 namespace Hertzole.UnityToolbox.Editor
 {
-	[CustomEditor(typeof(InputManager))]
+	[CustomEditor(typeof(Hertzole.UnityToolbox.InputManager))]
 	public sealed class InputManagerEditor : UnityEditor.Editor
 	{
 		private SerializedProperty inputsList;
@@ -99,3 +100,4 @@ namespace Hertzole.UnityToolbox.Editor
 #endif
 	}
 }
+#endif
