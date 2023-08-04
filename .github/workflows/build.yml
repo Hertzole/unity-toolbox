@@ -1,0 +1,163 @@
+name: Test and Build
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'Generator/**'
+      - 'Assets/**'
+      - 'Packages/**'
+      - '.github/workflows/**'
+
+env:
+      UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+
+jobs:
+  generator:
+    name: Test and Build Generator
+    runs-on: ubuntu-latest
+    container: unityci/editor:ubuntu-2021.3.26f1-base-1.0.1
+    outputs:
+      has_changes: ${{ steps.filter.outputs.workflows }}
+    steps:
+      - name: Install Node
+        run: |
+          curl -sL https://deb.nodesource.com/setup_14.x | bash -
+          apt-get install -y nodejs
+
+      - uses: actions/checkout@v3
+
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            workflows:
+              - 'Generator/**'
+
+      - name: Cache Library
+        uses: actions/cache@v3.0.11
+        if: steps.filter.outputs.workflows == 'true'
+        with:
+          path: Library
+          key: LibraryFolder
+          restore-keys: |
+            LibraryFolder
+
+      - name: Setup Unity
+        if: steps.filter.outputs.workflows == 'true'
+        continue-on-error: true
+        env: 
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        run: |
+          echo "$UNITY_LICENSE" | tr -d '\r' > License.ulf
+          unity-editor -nographics -logFile /dev/stdout -manualLicenseFile License.ulf -quit 
+          unity-editor -nographics -logFile /dev/stdout -customBuildName unity-toolbox -projectPath . -executeMethod GitTools.Solution.Sync -quit
+
+      - name: Install .NET
+        uses: actions/setup-dotnet@v2.1.0
+        if: steps.filter.outputs.workflows == 'true'
+        with:
+          dotnet-version: |
+            6.x
+
+      - name: Test Generator
+        if: steps.filter.outputs.workflows == 'true'
+        run: |
+          cd Generator
+          dotnet test
+
+      - name: Build Generator
+        if: steps.filter.outputs.workflows == 'true'
+        run: |
+          cd Generator
+          dotnet publish -c Release -o ../GeneratorBuild
+          cd ..
+          git add Packages/se.hertzole.unitytoolbox/Plugins/Hertzole.UnityToolbox.Generator.dll
+          git commit -m "Updated generator"
+          git push -f -u origin master
+
+  unity:
+    name: Test and Build Unity Package
+    runs-on: ubuntu-latest
+    needs: generator
+    container: unityci/editor:ubuntu-2021.3.26f1-base-1.0.1
+    steps:
+      - name: Install Node
+        run: |
+          curl -sL https://deb.nodesource.com/setup_14.x | bash -
+          apt-get install -y nodejs
+
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Cache Library
+        uses: actions/cache@v3.0.11
+        with:
+          path: Library
+          key: LibraryFolder
+          restore-keys: |
+            LibraryFolder
+
+      - name: Setup Unity
+        continue-on-error: true
+        env: 
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        run: |
+          echo "$UNITY_LICENSE" | tr -d '\r' > License.ulf
+          unity-editor -nographics -logFile /dev/stdout -manualLicenseFile License.ulf -quit 
+          unity-editor -nographics -logFile /dev/stdout -customBuildName unity-toolbox -projectPath . -executeMethod GitTools.Solution.Sync -quit
+
+      - name: Run Play Mode Tests
+        run: unity-editor -nographics -logFile /dev/stdout -runTests -testPlatform playmode -testResults Tests/playmode.xml -enableCodeCoverage -coverageResultsPath TestCoverage -debugCodeOptimization -coverageOptions "generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+Hertzole.UnityToolbox"
+
+      - name: Release
+        id: semantic
+        uses: cycjimmy/semantic-release-action@v3
+        with:
+          extra_plugins: |
+            @semantic-release/exec
+            @semantic-release/changelog
+            @semantic-release/git
+          branch: master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Package Branch
+        run: |
+          git branch -d package &> /dev/null || echo package branch not found
+          git subtree split -P "$PKG_ROOT" -b package
+          if [[ -d "Assets/Samples" ]]; then
+            mv "Assets/Samples" /tmp/example
+          fi
+          if [[ -d "README.md" ]]; then
+            mv README.md /tmp/README.md
+          fi
+          git checkout package
+          mkdir "Samples~"
+          if [[ -d "/tmp/example" ]]; then
+            mv /tmp/example/* "Samples~/"
+            git add "Samples~"
+          fi
+          if [[ -f "/tmp/README.md" ]]; then
+            mv /tmp/README.md README.md
+            git add README.md
+          fi
+          if [[ -d "Tests" ]]; then
+            rm -rf Tests
+            rm -f Tests.meta
+          fi
+          git config --global user.name 'github-bot'
+          git config --global user.email 'github-bot@users.noreply.github.com'
+          git commit -am "Packaged project"
+          git push -f -u origin package
+        env:
+          PKG_ROOT: "Packages/se.hertzole.unitytoolbox"
+
+      - name: Create Release Tag
+        if: steps.semantic.outputs.new_release_published == 'true'
+        run: |
+          git tag $TAG upm
+          git push origin --tags
+        env:
+          TAG: upm/v${{ steps.semantic.outputs.new_release_version }}
