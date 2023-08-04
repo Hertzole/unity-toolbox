@@ -8,14 +8,14 @@ plugins:
         Packages/se.hertzole.unitytoolbox/Editor/AssemblyInfo.cs
         Generator/Hertzole.UnityToolbox.Generator/AssemblyInfo.cs"
   - - '@semantic-release/changelog'
-    - changelogFile: 'Hertzole/se.hertzole.unitytoolbox/CHANGELOG.md'
+    - changelogFile: 'Packages/se.hertzole.unitytoolbox/CHANGELOG.md'
   - - '@semantic-release/npm'
     - npmPublish: false
-      pkgRoot: "Hertzole/se.hertzole.unitytoolbox"
+      pkgRoot: "Packages/se.hertzole.unitytoolbox"
   - - '@semantic-release/git'
     - assets:
         - 'Packages/se.hertzole.unitytoolbox/Runtime/AssemblyInfo.cs'
         - 'Packages/se.hertzole.unitytoolbox/Editor/AssemblyInfo.cs'
         - 'Generator/Hertzole.UnityToolbox.Generator/AssemblyInfo.cs'
-        - 'Hertzole/se.hertzole.unitytoolbox/package.json'
-        - 'Hertzole/se.hertzole.unitytoolbox/CHANGELOG.md'
+        - 'Packages/se.hertzole.unitytoolbox/package.json'
+        - 'Packages/se.hertzole.unitytoolbox/CHANGELOG.md'
