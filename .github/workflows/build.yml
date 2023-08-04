@@ -38,6 +38,9 @@ jobs:
           fetch-depth: 0
           lfs: true
 
+      - name: Safe repo
+        run: git config --global --add safe.directory /__w/unity-toolbox/unity-toolbox
+
       - uses: dorny/paths-filter@v2
         id: filter
         with:
@@ -110,6 +113,10 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          lfs: true
+
+      - name: Safe repo
+        run: git config --global --add safe.directory /__w/unity-toolbox/unity-toolbox
 
       - name: Cache Library
         uses: actions/cache@v3.0.11
