@@ -13,11 +13,10 @@ namespace Hertzole.UnityToolbox
 
 	public abstract class MonoSingleton<T> : MonoBehaviour where T : Object
 	{
-		[Header("Singleton Settings")]
 		[SerializeField]
-		private bool keepAlive = true;
+		internal bool keepAlive = true;
 		[SerializeField]
-		private SingletonDestroyStrategy destroyStrategy = default;
+		internal SingletonDestroyStrategy destroyStrategy = default;
 
 		private static T singletonInstance;
 
@@ -30,7 +29,7 @@ namespace Hertzole.UnityToolbox
 #if UNITY_2023_1_OR_NEWER
 					singletonInstance = FindFirstObjectByType<T>();
 #else
-					singletonInstance = FindObjectOfType<T>();					
+					singletonInstance = FindObjectOfType<T>();
 #endif
 				}
 
@@ -67,7 +66,7 @@ namespace Hertzole.UnityToolbox
 			{
 				DontDestroyOnLoad(gameObject);
 			}
-			
+
 			OnAwake();
 		}
 

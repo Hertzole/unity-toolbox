@@ -1,13 +1,23 @@
 ﻿using UnityEditor;
 using UnityEditor.UIElements;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Hertzole.UnityToolbox.Editor
 {
+	[CustomEditor(typeof(MonoSingleton<>), true)]
 	public class MonoSingletonEditor : UnityEditor.Editor
 	{
 		protected SerializedProperty keepAlive;
 		protected SerializedProperty destroyStrategy;
+
+		private static readonly string[] ignoreProperties =
+			{ "m_Script", nameof(MonoSingleton<Object>.keepAlive), nameof(MonoSingleton<Object>.destroyStrategy) };
+
+		protected virtual bool CreateDefaultInspector
+		{
+			get { return true; }
+		}
 
 		protected virtual void OnEnable()
 		{
@@ -28,8 +38,25 @@ namespace Hertzole.UnityToolbox.Editor
 			PropertyField destroyStrategyField = new PropertyField(destroyStrategy);
 			destroyStrategyField.Bind(serializedObject);
 
+			root.Add(new Label("Singleton Settings")
+			{
+				style =
+				{
+					unityFontStyleAndWeight = FontStyle.Bold,
+					marginLeft = 3,
+					marginTop = 2
+				}
+			});
+
 			root.Add(keepAliveField);
 			root.Add(destroyStrategyField);
+
+			if (CreateDefaultInspector)
+			{
+				root.Add(VisiaulElementUtilities.VerticalSpace());
+
+				InspectorUtilities.CreateDefaultInspector(serializedObject, root, ignoreProperties);
+			}
 
 			return root;
 		}
