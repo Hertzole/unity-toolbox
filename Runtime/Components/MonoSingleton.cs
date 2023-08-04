@@ -6,17 +6,22 @@ namespace Hertzole.UnityToolbox
 {
 	public enum SingletonDestroyStrategy
 	{
-		DestroyNewest = 0,
-		DestroyOldest = 1,
-		KeepBoth = 2
+		DestroyNewestComponent = 0,
+		DestroyOldestComponent = 1,
+		KeepBoth = 2,
+		DestroyNewestGameObject = 3,
+		DestroyOldestGameObject = 4
 	}
 
+	[DisallowMultipleComponent]
 	public abstract class MonoSingleton<T> : MonoBehaviour where T : Object
 	{
 		[SerializeField]
+		[Tooltip("If keep alive is true, the singleton will not be destroyed when a new scene is loaded.")]
 		internal bool keepAlive = true;
 		[SerializeField]
-		internal SingletonDestroyStrategy destroyStrategy = default;
+		[Tooltip("What should happen if there are multiple instances of the singleton.\nDestroy newest component only removes the component from the newest object.\nDestroy oldest component only removes the component from the oldest object.\nKeep both keeps both components.\nDestroy newest game object destroys the game object with the newest component.\nDestroy oldest game object destroys the game object with the oldest component.")]
+		internal SingletonDestroyStrategy destroyStrategy = SingletonDestroyStrategy.DestroyNewestGameObject;
 
 		private static T singletonInstance;
 
@@ -43,18 +48,30 @@ namespace Hertzole.UnityToolbox
 			{
 				switch (destroyStrategy)
 				{
-					case SingletonDestroyStrategy.DestroyNewest:
-						Destroy(gameObject);
+					case SingletonDestroyStrategy.DestroyNewestComponent:
+						Destroy(this);
 						return;
-					case SingletonDestroyStrategy.DestroyOldest:
+					case SingletonDestroyStrategy.DestroyOldestComponent:
 						if (singletonInstance is Component comp)
 						{
-							Destroy(comp.gameObject);
+							singletonInstance = (T) (object) comp;
+							Destroy(comp);
 						}
 
 						break;
 					case SingletonDestroyStrategy.KeepBoth:
+						break;
+					case SingletonDestroyStrategy.DestroyNewestGameObject:
+						Destroy(gameObject);
 						return;
+					case SingletonDestroyStrategy.DestroyOldestGameObject:
+						if (singletonInstance is Component comp2)
+						{
+							singletonInstance = (T) (object) comp2;
+							Destroy(comp2.gameObject);
+						}
+
+						break;
 					default:
 						throw new ArgumentOutOfRangeException();
 				}

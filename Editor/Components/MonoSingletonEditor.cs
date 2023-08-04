@@ -6,13 +6,14 @@ using UnityEngine.UIElements;
 namespace Hertzole.UnityToolbox.Editor
 {
 	[CustomEditor(typeof(MonoSingleton<>), true)]
+	[CanEditMultipleObjects]
 	public class MonoSingletonEditor : UnityEditor.Editor
 	{
 		protected SerializedProperty keepAlive;
 		protected SerializedProperty destroyStrategy;
 
 		private static readonly string[] ignoreProperties =
-			{ "m_Script", nameof(MonoSingleton<Object>.keepAlive), nameof(MonoSingleton<Object>.destroyStrategy) };
+			{ "m_Script", nameof(keepAlive), nameof(destroyStrategy) };
 
 		protected virtual bool CreateDefaultInspector
 		{
