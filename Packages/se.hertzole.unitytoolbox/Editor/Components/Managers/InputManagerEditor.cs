@@ -85,7 +85,7 @@ namespace Hertzole.UnityToolbox.Editor
 				}
 				else
 				{
-					inputsListReference.objectReferenceValue = null;
+					inputsListReference.FindPropertyRelative("m_AssetGUID").stringValue = null;
 					fields.referenceField.style.display = DisplayStyle.None;
 					fields.objectField.style.display = DisplayStyle.Flex;
 				}
