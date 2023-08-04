@@ -85,6 +85,8 @@ namespace Hertzole.UnityToolbox
 		/// <exception cref="ArgumentNullException">If the list is null.</exception>
 		public static Transform GetClosest(this IList<Transform> list, Vector3 position, out float closestDistance, out int targetIndex)
 		{
+			ThrowHelper.ThrowIfNull(list, nameof(list));
+			
 			if (list.Count == 0)
 			{
 				closestDistance = 0;
@@ -115,6 +117,8 @@ namespace Hertzole.UnityToolbox
 		/// <exception cref="ArgumentNullException">If the list is null.</exception>
 		public static Vector3 GetClosest(this IList<Vector3> list, Vector3 position, out float closestDistance, out int targetIndex)
 		{
+			ThrowHelper.ThrowIfNull(list, nameof(list));
+
 			if (list.Count == 0)
 			{
 				closestDistance = 0;
@@ -145,13 +149,15 @@ namespace Hertzole.UnityToolbox
 		/// <exception cref="ArgumentNullException">If the list is null.</exception>
 		public static Vector2 GetClosest(this IList<Vector2> list, Vector2 position, out float closestDistance, out int targetIndex)
 		{
+			ThrowHelper.ThrowIfNull(list, nameof(list));
+
 			if (list.Count == 0)
 			{
 				closestDistance = 0;
 				targetIndex = -1;
 				return Vector2.zero;
 			}
-
+            
 			Span<Vector3> spanList = stackalloc Vector3[list.Count];
 
 			for (int i = 0; i < list.Count; i++)
@@ -233,6 +239,8 @@ namespace Hertzole.UnityToolbox
 		/// <exception cref="ArgumentNullException">If the list is null.</exception>
 		public static GameObject GetFurthest(this IList<GameObject> list, Vector3 position, out float furthestDistance, out int targetIndex)
 		{
+			ThrowHelper.ThrowIfNull(list, nameof(list));
+
 			if (list.Count == 0)
 			{
 				furthestDistance = 0;
@@ -263,6 +271,8 @@ namespace Hertzole.UnityToolbox
 		/// <exception cref="ArgumentNullException">If the list is null.</exception>
 		public static Transform GetFurthest(this IList<Transform> list, Vector3 position, out float furthestDistance, out int targetIndex)
 		{
+			ThrowHelper.ThrowIfNull(list, nameof(list));
+			
 			if (list.Count == 0)
 			{
 				furthestDistance = 0;
@@ -293,6 +303,8 @@ namespace Hertzole.UnityToolbox
 		/// <exception cref="ArgumentNullException">If the list is null.</exception>
 		public static Vector3 GetFurthest(this IList<Vector3> list, Vector3 position, out float furthestDistance, out int targetIndex)
 		{
+			ThrowHelper.ThrowIfNull(list, nameof(list));
+			
 			if (list.Count == 0)
 			{
 				furthestDistance = 0;
@@ -323,6 +335,8 @@ namespace Hertzole.UnityToolbox
 		/// <exception cref="ArgumentNullException">If the list is null.</exception>
 		public static Vector2 GetFurthest(this IList<Vector2> list, Vector2 position, out float furthestDistance, out int targetIndex)
 		{
+			ThrowHelper.ThrowIfNull(list, nameof(list));
+            
 			if (list.Count == 0)
 			{
 				furthestDistance = 0;
