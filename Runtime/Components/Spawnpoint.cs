@@ -1,4 +1,8 @@
+using System;
+using Unity.Collections;
+using Unity.Mathematics;
 using UnityEngine;
+using Random = Unity.Mathematics.Random;
 #if TOOLBOX_SCRIPTABLE_VALUES && TOOLBOX_ADDRESSABLES
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -46,13 +50,60 @@ namespace Hertzole.UnityToolbox
 			{
 				return Vector3.zero;
 			}
+			
+			return possibleRotations[UnityEngine.Random.Range(0, possibleRotations.Length)];
+		}
 
-			return possibleRotations[Random.Range(0, possibleRotations.Length)];
+		public Vector3 GetRandomRotation(System.Random random)
+		{
+			if (possibleRotations == null || possibleRotations.Length == 0)
+			{
+				return Vector3.zero;
+			}
+			
+			return possibleRotations[random.Next(0, possibleRotations.Length)];
+		}
+
+		public Vector3 GetRandomRotation(ref Random random)
+		{
+			if (possibleRotations == null || possibleRotations.Length == 0)
+			{
+				return Vector3.zero;
+			}
+			
+			return possibleRotations[random.NextInt(0, possibleRotations.Length)];
 		}
 
 		public Vector3 GetCorner(int index)
 		{
 			return corners[index];
+		}
+
+		public ReadOnlySpan<Vector3> GetCorners()
+		{
+			return new ReadOnlySpan<Vector3>(corners);
+		}
+
+		public NativeArray<float3> GetCornersFloat3(Allocator allocator = Allocator.Temp)
+		{
+			NativeArray<float3> tempCorners = new NativeArray<float3>(CORNERS_COUNT, allocator);
+			for (int i = 0; i < tempCorners.Length; i++)
+			{
+				tempCorners[i] = corners[i];
+			}
+
+			return tempCorners;
+		}
+		
+		public NativeArray<Vector3> GetCornersVector3(Allocator allocator = Allocator.Temp)
+		{
+			NativeArray<Vector3> tempCorners = new NativeArray<Vector3>(CORNERS_COUNT, allocator);
+			for (int i = 0; i < tempCorners.Length; i++)
+			{
+				tempCorners[i] = corners[i];
+			}
+
+			return tempCorners;
 		}
 
 #if TOOLBOX_SCRIPTABLE_VALUES
