@@ -11,6 +11,11 @@ namespace Hertzole.UnityToolbox.Editor
 		private SerializedProperty lockCursor;
 		private SerializedProperty matches;
 
+		protected override bool CreateDefaultInspector
+		{
+			get { return false; }
+		}
+
 		protected override void OnEnable()
 		{
 			base.OnEnable();
@@ -41,9 +46,9 @@ namespace Hertzole.UnityToolbox.Editor
 				// bindItem = BindListItem
 			};
 
-			root.Add(VisualElementUtils.Header("Cursor Settings"));
+			root.Add(VisiaulElementUtilities.Header("Cursor Settings"));
 			root.Add(lockCursorField);
-			root.Add(VisualElementUtils.VerticalSpace());
+			root.Add(VisiaulElementUtilities.VerticalSpace());
 			root.Add(matchesField);
 
 			return root;

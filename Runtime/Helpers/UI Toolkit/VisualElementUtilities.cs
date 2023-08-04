@@ -3,7 +3,7 @@ using UnityEngine.UIElements;
 
 namespace Hertzole.UnityToolbox
 {
-	public static class VisualElementUtils
+	public static class VisiaulElementUtilities
 	{
 		public static VisualElement VerticalSpace(float height = 8f)
 		{
