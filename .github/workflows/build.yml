@@ -26,6 +26,9 @@ jobs:
           apt-get install -y nodejs
 
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          lfs: true
 
       - uses: dorny/paths-filter@v2
         id: filter
