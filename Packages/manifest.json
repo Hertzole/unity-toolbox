@@ -1,11 +1,24 @@
 {
   "dependencies": {
-    "com.unity.ide.rider": "3.0.18",
-    "com.unity.inputsystem": "1.5.0",
+    "com.cysharp.slnmerge": "https://github.com/Cysharp/SlnMerge.git?path=src",
+    "com.unity.addressables": "1.21.14",
+    "com.unity.ide.rider": "3.0.24",
+    "com.unity.inputsystem": "1.6.3",
     "com.unity.mathematics": "1.2.6",
-    "com.unity.test-framework": "1.3.2",
+    "com.unity.test-framework": "1.3.7",
     "com.unity.textmeshpro": "3.0.6",
     "com.unity.modules.animation": "1.0.0",
-    "com.unity.modules.physics": "1.0.0"
-  }
+    "com.unity.modules.physics": "1.0.0",
+    "se.hertzole.scriptable-values": "1.2.0"
+  },
+  "scopedRegistries": [
+    {
+      "name": "package.openupm.com",
+      "url": "https://package.openupm.com",
+      "scopes": [
+        "com.openupm",
+        "se.hertzole.scriptable-values"
+      ]
+    }
+  ]
 }
