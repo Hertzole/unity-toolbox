@@ -53,6 +53,11 @@
             "define": "TOOLBOX_PHYSICS_3D"
         },
         {
+            "name": "com.unity.modules.physics2d",
+            "expression": "",
+            "define": "TOOLBOX_PHYSICS_2D"
+        },
+        {
             "name": "com.unity.modules.animation",
             "expression": "",
             "define": "TOOLBOX_ANIMATION"
