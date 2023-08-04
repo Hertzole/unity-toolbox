@@ -166,14 +166,14 @@ public sealed class TypeScope : IDisposable
 	{
 		if (!string.IsNullOrEmpty(nspace))
 		{
-			writeCommands.Add(Source.GetIndent() + $"namespace {nspace}\r\n");
-			writeCommands.Add(Source.GetIndent() + "{\r\n");
+			writeCommands.Add(Source.GetIndent() + $"namespace {nspace}{Environment.NewLine}");
+			writeCommands.Add(Source.GetIndent() + "{" + Environment.NewLine);
 			Source.Indent++;
 		}
 
 		for (int i = 0; i < attributes.Count; i++)
 		{
-			writeCommands.Add($"{Source.GetIndent()}[{attributes[i]}]\r\n");
+			writeCommands.Add($"{Source.GetIndent()}[{attributes[i]}]{Environment.NewLine}");
 		}
 
 		writeCommands.Add(Source.GetIndent());
@@ -240,9 +240,9 @@ public sealed class TypeScope : IDisposable
 			}
 		}
 
-		writeCommands.Add(Source.GetIndent() + "\r\n");
+		writeCommands.Add(Source.GetIndent() + Environment.NewLine);
 
-		writeCommands.Add(Source.GetIndent() + "{\r\n");
+		writeCommands.Add(Source.GetIndent() + "{" + Environment.NewLine);
 
 		Source.Indent++;
 
@@ -256,12 +256,12 @@ public sealed class TypeScope : IDisposable
 
 		Source.Indent--;
 
-		writeCommands.Add(Source.GetIndent() + "}\r\n");
+		writeCommands.Add(Source.GetIndent() + "}" + Environment.NewLine);
 
 		if (!string.IsNullOrEmpty(nspace))
 		{
 			Source.Indent--;
-			writeCommands.Add(Source.GetIndent() + "}\r\n");
+			writeCommands.Add(Source.GetIndent() + "}" + Environment.NewLine);
 		}
 
 		for (int i = 0; i < writeCommands.Count; i++)

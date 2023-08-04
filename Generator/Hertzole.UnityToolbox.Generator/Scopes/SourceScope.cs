@@ -56,7 +56,7 @@ public sealed class SourceScope : IDisposable
 
 	public string FormatWriteCommand(string? value = null, bool includeIndent = true, bool newLine = false)
 	{
-		return GetIndent(includeIndent ? Indent : 0) + value + (newLine ? "\r\n" : "");
+		return GetIndent(includeIndent ? Indent : 0) + value + (newLine ? Environment.NewLine : "");
 	}
 
 	public void Dispose()

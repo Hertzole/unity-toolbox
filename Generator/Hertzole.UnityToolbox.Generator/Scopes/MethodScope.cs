@@ -91,7 +91,7 @@ public sealed class MethodScope : IDisposable
 			prefix = parentType.Source.GetIndent(includeIndent ? parentType.Source.Indent + 1 : 0);
 		}
 
-		lineWrites.Add(string.IsNullOrEmpty(value) ? "\r\n" : prefix + value! + "\r\n");
+		lineWrites.Add(string.IsNullOrEmpty(value) ? Environment.NewLine : prefix + value! + Environment.NewLine);
 	}
 
 	public void Dispose()
