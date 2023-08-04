@@ -16,7 +16,7 @@ jobs:
   generator:
     name: Test and Build Generator
     runs-on: ubuntu-latest
-    container: unityci/editor:ubuntu-2021.3.26f1-base-1.0.1
+    container: unityci/editor:ubuntu-2023.1.7f1-base-1.1.2
     outputs:
       has_changes: ${{ steps.filter.outputs.workflows }}
     steps:
