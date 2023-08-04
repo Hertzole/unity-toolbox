@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Random = Unity.Mathematics.Random;
 
 namespace Hertzole.UnityToolbox
@@ -19,31 +18,20 @@ namespace Hertzole.UnityToolbox
 		/// <exception cref="ArgumentNullException">If the list is null.</exception>
 		public static void Shuffle<T>(this IList<T> list)
 		{
-			Shuffle(list, GetCurrentRandom());
-		}
+			ThrowHelper.ThrowIfNull(list, nameof(list));
 
-		/// <summary>
-		///     Randomly shuffles a list with a given seed.
-		/// </summary>
-		/// <param name="list">The list to shuffle.</param>
-		/// <param name="seed">The seed to use when randomizing.</param>
-		/// <typeparam name="T">The type in the list.</typeparam>
-		/// <exception cref="ArgumentNullException">If the list is null.</exception>
-		public static void Shuffle<T>(this IList<T> list, int seed)
-		{
-			Shuffle(list, new Random((uint) seed));
-		}
+			if (list.Count == 0)
+			{
+				return;
+			}
 
-		/// <summary>
-		///     Randomly shuffles a list with a given seed.
-		/// </summary>
-		/// <param name="list">The list to shuffle.</param>
-		/// <param name="seed">The seed to use when randomizing.</param>
-		/// <typeparam name="T">The type in the list.</typeparam>
-		/// <exception cref="ArgumentNullException">If the list is null.</exception>
-		public static void Shuffle<T>(this IList<T> list, uint seed)
-		{
-			Shuffle(list, new Random(seed));
+			for (int i = 0; i < list.Count; i++)
+			{
+				T temp = list[i];
+				int randomIndex = UnityEngine.Random.Range(0, list.Count);
+				list[i] = list[randomIndex];
+				list[randomIndex] = temp;
+			}
 		}
 
 		/// <summary>
@@ -53,7 +41,7 @@ namespace Hertzole.UnityToolbox
 		/// <param name="random">The random struct to use for randomizing.</param>
 		/// <typeparam name="T">The type in the list.</typeparam>
 		/// <exception cref="ArgumentNullException">If the list is null.</exception>
-		public static void Shuffle<T>(this IList<T> list, Random random)
+		public static void Shuffle<T>(this IList<T> list, ref Random random)
 		{
 			ThrowHelper.ThrowIfNull(list, nameof(list));
 
@@ -107,35 +95,10 @@ namespace Hertzole.UnityToolbox
 		/// <exception cref="ArgumentOutOfRangeException">If the list is empty.</exception>
 		public static T GetRandom<T>(this IList<T> list)
 		{
-			return GetRandom(list, GetCurrentRandom());
-		}
+			ThrowHelper.ThrowIfNull(list, nameof(list));
+			ThrowHelper.ThrowIfEmpty(list, nameof(list));
 
-		/// <summary>
-		///     Gets a random element from a list.
-		/// </summary>
-		/// <param name="list">The list to get the element from.</param>
-		/// <param name="seed">The seed to use when randomizing.</param>
-		/// <typeparam name="T">The type in the list.</typeparam>
-		/// <returns>A random element from the list.</returns>
-		/// <exception cref="ArgumentNullException">If the list is null.</exception>
-		/// <exception cref="ArgumentOutOfRangeException">If the list is empty.</exception>
-		public static T GetRandom<T>(this IList<T> list, int seed)
-		{
-			return GetRandom(list, new Random((uint) seed));
-		}
-
-		/// <summary>
-		///     Gets a random element from a list.
-		/// </summary>
-		/// <param name="list">The list to get the element from.</param>
-		/// <param name="seed">The seed to use when randomizing.</param>
-		/// <typeparam name="T">The type in the list.</typeparam>
-		/// <returns>A random element from the list.</returns>
-		/// <exception cref="ArgumentNullException">If the list is null.</exception>
-		/// <exception cref="ArgumentOutOfRangeException">If the list is empty.</exception>
-		public static T GetRandom<T>(this IList<T> list, uint seed)
-		{
-			return GetRandom(list, new Random(seed));
+			return list[UnityEngine.Random.Range(0, list.Count)];
 		}
 
 		/// <summary>
@@ -147,7 +110,7 @@ namespace Hertzole.UnityToolbox
 		/// <returns>A random element from the list.</returns>
 		/// <exception cref="ArgumentNullException">If the list is null.</exception>
 		/// <exception cref="ArgumentException">If the list is empty.</exception>
-		public static T GetRandom<T>(this IList<T> list, Random random)
+		public static T GetRandom<T>(this IList<T> list, ref Random random)
 		{
 			ThrowHelper.ThrowIfNull(list, nameof(list));
 			ThrowHelper.ThrowIfEmpty(list, nameof(list));
@@ -243,12 +206,7 @@ namespace Hertzole.UnityToolbox
 		{
 			ThrowHelper.ThrowIfNull(list, nameof(list));
 
-			if (list.Count == 0)
-			{
-				return string.Empty;
-			}
-
-			return string.Join(", ", list);
+			return list.Count == 0 ? string.Empty : string.Join(", ", list);
 		}
 
 		/// <summary>
@@ -262,45 +220,18 @@ namespace Hertzole.UnityToolbox
 		{
 			ThrowHelper.ThrowIfNull(dictionary, nameof(dictionary));
 
-			if (dictionary.Count == 0)
-			{
-				return string.Empty;
-			}
-
-			return string.Join(", ", dictionary.Select(x => $"{{ {x.Key}: {x.Value} }}"));
+			return dictionary.Count == 0 ? string.Empty : string.Join(", ", dictionary.Select(x => $"{{ {x.Key}: {x.Value} }}"));
 		}
 
 		/// <summary>
-		///     Checks if a list is null or empty.
+		///     Checks if a collection is null or empty.
 		/// </summary>
-		/// <param name="list">The list to check.</param>
-		/// <typeparam name="T">The type in the list.</typeparam>
-		/// <returns>True if the list is null or empty, otherwise false.</returns>
-		public static bool IsNullOrEmpty<T>(this IList<T> list)
+		/// <param name="collection">The collection to check.</param>
+		/// <typeparam name="T">The type in the collection.</typeparam>
+		/// <returns>True if the collection is null or empty, otherwise false.</returns>
+		public static bool IsNullOrEmpty<T>(this ICollection<T> collection)
 		{
-			return list == null || list.Count == 0;
-		}
-
-		/// <summary>
-		///     Checks if a dictionary is null or empty.
-		/// </summary>
-		/// <param name="dictionary">The dictionary to check.</param>
-		/// <typeparam name="TKey">The key type.</typeparam>
-		/// <typeparam name="TValue">The value type.</typeparam>
-		/// <returns>True if the list is null or empty, otherwise false.</returns>
-		public static bool IsNullOrEmpty<TKey, TValue>(this IDictionary<TKey, TValue> dictionary)
-		{
-			return dictionary == null || dictionary.Count == 0;
-		}
-
-		/// <summary>
-		///     Returns a new random struct object with the current date as the seed.
-		/// </summary>
-		/// <returns></returns>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static Random GetCurrentRandom()
-		{
-			return new Random((uint) DateTime.UtcNow.GetHashCode());
+			return collection == null || collection.Count == 0;
 		}
 	}
 }
