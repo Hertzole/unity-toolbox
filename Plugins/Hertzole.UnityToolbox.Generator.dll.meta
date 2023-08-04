@@ -2,6 +2,7 @@ fileFormatVersion: 2
 guid: 90e0afb69bf96ac40b40ffa176bfa3ad
 labels:
 - RoslynAnalyzer
+- SourceGenerator
 PluginImporter:
   externalObjects: {}
   serializedVersion: 2
