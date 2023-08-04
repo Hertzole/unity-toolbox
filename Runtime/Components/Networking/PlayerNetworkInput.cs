@@ -70,8 +70,16 @@ namespace Hertzole.UnityToolbox
 #endif
 		
 #if UNITY_EDITOR && TOOLBOX_ADDRESSABLES
+#if FISHNET
+		protected override void OnValidate()
+#else
 		private void OnValidate()
+#endif
 		{
+#if FISHNET
+			base.OnValidate();
+#endif
+			
 			if (useAddressable && !Application.isPlaying && inputsList != null)
 			{
 				inputsList = null;
