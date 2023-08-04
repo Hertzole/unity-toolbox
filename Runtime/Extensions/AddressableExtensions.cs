@@ -50,6 +50,14 @@ namespace Hertzole.UnityToolbox
 				Addressables.Release(handle);
 			}
 		}
+
+		public static void Release(this AsyncOperationHandle handle)
+		{
+			if (handle.IsValid())
+			{
+				Addressables.Release(handle);
+			}
+		}
 	}
 }
 #endif
