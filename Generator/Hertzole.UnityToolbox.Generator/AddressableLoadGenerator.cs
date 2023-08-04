@@ -133,7 +133,7 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 				}
 				catch (Exception e)
 				{
-					Log.LogError($"Failed to check field. {e.Message}\n{e.StackTrace}");
+					Log.LogError($"Failed to check field. {e.Message}{Environment.NewLine}{e.StackTrace}");
 				}
 			}
 
@@ -220,7 +220,7 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 				}
 				catch (Exception e)
 				{
-					Log.LogError($"Failed to generate source. {e.Message}\n{e.StackTrace}");
+					Log.LogError($"Failed to generate source. {e.Message}{Environment.NewLine}{e.StackTrace}");
 				}
 			}
 		}

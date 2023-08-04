@@ -116,7 +116,7 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 				}
 				catch (Exception e)
 				{
-					Log.LogError($"Failed to check field. {e.Message}\n{e.StackTrace}");
+					Log.LogError($"Failed to check field. {e.Message}{Environment.NewLine}{e.StackTrace}");
 				}
 			}
 

@@ -313,7 +313,7 @@ public sealed class TypeScope : IDisposable
 					writeCommands.Add($" = {fields[i].value}");
 				}
 
-				writeCommands.Add(";\r\n");
+				writeCommands.Add(";" + Environment.NewLine);
 			}
 		}
 	}
@@ -351,7 +351,7 @@ public sealed class TypeScope : IDisposable
 					writeCommands.Add(string.IsNullOrEmpty(properties[i].setter) ? " set;" : $" {properties[i].setter}");
 				}
 
-				writeCommands.Add(" }\r\n");
+				writeCommands.Add(" }" + Environment.NewLine);
 			}
 		}
 	}
