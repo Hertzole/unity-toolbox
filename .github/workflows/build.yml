@@ -25,12 +25,7 @@ jobs:
           curl -sL https://deb.nodesource.com/setup_14.x | bash -
           apt-get install -y nodejs
 
-      - name: Update Git
-        run: |
-            apt-get update -y
-            apt-get install -y git-all
-
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
         with:
           fetch-depth: 0
           lfs: true
@@ -96,7 +91,7 @@ jobs:
           curl -sL https://deb.nodesource.com/setup_14.x | bash -
           apt-get install -y nodejs
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
         with:
           fetch-depth: 0
 
