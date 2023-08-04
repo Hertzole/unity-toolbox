@@ -73,7 +73,7 @@ jobs:
         if: steps.filter.outputs.workflows == 'true'
         with:
           dotnet-version: |
-            6.x
+            7.x
 
       - name: Test Generator
         if: steps.filter.outputs.workflows == 'true'
