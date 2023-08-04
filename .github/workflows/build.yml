@@ -90,8 +90,8 @@ jobs:
           git config --global user.name 'github-bot'
           git config --global user.email 'github-bot@users.noreply.github.com'
           git add Packages/se.hertzole.unitytoolbox/Plugins/Hertzole.UnityToolbox.Generator.dll
-          git commit -m "Updated generator"
-          git push -f -u origin master
+          git commit -m "Updated generator" || echo "No changes to commit"
+          git push -f -u origin master || echo "No changes to push"
 
   unity:
     name: Test and Build Unity Package
