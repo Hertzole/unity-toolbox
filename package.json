@@ -1,6 +1,6 @@
 {
     "name": "se.hertzole.unitytoolbox",
-    "version": "0.1.0-preview",
+    "version": "1.0.0",
     "displayName": "Unity Toolbox",
     "description": "A collection of useful tools and extensions for Unity games.",
     "unity": "2022.2",
