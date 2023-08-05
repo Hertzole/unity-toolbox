@@ -1,9 +1,6 @@
 ﻿#if TOOLBOX_PHYSICS_3D
 using System;
 using UnityEngine;
-#if TOOLBOX_CECIL_ATTRIBUTES
-using Hertzole.CecilAttributes;
-#endif
 #if TOOLBOX_SCRIPTABLE_VALUES
 using Hertzole.ScriptableValues;
 #endif
@@ -17,9 +14,6 @@ namespace Hertzole.UnityToolbox
 		private ScriptableValue<T> currentScriptableTarget = default;
 #endif
 		[SerializeField]
-#if TOOLBOX_CECIL_ATTRIBUTES
-		// [Required]
-#endif
 		private Transform origin = default;
 		[SerializeField]
 		private float range = default;
