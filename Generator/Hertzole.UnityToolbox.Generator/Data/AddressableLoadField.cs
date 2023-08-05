@@ -2,4 +2,4 @@
 
 namespace Hertzole.UnityToolbox.Generator.Data;
 
-public record struct AddressableLoadField(IFieldSymbol Field, INamedTypeSymbol AddressableType, string ValueName, bool GenerateSubscribeMethods);
+public record struct AddressableLoadField(IFieldSymbol Field, INamedTypeSymbol AddressableType, string ValueName, bool GenerateSubscribeMethods, bool FieldExists);
