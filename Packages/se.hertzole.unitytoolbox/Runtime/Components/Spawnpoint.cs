@@ -1,8 +1,6 @@
-using System;
-using Unity.Collections;
-using Unity.Mathematics;
+using System.Collections.Generic;
 using UnityEngine;
-using Random = Unity.Mathematics.Random;
+using Random = System.Random;
 #if TOOLBOX_SCRIPTABLE_VALUES && TOOLBOX_ADDRESSABLES
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -14,97 +12,129 @@ namespace Hertzole.UnityToolbox
 	[AddComponentMenu("Toolbox/Spawnpoint")]
 #endif
 	public class Spawnpoint : MonoBehaviour
-#if UNITY_EDITOR
-		, ISerializationCallbackReceiver
-#endif
 	{
 		[SerializeField]
 		private Vector3[] possibleRotations = default;
 		[SerializeField]
-		private Vector3 size = new Vector3(0.8f, 2f, 0.8f);
+		private Vector3 position = default;
+		[SerializeField]
+		private Vector3 size = new Vector3(1f, 2f, 1f);
+		[SerializeField]
+		private Vector3 offset = new Vector3(0f, 1f, 0f);
+
+		private bool forceUpdateCorners;
+
+#if TOOLBOX_SCRIPTABLE_VALUES
+		private bool hasAddedToList;
+#endif
+
+#if TOOLBOX_ADDRESSABLES && TOOLBOX_SCRIPTABLE_VALUES
+		private AsyncOperationHandle<ScriptableSpawnpointsList>? spawnpointsListHandle;
+#endif
+
+		private Vector3 previousPosition;
+		private Vector3[] corners;
+
+		public Vector3 Position
+		{
+			get { return position; }
+			set { position = value; }
+		}
+		public Vector3 Size
+		{
+			get { return size; }
+			set
+			{
+				if (size != value)
+				{
+					size = value;
+					forceUpdateCorners = true;
+				}
+			}
+		}
+		public Vector3 Offset
+		{
+			get { return offset; }
+			set
+			{
+				if (offset != value)
+				{
+					offset = value;
+					forceUpdateCorners = true;
+				}
+			}
+		}
+
+		public IReadOnlyList<Vector3> PossibleRotations
+		{
+			get { return possibleRotations; }
+		}
+		public IReadOnlyList<Vector3> Corners
+		{
+			get
+			{
+				UpdateCornersIfNeeded();
+
+				return corners;
+			}
+		}
+
+		public const int CORNERS_COUNT = 8;
+
+		public Vector3 GetRandomRotation()
+		{
+			return possibleRotations.IsNullOrEmpty() ? Vector3.zero : possibleRotations[UnityEngine.Random.Range(0, possibleRotations.Length)];
+		}
+
+		public Vector3 GetRandomRotation(Random random)
+		{
+			return possibleRotations.IsNullOrEmpty() ? Vector3.zero : possibleRotations[random.Next(0, possibleRotations.Length)];
+		}
+
+		public Vector3 GetRandomRotation(ref Unity.Mathematics.Random random)
+		{
+			return possibleRotations.IsNullOrEmpty() ? Vector3.zero : possibleRotations[random.NextInt(0, possibleRotations.Length)];
+		}
+
+		private void UpdateCornersIfNeeded()
+		{
+			if (forceUpdateCorners || corners == null || transform.position != previousPosition)
+			{
+				UpdateCorners();
+				previousPosition = transform.position;
+			}
+		}
+
+		private void UpdateCorners()
+		{
+			if (corners == null || corners.Length != CORNERS_COUNT)
+			{
+				corners = new Vector3[CORNERS_COUNT];
+			}
+
+			Vector3 pos = transform.position;
+
+			Vector3 center = new Vector3(pos.x + offset.x, pos.y + offset.y, pos.z + offset.z);
+			Vector3 halfSize = size / 2f;
+			corners[0] = center + new Vector3(-halfSize.x, -halfSize.y, -halfSize.z);
+			corners[1] = center + new Vector3(-halfSize.x, -halfSize.y, halfSize.z);
+			corners[2] = center + new Vector3(-halfSize.x, halfSize.y, -halfSize.z);
+			corners[3] = center + new Vector3(-halfSize.x, halfSize.y, halfSize.z);
+			corners[4] = center + new Vector3(halfSize.x, -halfSize.y, -halfSize.z);
+			corners[5] = center + new Vector3(halfSize.x, -halfSize.y, halfSize.z);
+			corners[6] = center + new Vector3(halfSize.x, halfSize.y, -halfSize.z);
+			corners[7] = center + new Vector3(halfSize.x, halfSize.y, halfSize.z);
+		}
 #if TOOLBOX_SCRIPTABLE_VALUES
 #if TOOLBOX_ADDRESSABLES
-		[SerializeField] 
+		[SerializeField]
 		private bool useAddressables = false;
-		[SerializeField] 
+		[SerializeField]
 		private AssetReferenceT<ScriptableSpawnpointsList> spawnpointsListReference = default;
 #endif
 		[SerializeField]
 		private ScriptableSpawnpointsList spawnpointsList = default;
 #endif
-		[SerializeField]
-		[HideInInspector]
-		private Vector3[] corners = default;
-
-		private bool hasAddedToList;
-		
-		public const int CORNERS_COUNT = 8;
-		
-#if TOOLBOX_ADDRESSABLES && TOOLBOX_SCRIPTABLE_VALUES
-		private AsyncOperationHandle<ScriptableSpawnpointsList>? spawnpointsListHandle;
-#endif
-
-		public Vector3 GetRandomRotation()
-		{
-			if (possibleRotations == null || possibleRotations.Length == 0)
-			{
-				return Vector3.zero;
-			}
-			
-			return possibleRotations[UnityEngine.Random.Range(0, possibleRotations.Length)];
-		}
-
-		public Vector3 GetRandomRotation(System.Random random)
-		{
-			if (possibleRotations == null || possibleRotations.Length == 0)
-			{
-				return Vector3.zero;
-			}
-			
-			return possibleRotations[random.Next(0, possibleRotations.Length)];
-		}
-
-		public Vector3 GetRandomRotation(ref Random random)
-		{
-			if (possibleRotations == null || possibleRotations.Length == 0)
-			{
-				return Vector3.zero;
-			}
-			
-			return possibleRotations[random.NextInt(0, possibleRotations.Length)];
-		}
-
-		public Vector3 GetCorner(int index)
-		{
-			return corners[index];
-		}
-
-		public ReadOnlySpan<Vector3> GetCorners()
-		{
-			return new ReadOnlySpan<Vector3>(corners);
-		}
-
-		public NativeArray<float3> GetCornersFloat3(Allocator allocator = Allocator.Temp)
-		{
-			NativeArray<float3> tempCorners = new NativeArray<float3>(CORNERS_COUNT, allocator);
-			for (int i = 0; i < tempCorners.Length; i++)
-			{
-				tempCorners[i] = corners[i];
-			}
-
-			return tempCorners;
-		}
-		
-		public NativeArray<Vector3> GetCornersVector3(Allocator allocator = Allocator.Temp)
-		{
-			NativeArray<Vector3> tempCorners = new NativeArray<Vector3>(CORNERS_COUNT, allocator);
-			for (int i = 0; i < tempCorners.Length; i++)
-			{
-				tempCorners[i] = corners[i];
-			}
-
-			return tempCorners;
-		}
 
 #if TOOLBOX_SCRIPTABLE_VALUES
 #if TOOLBOX_ADDRESSABLES
@@ -118,7 +148,7 @@ namespace Hertzole.UnityToolbox
 					if (handle.Status == AsyncOperationStatus.Succeeded)
 					{
 						spawnpointsList = handle.Result;
-						
+
 						if (spawnpointsList != null && !hasAddedToList)
 						{
 							spawnpointsList.Add(this);
@@ -134,7 +164,7 @@ namespace Hertzole.UnityToolbox
 			spawnpointsListHandle.Release();
 		}
 #endif
-		
+
 		private void OnEnable()
 		{
 			if (spawnpointsList != null && !hasAddedToList)
@@ -157,11 +187,11 @@ namespace Hertzole.UnityToolbox
 #if UNITY_EDITOR
 		private void OnDrawGizmos()
 		{
-			Vector3 position = transform.position;
+			Vector3 pos = transform.position;
 
 			Color oldColor = Gizmos.color;
 			Gizmos.color = new Color(boxColor.r, boxColor.g, boxColor.b, 0.5f);
-			Vector3 center = new Vector3(position.x, position.y + size.y / 2f, position.z);
+			Vector3 center = new Vector3(pos.x + offset.x, pos.y + offset.y, pos.z + offset.z);
 			Gizmos.DrawCube(center, size);
 
 			Gizmos.color = new Color(boxColor.r, boxColor.g, boxColor.b, 1f);
@@ -177,19 +207,16 @@ namespace Hertzole.UnityToolbox
 				}
 			}
 
-			Gizmos.color = oldColor;
-		}
+			Vector3 origin = pos + position;
 
-		private void OnDrawGizmosSelected()
-		{
-			Color oldColor = Gizmos.color;
+			const float arrow_size = 0.2f;
 
-			// Draw corners
-			Gizmos.color = Color.yellow;
-			for (int i = 0; i < corners.Length; i++)
-			{
-				Gizmos.DrawSphere(corners[i], 0.1f);
-			}
+			Gizmos.color = Color.green;
+			Gizmos.DrawLine(origin - new Vector3(0, arrow_size, 0), origin + new Vector3(0, arrow_size, 0));
+			Gizmos.color = Color.red;
+			Gizmos.DrawLine(origin - new Vector3(arrow_size, 0, 0), origin + new Vector3(arrow_size, 0, 0));
+			Gizmos.color = Color.blue;
+			Gizmos.DrawLine(origin - new Vector3(0, 0, arrow_size), origin + new Vector3(0, 0, arrow_size));
 
 			Gizmos.color = oldColor;
 		}
@@ -200,32 +227,6 @@ namespace Hertzole.UnityToolbox
 		[SerializeField]
 		private Color directionColor = Color.blue;
 
-		void ISerializationCallbackReceiver.OnBeforeSerialize()
-		{
-			if (corners == null || corners.Length != CORNERS_COUNT)
-			{
-				corners = new Vector3[CORNERS_COUNT];
-			}
-
-			Vector3 position = transform.position;
-
-			Vector3 center = new Vector3(position.x, position.y + size.y / 2f, position.z);
-			Vector3 halfSize = size / 2f;
-			corners[0] = center + new Vector3(-halfSize.x, -halfSize.y, -halfSize.z);
-			corners[1] = center + new Vector3(-halfSize.x, -halfSize.y, halfSize.z);
-			corners[2] = center + new Vector3(-halfSize.x, halfSize.y, -halfSize.z);
-			corners[3] = center + new Vector3(-halfSize.x, halfSize.y, halfSize.z);
-			corners[4] = center + new Vector3(halfSize.x, -halfSize.y, -halfSize.z);
-			corners[5] = center + new Vector3(halfSize.x, -halfSize.y, halfSize.z);
-			corners[6] = center + new Vector3(halfSize.x, halfSize.y, -halfSize.z);
-			corners[7] = center + new Vector3(halfSize.x, halfSize.y, halfSize.z);
-		}
-
-		void ISerializationCallbackReceiver.OnAfterDeserialize()
-		{
-			// Does nothing.
-		}
-		
 #if TOOLBOX_ADDRESSABLES && TOOLBOX_SCRIPTABLE_VALUES
 		private void OnValidate()
 		{
@@ -233,6 +234,8 @@ namespace Hertzole.UnityToolbox
 			{
 				spawnpointsList = null;
 			}
+
+			forceUpdateCorners = true;
 		}
 #endif
 #endif
