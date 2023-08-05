@@ -163,7 +163,6 @@ jobs:
           if [[ -d "README.md" ]]; then
             mv README.md /tmp/README.md
           fi
-          git reset HEAD --hard
           git checkout package
           mkdir "Samples~"
           if [[ -d "/tmp/example" ]]; then
@@ -184,6 +183,7 @@ jobs:
           git push -f -u origin package
         env:
           PKG_ROOT: "Packages/se.hertzole.unitytoolbox"
+        shell: bash
 
       - name: Create Release Tag
         if: steps.semantic.outputs.new_release_published == 'true'
