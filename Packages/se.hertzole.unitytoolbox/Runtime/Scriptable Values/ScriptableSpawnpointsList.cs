@@ -7,6 +7,6 @@ namespace Hertzole.UnityToolbox
 #if UNITY_EDITOR
 	[CreateAssetMenu(fileName = "New Spawnpoints List", menuName = "Toolbox/Scriptable Values/Collections/Spawnpoints List", order = -1000)]
 #endif
-	public class ScriptableSpawnpointsList : ScriptableList<Spawnpoint> { }
+	public sealed class ScriptableSpawnpointsList : ScriptableList<Spawnpoint> { }
 }
 #endif

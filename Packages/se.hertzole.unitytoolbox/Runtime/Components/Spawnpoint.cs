@@ -1,9 +1,9 @@
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using UnityEngine;
 using Random = System.Random;
 #if TOOLBOX_SCRIPTABLE_VALUES && TOOLBOX_ADDRESSABLES
 using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
 #endif
 
 namespace Hertzole.UnityToolbox
@@ -11,7 +11,7 @@ namespace Hertzole.UnityToolbox
 #if UNITY_EDITOR
 	[AddComponentMenu("Toolbox/Spawnpoint")]
 #endif
-	public class Spawnpoint : MonoBehaviour
+	public partial class Spawnpoint : MonoBehaviour
 	{
 		[SerializeField]
 		private Vector3[] possibleRotations = default;
@@ -26,10 +26,6 @@ namespace Hertzole.UnityToolbox
 
 #if TOOLBOX_SCRIPTABLE_VALUES
 		private bool hasAddedToList;
-#endif
-
-#if TOOLBOX_ADDRESSABLES && TOOLBOX_SCRIPTABLE_VALUES
-		private AsyncOperationHandle<ScriptableSpawnpointsList>? spawnpointsListHandle;
 #endif
 
 		private Vector3 previousPosition;
@@ -130,9 +126,11 @@ namespace Hertzole.UnityToolbox
 		[SerializeField]
 		private bool useAddressables = false;
 		[SerializeField]
+		[GenerateLoad]
 		private AssetReferenceT<ScriptableSpawnpointsList> spawnpointsListReference = default;
 #endif
 		[SerializeField]
+		[CanBeNull]
 		private ScriptableSpawnpointsList spawnpointsList = default;
 #endif
 
@@ -142,30 +140,32 @@ namespace Hertzole.UnityToolbox
 		{
 			if (useAddressables)
 			{
-				spawnpointsListHandle = spawnpointsListReference.LoadAsync();
-				spawnpointsListHandle.Value.Completed += handle =>
-				{
-					if (handle.Status == AsyncOperationStatus.Succeeded)
-					{
-						spawnpointsList = handle.Result;
-
-						if (spawnpointsList != null && !hasAddedToList)
-						{
-							spawnpointsList.Add(this);
-							hasAddedToList = true;
-						}
-					}
-				};
+				LoadAssets();
 			}
 		}
 
 		private void OnDestroy()
 		{
-			spawnpointsListHandle.Release();
+			ReleaseAssets();
+		}
+
+		partial void OnSpawnpointsListLoaded(ScriptableSpawnpointsList value)
+		{
+			AddToList();
 		}
 #endif
 
 		private void OnEnable()
+		{
+			AddToList();
+		}
+
+		private void OnDisable()
+		{
+			RemoveFromList();
+		}
+
+		private void AddToList()
 		{
 			if (spawnpointsList != null && !hasAddedToList)
 			{
@@ -174,7 +174,7 @@ namespace Hertzole.UnityToolbox
 			}
 		}
 
-		private void OnDisable()
+		private void RemoveFromList()
 		{
 			if (spawnpointsList != null && hasAddedToList)
 			{
