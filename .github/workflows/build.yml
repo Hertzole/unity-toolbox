@@ -163,6 +163,7 @@ jobs:
           if [[ -d "README.md" ]]; then
             mv README.md /tmp/README.md
           fi
+          git reset HEAD --hard
           git checkout package
           mkdir "Samples~"
           if [[ -d "/tmp/example" ]]; then
