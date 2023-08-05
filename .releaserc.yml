@@ -5,8 +5,7 @@ plugins:
   - - '@semantic-release/exec'
     - prepareCmd: "sed -i -e '/AssemblyVersion/s/\".*\"/\"${nextRelease.version}\"/' 
         Packages/se.hertzole.unitytoolbox/Runtime/AssemblyInfo.cs
-        Packages/se.hertzole.unitytoolbox/Editor/AssemblyInfo.cs
-        Generator/Hertzole.UnityToolbox.Generator/AssemblyInfo.cs"
+        Packages/se.hertzole.unitytoolbox/Editor/AssemblyInfo.cs"
   - - '@semantic-release/changelog'
     - changelogFile: 'Packages/se.hertzole.unitytoolbox/CHANGELOG.md'
   - - '@semantic-release/npm'
@@ -16,6 +15,5 @@ plugins:
     - assets:
         - 'Packages/se.hertzole.unitytoolbox/Runtime/AssemblyInfo.cs'
         - 'Packages/se.hertzole.unitytoolbox/Editor/AssemblyInfo.cs'
-        - 'Generator/Hertzole.UnityToolbox.Generator/AssemblyInfo.cs'
         - 'Packages/se.hertzole.unitytoolbox/package.json'
         - 'Packages/se.hertzole.unitytoolbox/CHANGELOG.md'
