@@ -309,7 +309,6 @@ namespace Hertzole.UnityToolbox
 			Gizmos.color = oldColor;
 		}
 
-		[Header("Gizmo Settings")]
 		[SerializeField]
 		[Tooltip("The color of the boundary box.")]
 		private Color boxColor = Color.white;

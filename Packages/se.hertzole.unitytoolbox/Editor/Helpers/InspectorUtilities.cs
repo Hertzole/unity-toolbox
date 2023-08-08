@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.UIElements;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Hertzole.UnityToolbox.Editor
@@ -39,6 +40,19 @@ namespace Hertzole.UnityToolbox.Editor
 			}
 
 			return false;
+		}
+
+		public static Label CreateHeader(string text)
+		{
+			return new Label(text)
+			{
+				style =
+				{
+					marginLeft = 3,
+					marginTop = 6,
+					unityFontStyleAndWeight = FontStyle.Bold
+				}
+			};
 		}
 	}
 }
