@@ -8,18 +8,25 @@ using UnityEngine.AddressableAssets;
 
 namespace Hertzole.UnityToolbox
 {
+	/// <summary>
+	///     A spawnpoint that can be used to indicate where objects will spawn.
+	/// </summary>
 #if UNITY_EDITOR
 	[AddComponentMenu("Toolbox/Spawnpoint")]
 #endif
 	public partial class Spawnpoint : MonoBehaviour
 	{
 		[SerializeField]
-		private Vector3[] possibleRotations = default;
+		[Tooltip("The possible rotations the object can have when spawned.")]
+		private List<Vector3> possibleRotations = new List<Vector3>();
 		[SerializeField]
-		private Vector3 position = default;
+		[Tooltip("The position the object will spawn at, relative to the spawnpoint.")]
+		private Vector3 spawnPosition = default;
 		[SerializeField]
+		[Tooltip("The size of the spawn boundary box.")]
 		private Vector3 size = new Vector3(1f, 2f, 1f);
 		[SerializeField]
+		[Tooltip("The offset of the spawn boundary box.")]
 		private Vector3 offset = new Vector3(0f, 1f, 0f);
 
 		private bool forceUpdateCorners;
@@ -31,11 +38,18 @@ namespace Hertzole.UnityToolbox
 		private Vector3 previousPosition;
 		private Vector3[] corners;
 
-		public Vector3 Position
+		/// <summary>
+		///     The position the object will spawn at, relative to the spawnpoint.
+		/// </summary>
+		public Vector3 SpawnPosition
 		{
-			get { return position; }
-			set { position = value; }
+			get { return spawnPosition; }
+			set { spawnPosition = value; }
 		}
+
+		/// <summary>
+		///     The size of the spawn boundary box.
+		/// </summary>
 		public Vector3 Size
 		{
 			get { return size; }
@@ -48,6 +62,10 @@ namespace Hertzole.UnityToolbox
 				}
 			}
 		}
+
+		/// <summary>
+		///     The offset of the spawn boundary box.
+		/// </summary>
 		public Vector3 Offset
 		{
 			get { return offset; }
@@ -61,10 +79,26 @@ namespace Hertzole.UnityToolbox
 			}
 		}
 
-		public IReadOnlyList<Vector3> PossibleRotations
+		/// <summary>
+		///     The world position the object will spawn at.
+		/// </summary>
+		public Vector3 Position
+		{
+			get { return transform.position + spawnPosition; }
+		}
+
+		/// <summary>
+		///     The possible rotations the object can have when spawned.
+		/// </summary>
+		public List<Vector3> PossibleRotations
 		{
 			get { return possibleRotations; }
+			set { possibleRotations = value; }
 		}
+
+		/// <summary>
+		///     The corners of the spawn boundary box.
+		/// </summary>
 		public IReadOnlyList<Vector3> Corners
 		{
 			get
@@ -75,23 +109,43 @@ namespace Hertzole.UnityToolbox
 			}
 		}
 
+		/// <summary>
+		///     The amount of corners the spawn boundary box has.
+		/// </summary>
 		public const int CORNERS_COUNT = 8;
 
+		/// <summary>
+		///     Gets a random spawn rotation from the list of possible rotations.
+		/// </summary>
+		/// <returns>A random rotation from the list of possible rotations. Returns <c>Vector3.zero</c> if the list is empty.</returns>
 		public Vector3 GetRandomRotation()
 		{
-			return possibleRotations.IsNullOrEmpty() ? Vector3.zero : possibleRotations[UnityEngine.Random.Range(0, possibleRotations.Length)];
+			return possibleRotations.IsNullOrEmpty() ? Vector3.zero : possibleRotations[UnityEngine.Random.Range(0, possibleRotations.Count)];
 		}
 
+		/// <summary>
+		///     Gets a random spawn rotation from the list of possible rotations.
+		/// </summary>
+		/// <param name="random">The random object to use for getting a random value.</param>
+		/// <returns>A random rotation from the list of possible rotations. Returns <c>Vector3.zero</c> if the list is empty.</returns>
 		public Vector3 GetRandomRotation(Random random)
 		{
-			return possibleRotations.IsNullOrEmpty() ? Vector3.zero : possibleRotations[random.Next(0, possibleRotations.Length)];
+			return possibleRotations.IsNullOrEmpty() ? Vector3.zero : possibleRotations[random.Next(0, possibleRotations.Count)];
 		}
 
+		/// <summary>
+		///     Gets a random spawn rotation from the list of possible rotations.
+		/// </summary>
+		/// <param name="random">The random object to use for getting a random value.</param>
+		/// <returns>A random rotation from the list of possible rotations. Returns <c>Vector3.zero</c> if the list is empty.</returns>
 		public Vector3 GetRandomRotation(ref Unity.Mathematics.Random random)
 		{
-			return possibleRotations.IsNullOrEmpty() ? Vector3.zero : possibleRotations[random.NextInt(0, possibleRotations.Length)];
+			return possibleRotations.IsNullOrEmpty() ? Vector3.zero : possibleRotations[random.NextInt(0, possibleRotations.Count)];
 		}
 
+		/// <summary>
+		///     Updates the spawn boundary box corners if needed.
+		/// </summary>
 		private void UpdateCornersIfNeeded()
 		{
 			if (forceUpdateCorners || corners == null || transform.position != previousPosition)
@@ -101,6 +155,9 @@ namespace Hertzole.UnityToolbox
 			}
 		}
 
+		/// <summary>
+		///     Updates the spawn boundary box corners.
+		/// </summary>
 		private void UpdateCorners()
 		{
 			if (corners == null || corners.Length != CORNERS_COUNT)
@@ -124,14 +181,32 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_SCRIPTABLE_VALUES
 #if TOOLBOX_ADDRESSABLES
 		[SerializeField]
+		[Tooltip("If true, the spawnpoints list will be loaded from addressables.")]
 		private bool useAddressables = false;
 		[SerializeField]
 		[GenerateLoad]
+		[Tooltip("The addressable reference to the spawnpoints list.")]
 		private AssetReferenceT<ScriptableSpawnpointsList> spawnpointsListReference = default;
 #endif
 		[SerializeField]
 		[CanBeNull]
+		[Tooltip("The spawnpoints list to add to..")]
 		private ScriptableSpawnpointsList spawnpointsList = default;
+
+		/// <summary>
+		///     The spawnpoints list to add to.
+		/// </summary>
+		[CanBeNull]
+		public ScriptableSpawnpointsList SpawnpointsList
+		{
+			get { return spawnpointsList; }
+			set
+			{
+				RemoveFromList();
+				spawnpointsList = value;
+				AddToList();
+			}
+		}
 #endif
 
 #if TOOLBOX_SCRIPTABLE_VALUES
@@ -149,6 +224,10 @@ namespace Hertzole.UnityToolbox
 			ReleaseAssets();
 		}
 
+		/// <summary>
+		///     Called when the spawnpoints list is loaded from addressables.
+		/// </summary>
+		/// <param name="value"></param>
 		partial void OnSpawnpointsListLoaded(ScriptableSpawnpointsList value)
 		{
 			AddToList();
@@ -165,6 +244,9 @@ namespace Hertzole.UnityToolbox
 			RemoveFromList();
 		}
 
+		/// <summary>
+		///     Adds this spawnpoint to the spawnpoints list.
+		/// </summary>
 		private void AddToList()
 		{
 			if (spawnpointsList != null && !hasAddedToList)
@@ -174,6 +256,9 @@ namespace Hertzole.UnityToolbox
 			}
 		}
 
+		/// <summary>
+		///     Removes this spawnpoint from the spawnpoints list.
+		/// </summary>
 		private void RemoveFromList()
 		{
 			if (spawnpointsList != null && hasAddedToList)
@@ -190,24 +275,27 @@ namespace Hertzole.UnityToolbox
 			Vector3 pos = transform.position;
 
 			Color oldColor = Gizmos.color;
-			Gizmos.color = new Color(boxColor.r, boxColor.g, boxColor.b, 0.5f);
+			Gizmos.color = new Color(boxColor.r, boxColor.g, boxColor.b, boxColor.a * 0.5f);
 			Vector3 center = new Vector3(pos.x + offset.x, pos.y + offset.y, pos.z + offset.z);
 			Gizmos.DrawCube(center, size);
 
-			Gizmos.color = new Color(boxColor.r, boxColor.g, boxColor.b, 1f);
+			Gizmos.color = new Color(boxColor.r, boxColor.g, boxColor.b, boxColor.a);
 			Gizmos.DrawWireCube(center, size);
 
 			Gizmos.color = directionColor;
 			if (possibleRotations != null)
 			{
-				for (int i = 0; i < possibleRotations.Length; i++)
+				for (int i = 0; i < possibleRotations.Count; i++)
 				{
 					Vector3 direction = Quaternion.Euler(possibleRotations[i]) * Vector3.forward;
-					Gizmos.DrawRay(center, direction);
+					Vector3 endPosition = center + direction;
+					Gizmos.DrawLine(center, endPosition);
+					Gizmos.DrawLine(endPosition, endPosition - Quaternion.Euler(possibleRotations[i] + new Vector3(0, 45, 0)) * Vector3.forward * 0.25f);
+					Gizmos.DrawLine(endPosition, endPosition - Quaternion.Euler(possibleRotations[i] - new Vector3(0, 45, 0)) * Vector3.forward * 0.25f);
 				}
 			}
 
-			Vector3 origin = pos + position;
+			Vector3 origin = pos + spawnPosition;
 
 			const float arrow_size = 0.2f;
 
@@ -223,8 +311,10 @@ namespace Hertzole.UnityToolbox
 
 		[Header("Gizmo Settings")]
 		[SerializeField]
+		[Tooltip("The color of the boundary box.")]
 		private Color boxColor = Color.white;
 		[SerializeField]
+		[Tooltip("The color of the direction arrow.")]
 		private Color directionColor = Color.blue;
 
 #if TOOLBOX_ADDRESSABLES && TOOLBOX_SCRIPTABLE_VALUES
@@ -235,6 +325,7 @@ namespace Hertzole.UnityToolbox
 				spawnpointsList = null;
 			}
 
+			// If anything changes, force the corners to update.
 			forceUpdateCorners = true;
 		}
 #endif
