@@ -117,30 +117,30 @@ namespace Hertzole.UnityToolbox
 		/// <summary>
 		///     Gets a random spawn rotation from the list of possible rotations.
 		/// </summary>
-		/// <returns>A random rotation from the list of possible rotations. Returns <c>Vector3.zero</c> if the list is empty.</returns>
+		/// <returns>A random rotation from the list of possible rotations. Returns the spawnpoints rotation if the list is empty.</returns>
 		public Vector3 GetRandomRotation()
 		{
-			return possibleRotations.IsNullOrEmpty() ? Vector3.zero : possibleRotations[UnityEngine.Random.Range(0, possibleRotations.Count)];
+			return possibleRotations.IsNullOrEmpty() ? transform.eulerAngles : possibleRotations[UnityEngine.Random.Range(0, possibleRotations.Count)];
 		}
 
 		/// <summary>
 		///     Gets a random spawn rotation from the list of possible rotations.
 		/// </summary>
 		/// <param name="random">The random object to use for getting a random value.</param>
-		/// <returns>A random rotation from the list of possible rotations. Returns <c>Vector3.zero</c> if the list is empty.</returns>
+		/// <returns>A random rotation from the list of possible rotations. Returns the spawnpoints rotation if the list is empty.</returns>
 		public Vector3 GetRandomRotation(Random random)
 		{
-			return possibleRotations.IsNullOrEmpty() ? Vector3.zero : possibleRotations[random.Next(0, possibleRotations.Count)];
+			return possibleRotations.IsNullOrEmpty() ? transform.position : possibleRotations[random.Next(0, possibleRotations.Count)];
 		}
 
 		/// <summary>
 		///     Gets a random spawn rotation from the list of possible rotations.
 		/// </summary>
 		/// <param name="random">The random object to use for getting a random value.</param>
-		/// <returns>A random rotation from the list of possible rotations. Returns <c>Vector3.zero</c> if the list is empty.</returns>
+		/// <returns>A random rotation from the list of possible rotations. Returns the spawnpoints rotation if the list is empty.</returns>
 		public Vector3 GetRandomRotation(ref Unity.Mathematics.Random random)
 		{
-			return possibleRotations.IsNullOrEmpty() ? Vector3.zero : possibleRotations[random.NextInt(0, possibleRotations.Count)];
+			return possibleRotations.IsNullOrEmpty() ? transform.eulerAngles : possibleRotations[random.NextInt(0, possibleRotations.Count)];
 		}
 
 		/// <summary>
