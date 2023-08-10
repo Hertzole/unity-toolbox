@@ -140,13 +140,11 @@ jobs:
 
       - name: Install .NET
         uses: actions/setup-dotnet@v2.1.0
-        if: steps.filter.outputs.workflows == 'true'
         with:
           dotnet-version: |
             7.x
 
       - name: Build Generator
-        if: steps.filter.outputs.workflows == 'true'
         run: |
           cd Generator
           dotnet publish -c Release -o ../GeneratorBuild
