@@ -1,3 +1,16 @@
+# [1.1.0](https://github.com/Hertzole/unity-toolbox/compare/v1.0.0...v1.1.0) (2023-08-10)
+
+
+### Bug Fixes
+
+* generator not being able to use already existing fields ([1ca7615](https://github.com/Hertzole/unity-toolbox/commit/1ca7615947c660a5fa28779f8e06e1e9502f3691))
+
+
+### Features
+
+* add spawnpoint editor ([3b8fbfc](https://github.com/Hertzole/unity-toolbox/commit/3b8fbfc4346b72799e23e5618c30c36f51ce9a48))
+* spawnpoints now returns transform rotation if list is empty ([0539bd8](https://github.com/Hertzole/unity-toolbox/commit/0539bd8089afc4f182a84b6b30c4b6bff910b671))
+
 # 1.0.0 (2023-08-05)
 
 
