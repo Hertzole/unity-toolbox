@@ -21,11 +21,11 @@ namespace Hertzole.UnityToolbox.Editor
 			}
 		}
 
-		protected override VisualElement CreateGUI(SerializedProperty property)
+		protected override VisualElement CreateGUI(SerializedProperty property, string label)
 		{
 			SerializedProperty tagProperty = property.FindPropertyRelative("value");
 
-			TagField field = new TagField(property.displayName);
+			TagField field = new TagField(label);
 			field.BindProperty(tagProperty);
 
 			if (tagProperty.stringValue != "" && !IsTag(tagProperty.stringValue))

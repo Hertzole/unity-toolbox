@@ -21,10 +21,10 @@ namespace Hertzole.UnityToolbox.Editor
 			}
 		}
 
-		protected override VisualElement CreateGUI(SerializedProperty property)
+		protected override VisualElement CreateGUI(SerializedProperty property, string label)
 		{
 			SerializedProperty layerProperty = property.FindPropertyRelative("value");
-			LayerField field = new LayerField(property.displayName, layerProperty.intValue);
+			LayerField field = new LayerField(label, layerProperty.intValue);
 			field.BindProperty(layerProperty);
 
 			if (!IsLayer(layerProperty.intValue))

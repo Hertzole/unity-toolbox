@@ -19,7 +19,14 @@ namespace Hertzole.UnityToolbox.Editor
 
 		public override VisualElement CreatePropertyGUI(SerializedProperty property)
 		{
-			VisualElement field = CreateGUI(property);
+			string label =
+#if UNITY_2022_2_OR_NEWER
+				preferredLabel;
+			#else
+				property.displayName;
+			#endif
+			
+			VisualElement field = CreateGUI(property, label);
 			if (field == null)
 			{
 				return null;
@@ -43,6 +50,6 @@ namespace Hertzole.UnityToolbox.Editor
 
 		protected abstract void DrawGUI(Rect position, SerializedProperty property, GUIContent label);
 		
-		protected abstract VisualElement CreateGUI(SerializedProperty property);
+		protected abstract VisualElement CreateGUI(SerializedProperty property, string label);
 	}
 }
