@@ -9,6 +9,7 @@ namespace Hertzole.UnityToolbox.Editor
 	public sealed class CursorManagerEditor : MonoSingletonEditor
 	{
 		private SerializedProperty lockCursor;
+		private SerializedProperty handleCursorLocking;
 		private SerializedProperty matches;
 
 		protected override bool CreateDefaultInspector
@@ -21,6 +22,7 @@ namespace Hertzole.UnityToolbox.Editor
 			base.OnEnable();
 
 			lockCursor = serializedObject.FindProperty(nameof(lockCursor));
+			handleCursorLocking = serializedObject.FindProperty(nameof(handleCursorLocking));
 			matches = serializedObject.FindProperty(nameof(matches));
 		}
 
@@ -30,6 +32,8 @@ namespace Hertzole.UnityToolbox.Editor
 
 			PropertyField lockCursorField = new PropertyField(lockCursor);
 			lockCursorField.Bind(serializedObject);
+			PropertyField handleCursorLockingField = new PropertyField(handleCursorLocking);
+			handleCursorLockingField.Bind(serializedObject);
 
 			ManagedReferenceListView<IScriptableMatch> matchesField = new ManagedReferenceListView<IScriptableMatch>(matches)
 			{
@@ -48,6 +52,7 @@ namespace Hertzole.UnityToolbox.Editor
 
 			root.Add(VisiaulElementUtilities.Header("Cursor Settings"));
 			root.Add(lockCursorField);
+			root.Add(handleCursorLockingField);
 			root.Add(VisiaulElementUtilities.VerticalSpace());
 			root.Add(matchesField);
 
