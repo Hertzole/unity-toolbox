@@ -85,7 +85,9 @@ namespace Hertzole.UnityToolbox.Editor
 			root.Add(directionColorField);
 			root.Add(possibleRotationsField);
 
+#if TOOLBOX_SCRIPTABLE_VALUES && TOOLBOX_ADDRESSABLES
 			UpdateAddressableFields(useAddressables.boolValue, spawnpointsListReferenceField, spawnpointsListField);
+#endif // TOOLBOX_SCRIPTABLE_VALUES && TOOLBOX_ADDRESSABLES
 
 			return root;
 		}
