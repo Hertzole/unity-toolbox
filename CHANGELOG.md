@@ -1,3 +1,17 @@
+# [1.2.0](https://github.com/Hertzole/unity-toolbox/compare/v1.1.0...v1.2.0) (2023-08-13)
+
+
+### Bug Fixes
+
+* compiler error on SpawnpointEditor.cs without addressables ([a50a20e](https://github.com/Hertzole/unity-toolbox/commit/a50a20ef0354fb2873589f42c95194c00fa2a607))
+* tag, layer, and animation parameter fields may not using the correct label ([a9cd185](https://github.com/Hertzole/unity-toolbox/commit/a9cd1850b908ca2c7b7579705c9860067fb71b2c))
+
+
+### Features
+
+* CursorManager can now handle cursor locking automatically ([c43ea6b](https://github.com/Hertzole/unity-toolbox/commit/c43ea6bfac6812dc02f9ca4b7c9269781d810df2))
+* identifier type ([9649c58](https://github.com/Hertzole/unity-toolbox/commit/9649c58e939a53b4bd8d521ed2c42885eaebe8e6))
+
 # [1.1.0](https://github.com/Hertzole/unity-toolbox/compare/v1.0.0...v1.1.0) (2023-08-10)
 
 
