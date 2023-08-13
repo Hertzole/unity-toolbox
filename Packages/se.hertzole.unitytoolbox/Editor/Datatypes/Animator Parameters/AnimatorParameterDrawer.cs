@@ -88,7 +88,7 @@ namespace Hertzole.UnityToolbox
 			return true;
 		}
 
-		protected override VisualElement CreateGUI(SerializedProperty property)
+		protected override VisualElement CreateGUI(SerializedProperty property, string label)
 		{
 			FindAnimators(property);
 			choices.Clear();
@@ -101,7 +101,7 @@ namespace Hertzole.UnityToolbox
 			SerializedProperty nameProperty = property.FindPropertyRelative("name");
 			int selectedIndex = GetSelectedIndex(parameters, nameProperty.stringValue);
 
-			PopupField<int> popupField = new PopupField<int>(property.displayName, choices, selectedIndex, FormatParameterName, FormatParameterName);
+			PopupField<int> popupField = new PopupField<int>(label, choices, selectedIndex, FormatParameterName, FormatParameterName);
 			popupField.RegisterCallback<ChangeEvent<int>, SerializedProperty>((evt, prop) =>
 			{
 				prop.stringValue = parameters[evt.newValue].name;
