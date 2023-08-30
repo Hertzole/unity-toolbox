@@ -104,6 +104,42 @@ namespace Hertzole.UnityToolbox
 		}
 
 		/// <summary>
+		///     A shortcut for adding a listener to the started, performed, and canceled event for this action reference on the
+		///     player input.
+		/// </summary>
+		/// <param name="input">The player input to get the input from.</param>
+		/// <param name="action">The action to listen to.</param>
+		/// <param name="onCallback">The event callback that should be invoked when any event is invoked.</param>
+		/// <exception cref="ArgumentNullException">If the player input is null.</exception>
+		/// <exception cref="ArgumentNullException">If the action is null.</exception>
+		/// <exception cref="ArgumentNullException">If the event event callback is null.</exception>
+		/// <example>
+		///     <code>
+		/// 	void OnEnable()
+		///     {
+		///    		playerInput.AddAllListeners(action, OnInputAction);
+		///     }
+		///     
+		///     void OnInputAction(InputAction.CallbackContext context)
+		///     {
+		///    		Debug.Log("Input happened!");
+		///     }
+		///     </code>
+		/// </example>
+		public static void AddAllListeners(this PlayerInput input, InputActionReference action, Action<InputAction.CallbackContext> onCallback)
+		{
+			ThrowHelper.ThrowIfNull(input, nameof(input));
+			ThrowHelper.ThrowIfNull(action, nameof(action));
+			ThrowHelper.ThrowIfNull(onCallback, nameof(onCallback));
+
+			InputAction foundAction = input.actions[action.action.name];
+
+			foundAction.started += onCallback;
+			foundAction.performed += onCallback;
+			foundAction.canceled += onCallback;
+		}
+
+		/// <summary>
 		///     A shortcut for remove a listener from the started event for this action reference on the player input.
 		/// </summary>
 		/// <param name="input">The player input to get the input from.</param>
@@ -194,6 +230,42 @@ namespace Hertzole.UnityToolbox
 			ThrowHelper.ThrowIfNull(onCanceledCallback, nameof(onCanceledCallback));
 
 			input.actions[action.action.name].canceled -= onCanceledCallback;
+		}
+
+		/// <summary>
+		///     A shortcut for removing a listener from the started, performed, and canceled event for this action reference on the
+		///     player input.
+		/// </summary>
+		/// <param name="input">The player input to get the input from.</param>
+		/// <param name="action">The action to listen to.</param>
+		/// <param name="onCallback">The event callback that should be invoked when any event is invoked.</param>
+		/// <exception cref="ArgumentNullException">If the player input is null.</exception>
+		/// <exception cref="ArgumentNullException">If the action is null.</exception>
+		/// <exception cref="ArgumentNullException">If the event event callback is null.</exception>
+		/// <example>
+		///     <code>
+		/// 	void OnEnable()
+		///     {
+		///    		playerInput.RemoveAllListeners(action, OnInputAction);
+		///     }
+		///     
+		///     void OnInputAction(InputAction.CallbackContext context)
+		///     {
+		///    		Debug.Log("Input happened!");
+		///     }
+		///     </code>
+		/// </example>
+		public static void RemoveAllListeners(this PlayerInput input, InputActionReference action, Action<InputAction.CallbackContext> onCallback)
+		{
+			ThrowHelper.ThrowIfNull(input, nameof(input));
+			ThrowHelper.ThrowIfNull(action, nameof(action));
+			ThrowHelper.ThrowIfNull(onCallback, nameof(onCallback));
+
+			InputAction foundAction = input.actions[action.action.name];
+
+			foundAction.started -= onCallback;
+			foundAction.performed -= onCallback;
+			foundAction.canceled -= onCallback;
 		}
 	}
 }
