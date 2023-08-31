@@ -24,6 +24,7 @@ namespace Hertzole.UnityToolbox.Editor
 			});
 
 			this.BindProperty(listProperty);
+			this.Bind(listProperty.serializedObject);
 		}
 
 		private void ClickAddManaged()
@@ -47,7 +48,7 @@ namespace Hertzole.UnityToolbox.Editor
 				{
 					continue;
 				}
-				
+
 				last = type;
 
 				GUIContent typeName = new GUIContent(ObjectNames.NicifyVariableName(type.Name));
