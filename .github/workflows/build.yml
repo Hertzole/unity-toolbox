@@ -23,8 +23,8 @@ jobs:
     steps:
       - name: Install Node
         uses: actions/setup-node@v3
-          with:
-            node-version: 18
+        with:
+          node-version: 18
 
       - name: Update Git
         run: |
@@ -102,8 +102,8 @@ jobs:
     steps:
       - name: Install Node
         uses: actions/setup-node@v3
-          with:
-            node-version: 18
+        with:
+          node-version: 18
 
       - name: Update Git
         run: |
