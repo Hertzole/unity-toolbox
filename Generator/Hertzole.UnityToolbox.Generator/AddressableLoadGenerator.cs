@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Text;
 using System.Threading;
 using Hertzole.UnityToolbox.Generator.Data;
 using Hertzole.UnityToolbox.Generator.Helpers;
+using Hertzole.UnityToolbox.Generator.Pooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -158,9 +160,39 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 
 				try
 				{
+					string name;
+
+					using (ObjectPool<StringBuilder>.Get(out var nameBuilder))
+					{
+						nameBuilder.Clear();
+
+						nameBuilder.Append(typeSymbol.Name);
+
+						if (typeSymbol.IsGenericType)
+						{
+							nameBuilder.Append('<');
+
+							ImmutableArray<ITypeSymbol> typeArguments = typeSymbol.TypeArguments;
+
+							for (int i = 0; i < typeArguments.Length; i++)
+							{
+								if (i > 0)
+								{
+									nameBuilder.Append(", ");
+								}
+
+								nameBuilder.Append(typeArguments[i].Name);
+							}
+
+							nameBuilder.Append('>');
+						}
+
+						name = nameBuilder.ToString();
+					}
+                            
 					using (SourceScope source = new SourceScope($"{typeSymbol.Name}.Addressables", context))
 					{
-						using (TypeScope type = source.WithClass(typeSymbol.Name).WithAccessor(TypeAccessor.None).WithNamespace(typeSymbol.ContainingNamespace)
+						using (TypeScope type = source.WithClass(name).WithAccessor(TypeAccessor.None).WithNamespace(typeSymbol.ContainingNamespace)
 						                              .Partial())
 						{
 							foreach ((IFieldSymbol _, INamedTypeSymbol addressableType, string valueName, bool _, bool fieldExists) in fields)
