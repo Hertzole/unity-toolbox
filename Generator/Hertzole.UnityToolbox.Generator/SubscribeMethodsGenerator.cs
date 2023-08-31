@@ -128,7 +128,7 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 				{
 					using (SourceScope source = new SourceScope($"{typeSymbol.Name}.SubscribeMethods", context))
 					{
-						using (TypeScope type = source.WithClass(typeSymbol.Name).WithAccessor(TypeAccessor.None)
+						using (TypeScope type = source.WithClass(typeSymbol.GetGenericFriendlyName()).WithAccessor(TypeAccessor.None)
 						                              .WithNamespace(typeSymbol.ContainingNamespace).Partial())
 						{
 							using (MethodScope subscribeAll = type.WithMethod("SubscribeToAll").WithAccessor(MethodAccessor.Private))

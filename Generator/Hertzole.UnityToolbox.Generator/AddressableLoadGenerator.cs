@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Text;
 using System.Threading;
 using Hertzole.UnityToolbox.Generator.Data;
 using Hertzole.UnityToolbox.Generator.Helpers;
-using Hertzole.UnityToolbox.Generator.Pooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -59,7 +57,7 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 	private void Execute(SourceProductionContext context, Compilation compilation, ImmutableArray<ClassDeclarationSyntax> typeList)
 	{
 		Log.LogInfo($"Execute on {typeList.Length} items");
-		
+
 		if (typeList.IsDefaultOrEmpty)
 		{
 			Log.LogInfo("No classes found.");
@@ -99,7 +97,7 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 			}
 
 			fields.Clear();
-			
+
 			Log.LogInfo($"Get members of {typeSymbol.Name}");
 
 			foreach (ISymbol member in typeSymbol.GetMembers())
@@ -108,7 +106,9 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 				{
 					if (member is not IFieldSymbol field || field.IsStatic || field.IsReadOnly || !field.TryGetAttribute(generateLoadAttribute, out _))
 					{
-						Log.LogInfo($"Member {member.Name} is not a valid field. Is field: {member is IFieldSymbol}. Is static: {member.IsStatic}.  Has attribute: {member.TryGetAttribute(generateLoadAttribute, out _)}.");
+						Log.LogInfo(
+							$"Member {member.Name} is not a valid field. Is field: {member is IFieldSymbol}. Is static: {member.IsStatic}.  Has attribute: {member.TryGetAttribute(generateLoadAttribute, out _)}.");
+
 						continue;
 					}
 
@@ -129,15 +129,15 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 					// Otherwise, add "Value" to the end.
 					string valueName = TextUtility.FormatAddressableName(field.Name);
 					bool fieldExists = false;
-					
+
 					foreach (ISymbol member2 in typeSymbol.GetMembers())
 					{
-						if(member2 is not IFieldSymbol field2 || field2.IsStatic || field2.IsReadOnly)
+						if (member2 is not IFieldSymbol field2 || field2.IsStatic || field2.IsReadOnly)
 						{
 							continue;
 						}
-						
-						if(field2.Name == valueName)
+
+						if (field2.Name == valueName)
 						{
 							fieldExists = true;
 							break;
@@ -160,39 +160,10 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 
 				try
 				{
-					string name;
-
-					using (ObjectPool<StringBuilder>.Get(out var nameBuilder))
-					{
-						nameBuilder.Clear();
-
-						nameBuilder.Append(typeSymbol.Name);
-
-						if (typeSymbol.IsGenericType)
-						{
-							nameBuilder.Append('<');
-
-							ImmutableArray<ITypeSymbol> typeArguments = typeSymbol.TypeArguments;
-
-							for (int i = 0; i < typeArguments.Length; i++)
-							{
-								if (i > 0)
-								{
-									nameBuilder.Append(", ");
-								}
-
-								nameBuilder.Append(typeArguments[i].Name);
-							}
-
-							nameBuilder.Append('>');
-						}
-
-						name = nameBuilder.ToString();
-					}
-                            
 					using (SourceScope source = new SourceScope($"{typeSymbol.Name}.Addressables", context))
 					{
-						using (TypeScope type = source.WithClass(name).WithAccessor(TypeAccessor.None).WithNamespace(typeSymbol.ContainingNamespace)
+						using (TypeScope type = source.WithClass(typeSymbol.GetGenericFriendlyName()).WithAccessor(TypeAccessor.None)
+						                              .WithNamespace(typeSymbol.ContainingNamespace)
 						                              .Partial())
 						{
 							foreach ((IFieldSymbol _, INamedTypeSymbol addressableType, string valueName, bool _, bool fieldExists) in fields)
@@ -213,7 +184,8 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 
 							using (MethodScope load = type.WithMethod("LoadAssets").WithAccessor(MethodAccessor.Private))
 							{
-								foreach ((IFieldSymbol field, INamedTypeSymbol addressableType, string valueName, bool generateSubscribeMethods, bool _) in fields)
+								foreach ((IFieldSymbol field, INamedTypeSymbol addressableType, string valueName, bool generateSubscribeMethods,
+								          bool _) in fields)
 								{
 									load.WriteLine(
 										$"{field.Name}Handle = global::UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<global::{addressableType.ToDisplayString()}>({field.Name});");
