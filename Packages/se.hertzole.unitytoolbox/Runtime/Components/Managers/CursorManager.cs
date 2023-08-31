@@ -1,14 +1,18 @@
 ﻿#if TOOLBOX_SCRIPTABLE_VALUES
 using Hertzole.ScriptableValues;
+using Hertzole.UnityToolbox.Matches;
 using UnityEngine;
 #if TOOLBOX_INPUT_SYSTEM
 using UnityEngine.InputSystem;
+#endif
+#if TOOLBOX_ADDRESSABLES
+using UnityEngine.AddressableAssets;
 #endif
 
 namespace Hertzole.UnityToolbox
 {
 	[DisallowMultipleComponent]
-	public sealed class CursorManager : MonoSingleton<CursorManager>
+	public sealed partial class CursorManager : MonoSingleton<CursorManager>
 	{
 		[SerializeField]
 		private ScriptableValue<bool> lockCursor = default;
@@ -16,7 +20,7 @@ namespace Hertzole.UnityToolbox
 		private bool handleCursorLocking = true;
 
 		[SerializeReference]
-		private IScriptableMatch[] matches = default;
+		private IScriptableMatch[] matches = new IScriptableMatch[0];
 
 		private void Start()
 		{
@@ -31,9 +35,9 @@ namespace Hertzole.UnityToolbox
 			}
 
 #if TOOLBOX_INPUT_SYSTEM
-			if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame && lockCursor.Value)
+			if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame && lockCursor != null && lockCursor.Value)
 #else
-			if (Input.GetMouseButtonDown(0) && lockCursor.Value)
+			if (Input.GetMouseButtonDown(0) && lockCursor != null && lockCursor.Value)
 #endif
 			{
 				LockCursor(true);
@@ -42,7 +46,14 @@ namespace Hertzole.UnityToolbox
 
 		private void OnDestroy()
 		{
-			lockCursor.OnValueChanged -= OnLockCursorChanged;
+#if TOOLBOX_ADDRESSABLES
+			ReleaseAssets();
+#endif
+
+			if (lockCursor != null)
+			{
+				lockCursor.OnValueChanged -= OnLockCursorChanged;
+			}
 
 			for (int i = 0; i < matches.Length; i++)
 			{
@@ -56,17 +67,42 @@ namespace Hertzole.UnityToolbox
 
 		protected override void OnAwake()
 		{
-			lockCursor.OnValueChanged += OnLockCursorChanged;
-
-			for (int i = 0; i < matches.Length; i++)
+#if TOOLBOX_ADDRESSABLES
+			if (useAddressables)
 			{
-				matches[i].Initialize();
-				matches[i].OnValueChanged += OnValueChanged;
+				LoadAssets();
+			}
+			else
+#endif
+			{
+				if (lockCursor != null)
+				{
+					lockCursor.OnValueChanged += OnLockCursorChanged;
+				}
+
+				for (int i = 0; i < matches.Length; i++)
+				{
+					matches[i].Initialize();
+					matches[i].OnValueChanged += OnValueChanged;
+				}
 			}
 		}
 
+#if TOOLBOX_ADDRESSABLES
+		partial void OnLockCursorLoaded(ScriptableValue<bool> value)
+		{
+			lockCursor.OnValueChanged += OnLockCursorChanged;
+			OnValueChanged();
+		}
+#endif
+
 		private void OnValueChanged()
 		{
+			if (lockCursor == null)
+			{
+				return;
+			}
+
 			lockCursor.Value = AllMatches();
 		}
 
@@ -98,6 +134,29 @@ namespace Hertzole.UnityToolbox
 
 			return true;
 		}
+
+#if UNITY_EDITOR && TOOLBOX_ADDRESSABLES
+		private void OnValidate()
+		{
+			// We don't want to reset the value while playing.
+			if (Application.isPlaying)
+			{
+				return;
+			}
+
+			if (useAddressables)
+			{
+				lockCursor = null;
+			}
+		}
+#endif
+#if TOOLBOX_ADDRESSABLES
+		[SerializeField]
+		private bool useAddressables = default;
+		[SerializeField]
+		[GenerateLoad]
+		private AssetReferenceT<ScriptableValue<bool>> lockCursorReference = default;
+#endif
 	}
 }
 #endif

@@ -21,6 +21,11 @@ namespace Hertzole.UnityToolbox.Editor
 		{
 			base.OnEnable();
 
+#if TOOLBOX_ADDRESSABLES
+			useAddressables = serializedObject.FindProperty(nameof(useAddressables));
+			lockCursorReference = serializedObject.FindProperty(nameof(lockCursorReference));
+#endif
+
 			lockCursor = serializedObject.FindProperty(nameof(lockCursor));
 			handleCursorLocking = serializedObject.FindProperty(nameof(handleCursorLocking));
 			matches = serializedObject.FindProperty(nameof(matches));
@@ -35,6 +40,22 @@ namespace Hertzole.UnityToolbox.Editor
 			PropertyField handleCursorLockingField = new PropertyField(handleCursorLocking);
 			handleCursorLockingField.Bind(serializedObject);
 
+#if TOOLBOX_ADDRESSABLES
+			PropertyField useAddressablesField = new PropertyField(useAddressables);
+			useAddressablesField.Bind(serializedObject);
+			PropertyField lockCursorReferenceField = new PropertyField(lockCursorReference);
+			lockCursorReferenceField.Bind(serializedObject);
+
+			useAddressablesField.RegisterCallback<SerializedPropertyChangeEvent, (PropertyField, PropertyField)>((evt, args) =>
+			{
+				args.Item1.style.display = evt.changedProperty.boolValue ? DisplayStyle.Flex : DisplayStyle.None;
+				args.Item2.style.display = evt.changedProperty.boolValue ? DisplayStyle.None : DisplayStyle.Flex;
+			}, (lockCursorReferenceField, lockCursorField));
+
+			lockCursorField.style.display = useAddressables.boolValue ? DisplayStyle.None : DisplayStyle.Flex;
+			lockCursorReferenceField.style.display = useAddressables.boolValue ? DisplayStyle.Flex : DisplayStyle.None;
+#endif
+
 			ManagedReferenceListView<IScriptableMatch> matchesField = new ManagedReferenceListView<IScriptableMatch>(matches)
 			{
 				name = "matches-list",
@@ -46,11 +67,14 @@ namespace Hertzole.UnityToolbox.Editor
 				reorderMode = ListViewReorderMode.Animated,
 				selectionType = SelectionType.Single,
 				virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight
-				// makeItem = MakeListItem,
-				// bindItem = BindListItem
 			};
 
 			root.Add(VisiaulElementUtilities.Header("Cursor Settings"));
+
+#if TOOLBOX_ADDRESSABLES
+			root.Add(useAddressablesField);
+			root.Add(lockCursorReferenceField);
+#endif
 			root.Add(lockCursorField);
 			root.Add(handleCursorLockingField);
 			root.Add(VisiaulElementUtilities.VerticalSpace());
@@ -58,35 +82,10 @@ namespace Hertzole.UnityToolbox.Editor
 
 			return root;
 		}
-
-		private void BindListItem(VisualElement root, int index)
-		{
-			PropertyField targetField = root.Q<PropertyField>("target");
-			PropertyField valueField = root.Q<PropertyField>("value");
-
-			targetField.BindProperty(matches.GetArrayElementAtIndex(index).FindPropertyRelative("target"));
-			valueField.BindProperty(matches.GetArrayElementAtIndex(index).FindPropertyRelative("value"));
-		}
-
-		private static VisualElement MakeListItem()
-		{
-			VisualElement root = new VisualElement();
-
-			PropertyField target = new PropertyField
-			{
-				name = "target"
-			};
-
-			PropertyField value = new PropertyField
-			{
-				name = "value"
-			};
-
-			root.Add(target);
-			root.Add(value);
-
-			return root;
-		}
+#if TOOLBOX_ADDRESSABLES
+		private SerializedProperty useAddressables;
+		private SerializedProperty lockCursorReference;
+#endif
 	}
 }
 #endif
