@@ -1,3 +1,17 @@
+# [1.4.0](https://github.com/Hertzole/unity-toolbox/compare/v1.3.0...v1.4.0) (2023-08-31)
+
+
+### Bug Fixes
+
+* AddressableLoadGenerator not supporting generic names ([e5a5c3a](https://github.com/Hertzole/unity-toolbox/commit/e5a5c3aa00657a8e3f73ab466fff4d47e691db45))
+* SubscribeMethodsGenerator not supporting generic names ([24b1744](https://github.com/Hertzole/unity-toolbox/commit/24b1744f7f58cdda3d49084b68febcf713c83b59))
+
+
+### Features
+
+* addressables support for cursor manager ([efc6b8a](https://github.com/Hertzole/unity-toolbox/commit/efc6b8ab0ce34396395876c371d004c1a074d12e))
+* custom editor for scriptable value matches ([0e6dcde](https://github.com/Hertzole/unity-toolbox/commit/0e6dcde0f7ccafd2c286f7048b9eb4dc472ef409))
+
 # [1.3.0](https://github.com/Hertzole/unity-toolbox/compare/v1.2.0...v1.3.0) (2023-08-30)
 
 
