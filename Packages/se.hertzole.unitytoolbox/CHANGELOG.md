@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/Hertzole/unity-toolbox/compare/v1.2.0...v1.3.0) (2023-08-30)
+
+
+### Features
+
+* Add/RemoveAllListeners extension method ([45a4d6a](https://github.com/Hertzole/unity-toolbox/commit/45a4d6a139f31c3f66b7461666cf0ecfecdccdd1))
+
 # [1.2.0](https://github.com/Hertzole/unity-toolbox/compare/v1.1.0...v1.2.0) (2023-08-13)
 
 
