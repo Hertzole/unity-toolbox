@@ -22,9 +22,9 @@ jobs:
       has_changes: ${{ steps.filter.outputs.workflows }}
     steps:
       - name: Install Node
-        run: |
-          curl -sL https://deb.nodesource.com/setup_14.x | bash -
-          apt-get install -y nodejs
+        uses: actions/setup-node@v3
+          with:
+            node-version: 18
 
       - name: Update Git
         run: |
@@ -101,9 +101,9 @@ jobs:
     container: unityci/editor:ubuntu-2023.1.7f1-base-1.1.2
     steps:
       - name: Install Node
-        run: |
-          curl -sL https://deb.nodesource.com/setup_14.x | bash -
-          apt-get install -y nodejs
+        uses: actions/setup-node@v3
+          with:
+            node-version: 18
 
       - name: Update Git
         run: |
