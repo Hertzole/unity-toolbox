@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Hertzole.UnityToolbox.Generator.Data;
+using Hertzole.UnityToolbox.Generator.Helpers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 
@@ -32,11 +33,26 @@ internal sealed class InputCallbacksAnalyzer : DiagnosticAnalyzer
 					return;
 				}
 
+				ITypeSymbol? typeSymbol = symbolContext.Symbol switch
+				{
+					IFieldSymbol fieldSymbol => fieldSymbol.Type,
+					IPropertySymbol propertySymbol => propertySymbol.Type,
+					_ => null
+				};
+
+				bool isAddressable = typeSymbol != null && AddressablesHelper.GetAddressableType(typeSymbol) != null;
+
 				InputCallbackType callbackType = InputCallbackType.None;
 				string startedMethodName = string.Empty;
 				string performedMethodName = string.Empty;
 				string canceledMethodName = string.Empty;
 				string allMethodName = string.Empty;
+
+				string fieldName = symbolContext.Symbol.Name;
+				if (isAddressable)
+				{
+					fieldName = TextUtility.FormatAddressableName(fieldName);
+				}
 
 				ImmutableArray<KeyValuePair<string, TypedConstant>> namedArguments = attribute.NamedArguments;
 				foreach (KeyValuePair<string, TypedConstant> argumentPair in namedArguments)
@@ -47,19 +63,19 @@ internal sealed class InputCallbacksAnalyzer : DiagnosticAnalyzer
 						{
 							case "GenerateStarted":
 								callbackType |= InputCallbackType.Started;
-								startedMethodName = $"OnInput{TextUtility.FormatVariableLabel(TextUtility.FormatAddressableName(symbolContext.Symbol.Name))}Started";
+								startedMethodName = $"OnInput{TextUtility.FormatVariableLabel(fieldName)}Started";
 								break;
 							case "GeneratePerformed":
 								callbackType |= InputCallbackType.Performed;
-								performedMethodName = $"OnInput{TextUtility.FormatVariableLabel(TextUtility.FormatAddressableName(symbolContext.Symbol.Name))}Performed";
+								performedMethodName = $"OnInput{TextUtility.FormatVariableLabel(fieldName)}Performed";
 								break;
 							case "GenerateCanceled":
 								callbackType |= InputCallbackType.Canceled;
-								canceledMethodName = $"OnInput{TextUtility.FormatVariableLabel(TextUtility.FormatAddressableName(symbolContext.Symbol.Name))}Canceled";
+								canceledMethodName = $"OnInput{TextUtility.FormatVariableLabel(fieldName)}Canceled";
 								break;
 							case "GenerateAll":
 								callbackType |= InputCallbackType.All;
-								allMethodName = $"OnInput{TextUtility.FormatVariableLabel(TextUtility.FormatAddressableName(symbolContext.Symbol.Name))}";
+								allMethodName = $"OnInput{TextUtility.FormatVariableLabel(fieldName)}";
 								break;
 						}
 					}
@@ -102,24 +118,48 @@ internal sealed class InputCallbacksAnalyzer : DiagnosticAnalyzer
 
 				Location? location = attribute.ApplicationSyntaxReference?.GetSyntax().GetLocation();
 
+				ImmutableDictionary<string, string?>.Builder propertiesBuilder = ImmutableDictionary.CreateBuilder<string, string?>();
+
 				if (!hasStartedMethod && (callbackType & InputCallbackType.Started) != 0)
 				{
-					symbolContext.ReportDiagnostic(Diagnostic.Create(inputCallbackNotImplementedError, location, startedMethodName));
+					propertiesBuilder.Add("startedMethodName", startedMethodName);
 				}
 
 				if (!hasPerformedMethod && (callbackType & InputCallbackType.Performed) != 0)
 				{
-					symbolContext.ReportDiagnostic(Diagnostic.Create(inputCallbackNotImplementedError, location, performedMethodName));
+					propertiesBuilder.Add("performedMethodName", performedMethodName);
 				}
 
 				if (!hasCanceledMethod && (callbackType & InputCallbackType.Canceled) != 0)
 				{
-					symbolContext.ReportDiagnostic(Diagnostic.Create(inputCallbackNotImplementedError, location, canceledMethodName));
+					propertiesBuilder.Add("canceledMethodName", canceledMethodName);
 				}
 
 				if (!hasAllMethod && (callbackType & InputCallbackType.All) != 0)
 				{
-					symbolContext.ReportDiagnostic(Diagnostic.Create(inputCallbackNotImplementedError, location, allMethodName));
+					propertiesBuilder.Add("allMethodName", allMethodName);
+				}
+
+				ImmutableDictionary<string, string?> properties = propertiesBuilder.ToImmutable();
+
+				if (!hasStartedMethod && (callbackType & InputCallbackType.Started) != 0)
+				{
+					symbolContext.ReportDiagnostic(Diagnostic.Create(inputCallbackNotImplementedError, location, properties, startedMethodName));
+				}
+
+				if (!hasPerformedMethod && (callbackType & InputCallbackType.Performed) != 0)
+				{
+					symbolContext.ReportDiagnostic(Diagnostic.Create(inputCallbackNotImplementedError, location, properties, performedMethodName));
+				}
+
+				if (!hasCanceledMethod && (callbackType & InputCallbackType.Canceled) != 0)
+				{
+					symbolContext.ReportDiagnostic(Diagnostic.Create(inputCallbackNotImplementedError, location, properties, canceledMethodName));
+				}
+
+				if (!hasAllMethod && (callbackType & InputCallbackType.All) != 0)
+				{
+					symbolContext.ReportDiagnostic(Diagnostic.Create(inputCallbackNotImplementedError, location, properties, allMethodName));
 				}
 			}, symbolKinds);
 		});
