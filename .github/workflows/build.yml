@@ -89,15 +89,6 @@ jobs:
           cd Generator
           dotnet test
 
-      - name: Update Generator
-        if: steps.filter.outputs.workflows == 'true'
-        run: |
-          git config --global user.name 'github-bot'
-          git config --global user.email 'github-bot@users.noreply.github.com'
-          git add Packages/se.hertzole.unitytoolbox/Plugins/Hertzole.UnityToolbox.Generator.dll
-          git commit -m "Updated generator" || echo "No changes to commit"
-          git push -f -u origin master || echo "No changes to push"
-
   unity:
     name: Test and Build Unity Package
     runs-on: ubuntu-latest
@@ -153,6 +144,9 @@ jobs:
           cd Generator
           dotnet publish -c Release -o ../GeneratorBuild
           cd ..
+          git config --global user.name 'github-bot'
+          git config --global user.email 'github-bot@users.noreply.github.com'
+          git add Packages/se.hertzole.unitytoolbox/Plugins/Hertzole.UnityToolbox.Generator.dll
 
       - name: Run Play Mode Tests
         run: unity-editor -nographics -logFile /dev/stdout -runTests -testPlatform playmode -testResults Tests/playmode.xml -enableCodeCoverage -coverageResultsPath TestCoverage -debugCodeOptimization -coverageOptions "generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+Hertzole.UnityToolbox"
