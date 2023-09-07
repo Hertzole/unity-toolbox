@@ -1,3 +1,12 @@
+# [1.5.0](https://github.com/Hertzole/unity-toolbox/compare/v1.4.0...v1.5.0) (2023-09-07)
+
+
+### Features
+
+* add input callbacks code fixer ([57d8f24](https://github.com/Hertzole/unity-toolbox/commit/57d8f242039df7dd2a8c50ee3ec9cb15e1e8cd6c))
+* GenerateInputCallbacks attribute with generator ([91c07ff](https://github.com/Hertzole/unity-toolbox/commit/91c07ffc48d6f14f98512cde85d8e9899e4d2700))
+* input callback analyzer ([306b625](https://github.com/Hertzole/unity-toolbox/commit/306b6255e7d8b530bba1d7a4f8dffd134f4e611c))
+
 # [1.4.0](https://github.com/Hertzole/unity-toolbox/compare/v1.3.0...v1.4.0) (2023-08-31)
 
 
