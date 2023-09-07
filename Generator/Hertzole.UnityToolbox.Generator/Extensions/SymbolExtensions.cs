@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using System;
+using System.Collections.Immutable;
 using System.Text;
 using Hertzole.UnityToolbox.Generator.Pooling;
 using Microsoft.CodeAnalysis;
@@ -17,18 +18,37 @@ public static class SymbolExtensions
 				continue;
 			}
 
-			Log.LogInfo($"Checking attribute class {attributeData.AttributeClass} against {attributeSymbol}.");
-
 			if (attributeData.AttributeClass.ContainingNamespace.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) ==
 			    attributeSymbol.ContainingNamespace.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) &&
 			    attributeData.AttributeClass.Name == attributeSymbol.Name)
 			{
 				attribute = attributeData;
-				Log.LogInfo("Found attribute.");
 				return true;
 			}
 		}
 
+		return false;
+	}
+	
+	public static bool TryGetAttribute(this ISymbol symbol, string attributeName, out AttributeData? attribute)
+	{
+		foreach (AttributeData attributeData in symbol.GetAttributes())
+		{
+			if (attributeData.AttributeClass == null)
+			{
+				continue;
+			}
+
+			string name = attributeData.AttributeClass.ToDisplayString();
+
+			if (string.Equals(name, attributeName, StringComparison.Ordinal))
+			{
+				attribute = attributeData;
+				return true;
+			}
+		}
+		
+		attribute = null;
 		return false;
 	}
 

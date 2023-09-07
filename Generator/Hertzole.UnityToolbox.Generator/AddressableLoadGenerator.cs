@@ -56,8 +56,6 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 
 	private void Execute(SourceProductionContext context, Compilation compilation, ImmutableArray<ClassDeclarationSyntax> typeList)
 	{
-		Log.LogInfo($"Execute on {typeList.Length} items");
-
 		if (typeList.IsDefaultOrEmpty)
 		{
 			Log.LogInfo("No classes found.");
@@ -98,8 +96,6 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 
 			fields.Clear();
 
-			Log.LogInfo($"Get members of {typeSymbol.Name}");
-
 			foreach (ISymbol member in typeSymbol.GetMembers())
 			{
 				try
@@ -111,8 +107,6 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 
 						continue;
 					}
-
-					Log.LogInfo($"Found valid field {field.Name}.");
 
 					INamedTypeSymbol? addressableType = AddressablesHelper.GetAddressableType(field, assetReferenceT);
 
@@ -129,6 +123,7 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 					// Otherwise, add "Value" to the end.
 					string valueName = TextUtility.FormatAddressableName(field.Name);
 					bool fieldExists = false;
+					bool generateInputCallbacks = field.TryGetAttribute(InputCallbacksGenerator.ATTRIBUTE_NAME, out _);
 
 					foreach (ISymbol member2 in typeSymbol.GetMembers())
 					{
@@ -144,9 +139,7 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 						}
 					}
 
-					fields.Add(new AddressableLoadField(field, addressableType, valueName, generateSubscribeMethods, fieldExists));
-
-					Log.LogInfo($"Added field {field.Name} to list.");
+					fields.Add(new AddressableLoadField(field, addressableType, valueName, generateSubscribeMethods, fieldExists, generateInputCallbacks));
 				}
 				catch (Exception e)
 				{
@@ -156,8 +149,6 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 
 			if (fields.Count > 0)
 			{
-				Log.LogInfo($"Write source for {typeSymbol.Name}");
-
 				try
 				{
 					using (SourceScope source = new SourceScope($"{typeSymbol.Name}.Addressables", context))
@@ -166,7 +157,7 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 						                              .WithNamespace(typeSymbol.ContainingNamespace)
 						                              .Partial())
 						{
-							foreach ((IFieldSymbol _, INamedTypeSymbol addressableType, string valueName, bool _, bool fieldExists) in fields)
+							foreach ((IFieldSymbol _, INamedTypeSymbol addressableType, string valueName, bool _, bool fieldExists, bool _) in fields)
 							{
 								if (!fieldExists)
 								{
@@ -175,7 +166,7 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 								}
 							}
 
-							foreach ((IFieldSymbol field, INamedTypeSymbol addressableType, string _, bool _, bool _) in fields)
+							foreach ((IFieldSymbol field, INamedTypeSymbol addressableType, string _, bool _, bool _, bool _) in fields)
 							{
 								type.AddField(TypeAccessor.Private,
 									$"global::UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<global::{addressableType.ToDisplayString()}>",
@@ -185,7 +176,7 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 							using (MethodScope load = type.WithMethod("LoadAssets").WithAccessor(MethodAccessor.Private))
 							{
 								foreach ((IFieldSymbol field, INamedTypeSymbol addressableType, string valueName, bool generateSubscribeMethods,
-								          bool _) in fields)
+								          bool _, bool generateInputCallbacks) in fields)
 								{
 									load.WriteLine(
 										$"{field.Name}Handle = global::UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<global::{addressableType.ToDisplayString()}>({field.Name});");
@@ -199,6 +190,11 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 									load.WriteLine($"{valueName} = op.Result;");
 
 									if (generateSubscribeMethods)
+									{
+										load.WriteLine($"SubscribeTo{TextUtility.FormatVariableLabel(valueName)}();");
+									}
+
+									if (generateInputCallbacks)
 									{
 										load.WriteLine($"SubscribeTo{TextUtility.FormatVariableLabel(valueName)}();");
 									}
@@ -221,7 +217,7 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 
 							using (MethodScope release = type.WithMethod("ReleaseAssets").WithAccessor(MethodAccessor.Private))
 							{
-								foreach ((IFieldSymbol field, INamedTypeSymbol _, string _, bool _, bool _) in fields)
+								foreach ((IFieldSymbol field, INamedTypeSymbol _, string _, bool _, bool _, bool _) in fields)
 								{
 									release.WriteLine($"if ({field.Name}Handle.IsValid())");
 									release.WriteLine("{");
@@ -232,7 +228,7 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 								}
 							}
 
-							foreach ((IFieldSymbol _, INamedTypeSymbol addressableType, string valueName, bool _, bool _) in fields)
+							foreach ((IFieldSymbol _, INamedTypeSymbol addressableType, string valueName, bool _, bool _, bool _) in fields)
 							{
 								type.WithMethod($"On{TextUtility.FormatVariableLabel(valueName)}Loaded").WithAccessor(MethodAccessor.None)
 								    .WithParameter($"global::{addressableType.ToDisplayString()}", "value").Partial().Dispose();

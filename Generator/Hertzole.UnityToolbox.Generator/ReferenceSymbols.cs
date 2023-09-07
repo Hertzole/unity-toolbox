@@ -14,6 +14,8 @@ public sealed class ReferenceSymbols
 	private INamedTypeSymbol? scriptableGenericEvent;
 	private INamedTypeSymbol? eventArgs;
 	private INamedTypeSymbol? systemObject;
+	
+	public const string ASSET_REFERENCE_T = "UnityEngine.AddressableAssets.AssetReferenceT`1";
 
 	public INamedTypeSymbol? GenerateLoadAttribute
 	{
