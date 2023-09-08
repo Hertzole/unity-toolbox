@@ -1,6 +1,7 @@
 ﻿using System;
+using Hertzole.UnityToolbox.Shared;
 
-namespace Hertzole.UnityToolbox.Generator.Data;
+namespace Hertzole.UnityToolbox.Shared;
 
 [Flags]
 public enum InputCallbackType : byte
@@ -21,14 +22,13 @@ public readonly record struct InputCallbackField(string Name, string InputName, 
 	public string UnsubscribeFromField { get; } = $"UnsubscribeFrom{TextUtility.FormatVariableLabel(Name)}";
 
 	public string StartedMethod { get; } = $"OnInput{TextUtility.FormatVariableLabel(Name)}Started";
-	
+
 	public string PerformedMethod { get; } = $"OnInput{TextUtility.FormatVariableLabel(Name)}Performed";
-	
+
 	public string CanceledMethod { get; } = $"OnInput{TextUtility.FormatVariableLabel(Name)}Canceled";
-	
+
 	public string AllMethod { get; } = $"OnInput{TextUtility.FormatVariableLabel(Name)}";
-	
-	
+
 	public string Name { get; } = Name;
 	public string InputName { get; } = InputName;
 	public InputCallbackType CallbackType { get; } = CallbackType;

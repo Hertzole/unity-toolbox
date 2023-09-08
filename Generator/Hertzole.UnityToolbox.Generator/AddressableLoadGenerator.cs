@@ -124,7 +124,7 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 					// Otherwise, add "Value" to the end.
 					string valueName = TextUtility.FormatAddressableName(field.Name);
 					bool fieldExists = false;
-					bool generateInputCallbacks = field.TryGetAttribute(InputCallbacksGenerator.ATTRIBUTE_NAME, out _);
+					bool generateInputCallbacks = field.TryGetAttribute(Attributes.generateInputCallbacks, out _);
 
 					foreach (ISymbol member2 in typeSymbol.GetMembers())
 					{

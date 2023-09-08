@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading;
-using Hertzole.UnityToolbox.Generator.Data;
 using Hertzole.UnityToolbox.Shared;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -12,8 +11,6 @@ namespace Hertzole.UnityToolbox.Generator;
 [Generator(LanguageNames.CSharp)]
 internal sealed class InputCallbacksGenerator : IIncrementalGenerator
 {
-	public const string ATTRIBUTE_NAME = "Hertzole.UnityToolbox.GenerateInputCallbacksAttribute";
-
 	public void Initialize(IncrementalGeneratorInitializationContext context)
 	{
 		Log.LogInfo("==== INITIALIZE INPUT CALLBACKS ====");
@@ -84,7 +81,7 @@ internal sealed class InputCallbacksGenerator : IIncrementalGenerator
 
 				string attributeName = attributeData.AttributeClass.ToDisplayString();
 
-				if (string.Equals(ATTRIBUTE_NAME, attributeName, StringComparison.Ordinal))
+				if (string.Equals(Attributes.generateInputCallbacks, attributeName, StringComparison.Ordinal))
 				{
 					return (typeDeclaration, true);
 				}
@@ -264,7 +261,7 @@ internal sealed class InputCallbacksGenerator : IIncrementalGenerator
 
 				Log.LogInfo($"[INPUT CALLBACKS] : {attributeName} | {attribute.ConstructorArguments.Length}");
 
-				if (attribute.ConstructorArguments.Length == 1 && string.Equals(attributeName, ATTRIBUTE_NAME, StringComparison.Ordinal))
+				if (attribute.ConstructorArguments.Length == 1 && string.Equals(attributeName, Attributes.generateInputCallbacks, StringComparison.Ordinal))
 				{
 					Log.LogInfo($"Found input callback field on {symbol.Name}.");
 

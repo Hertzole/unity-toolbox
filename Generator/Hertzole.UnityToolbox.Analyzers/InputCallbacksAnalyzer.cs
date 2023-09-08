@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using Hertzole.UnityToolbox.Generator.Data;
-using Hertzole.UnityToolbox.Generator.Helpers;
 using Hertzole.UnityToolbox.Shared;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 
-namespace Hertzole.UnityToolbox.Generator;
+namespace Hertzole.UnityToolbox.Analyzers;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 internal sealed class InputCallbacksAnalyzer : DiagnosticAnalyzer
@@ -28,7 +26,7 @@ internal sealed class InputCallbacksAnalyzer : DiagnosticAnalyzer
 		{
 			compileContext.RegisterSymbolAction(symbolContext =>
 			{
-				if (!symbolContext.Symbol.TryGetAttribute(InputCallbacksGenerator.ATTRIBUTE_NAME, out AttributeData? attribute) || attribute is null ||
+				if (!symbolContext.Symbol.TryGetAttribute(Attributes.generateInputCallbacks, out AttributeData? attribute) || attribute is null ||
 				    attribute.AttributeClass is null)
 				{
 					return;

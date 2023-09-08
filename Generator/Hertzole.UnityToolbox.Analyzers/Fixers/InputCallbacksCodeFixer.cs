@@ -11,7 +11,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
-namespace Hertzole.UnityToolbox.Generator;
+namespace Hertzole.UnityToolbox.Analyzers;
 
 [ExportCodeFixProvider(LanguageNames.CSharp)]
 [Shared]
@@ -62,7 +62,7 @@ internal sealed class InputCallbacksCodeFixer : CodeFixProvider
 			symbol = semanticModel.GetDeclaredSymbol(propertySyntax);
 		}
 
-		if (symbol is null || !symbol.TryGetAttribute(InputCallbacksGenerator.ATTRIBUTE_NAME, out AttributeData? attribute) || attribute == null)
+		if (symbol is null || !symbol.TryGetAttribute(Attributes.generateInputCallbacks, out AttributeData? attribute) || attribute == null)
 		{
 			return;
 		}

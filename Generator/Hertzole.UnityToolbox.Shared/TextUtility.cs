@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Text;
-using Hertzole.UnityToolbox.Shared;
 
-namespace Hertzole.UnityToolbox.Generator;
+namespace Hertzole.UnityToolbox.Shared;
 
 public static class TextUtility
 {
