@@ -1,7 +1,8 @@
 ﻿using Microsoft.CodeAnalysis;
 
-namespace Hertzole.UnityToolbox.Generator;
+namespace Hertzole.UnityToolbox.Shared;
 
+//TODO: Mark this as obsolete and just use strings.
 public sealed class ReferenceSymbols
 {
 	private readonly Compilation compilation;

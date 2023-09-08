@@ -1,6 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 
-namespace Hertzole.UnityToolbox.Generator.Helpers;
+namespace Hertzole.UnityToolbox.Shared;
 
 public enum ScriptableType
 {

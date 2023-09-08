@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Immutable;
-using Hertzole.UnityToolbox.Generator.Helpers;
 using Hertzole.UnityToolbox.Shared;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 
-namespace Hertzole.UnityToolbox.Generator;
+namespace Hertzole.UnityToolbox.Analyzers;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class SubscribeMethodsAnalyzer : DiagnosticAnalyzer
