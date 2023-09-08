@@ -23,14 +23,16 @@
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.1.0"/>
     </ItemGroup>
 
-
+    <ItemGroup>
+      <ProjectReference Include="..\Hertzole.UnityToolbox.Shared\Hertzole.UnityToolbox.Shared.csproj" />
+    </ItemGroup>
 
 
     <Target Name="CopyDLLs" AfterTargets="Build">
-        <Message Text="Executing CopyDLLs task" Importance="High" />
+        <Message Text="Executing CopyDLLs task" Importance="High"/>
 
-        <Copy SourceFiles="$(TargetDir)Hertzole.UnityToolbox.Generator.dll" DestinationFolder="..\..\Packages\se.hertzole.unitytoolbox\Plugins\" />
+        <Copy SourceFiles="$(TargetDir)Hertzole.UnityToolbox.Generator.dll" DestinationFolder="..\..\Packages\se.hertzole.unitytoolbox\Plugins\"/>
 
-        <Message Text="Copied build files" Importance="High" />
+        <Message Text="Copied build files" Importance="High"/>
     </Target>
 </Project>

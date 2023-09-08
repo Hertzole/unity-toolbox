@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Threading;
 using Hertzole.UnityToolbox.Generator.Data;
 using Hertzole.UnityToolbox.Generator.Helpers;
+using Hertzole.UnityToolbox.Shared;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 

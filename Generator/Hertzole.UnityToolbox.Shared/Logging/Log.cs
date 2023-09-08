@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 
-namespace Hertzole.UnityToolbox.Generator;
+namespace Hertzole.UnityToolbox.Shared;
 
 public static class Log
 {

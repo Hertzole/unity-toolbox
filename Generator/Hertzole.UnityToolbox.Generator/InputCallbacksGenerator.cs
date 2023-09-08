@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading;
 using Hertzole.UnityToolbox.Generator.Data;
-using Hertzole.UnityToolbox.Generator.Helpers;
-using Hertzole.UnityToolbox.Generator.Pooling;
+using Hertzole.UnityToolbox.Shared;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -113,7 +112,7 @@ internal sealed class InputCallbacksGenerator : IIncrementalGenerator
 				continue;
 			}
 
-			using (ObjectPool<List<InputCallbackField>>.Get(out List<InputCallbackField> validFields))
+			using (ListPool<InputCallbackField>.Get(out List<InputCallbackField> validFields))
 			{
 				validFields.Clear();
 

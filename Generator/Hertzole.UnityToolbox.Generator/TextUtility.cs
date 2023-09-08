@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Text;
-using Hertzole.UnityToolbox.Generator.Pooling;
+using Hertzole.UnityToolbox.Shared;
 
 namespace Hertzole.UnityToolbox.Generator;
 
@@ -32,9 +32,8 @@ public static class TextUtility
 			return string.Empty;
 		}
 
-		using (ObjectPool<StringBuilder>.Get(out StringBuilder sb))
+		using (StringBuilderPool.Get(out StringBuilder sb))
 		{
-			sb.Clear();
 			sb.Append(label);
 			RemovePrefix(sb);
 			UppercaseStart(sb);
@@ -49,9 +48,8 @@ public static class TextUtility
 			return string.Empty;
 		}
 
-		using (ObjectPool<StringBuilder>.Get(out StringBuilder sb))
+		using (StringBuilderPool.Get(out StringBuilder sb))
 		{
-			sb.Clear();
 			sb.Append(name);
 			if (name.EndsWith("reference", StringComparison.OrdinalIgnoreCase))
 			{

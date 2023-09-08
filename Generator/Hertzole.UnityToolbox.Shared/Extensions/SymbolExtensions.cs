@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Immutable;
 using System.Text;
-using Hertzole.UnityToolbox.Generator.Pooling;
 using Microsoft.CodeAnalysis;
 
-namespace Hertzole.UnityToolbox.Generator;
+namespace Hertzole.UnityToolbox.Shared;
 
 public static class SymbolExtensions
 {
@@ -54,10 +53,8 @@ public static class SymbolExtensions
 
 	public static string GetGenericFriendlyName(this INamedTypeSymbol symbol)
 	{
-		using (ObjectPool<StringBuilder>.Get(out StringBuilder? nameBuilder))
+		using (StringBuilderPool.Get(out StringBuilder nameBuilder))
 		{
-			nameBuilder.Clear();
-
 			nameBuilder.Append(symbol.Name);
 
 			if (symbol.IsGenericType)

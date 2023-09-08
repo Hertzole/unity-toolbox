@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Hertzole.UnityToolbox.Shared;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
