@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/Hertzole/unity-toolbox/compare/v1.5.0...v1.6.0) (2023-09-08)
+
+
+### Features
+
+* GenerateLoad analyzer ([e48c7da](https://github.com/Hertzole/unity-toolbox/commit/e48c7da4f8d73496ae7f45c831f191655751700e))
+
 # [1.5.0](https://github.com/Hertzole/unity-toolbox/compare/v1.4.0...v1.5.0) (2023-09-07)
 
 
