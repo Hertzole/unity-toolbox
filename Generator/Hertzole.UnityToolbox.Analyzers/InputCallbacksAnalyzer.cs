@@ -39,7 +39,7 @@ internal sealed class InputCallbacksAnalyzer : DiagnosticAnalyzer
 					_ => null
 				};
 
-				bool isAddressable = typeSymbol != null && AddressablesHelper.GetAddressableType(typeSymbol) != null;
+				bool isAddressable = typeSymbol != null && AddressablesHelper.TryGetAddressableType(typeSymbol, out _);
 
 				InputCallbackType callbackType = InputCallbackType.None;
 				string startedMethodName = string.Empty;

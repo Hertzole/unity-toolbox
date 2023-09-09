@@ -301,8 +301,7 @@ internal sealed class InputCallbacksGenerator : IIncrementalGenerator
 							_ => null
 						};
 
-						INamedTypeSymbol? addressableType = typeSymbol != null ? AddressablesHelper.GetAddressableType(typeSymbol) : null;
-						bool isAddressable = addressableType != null;
+						bool isAddressable = typeSymbol != null && AddressablesHelper.TryGetAddressableType(typeSymbol, out INamedTypeSymbol? addressableType);
 						string name = fieldSymbol.Name;
 
 						if (isAddressable)
