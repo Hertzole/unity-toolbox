@@ -1,3 +1,10 @@
+## [1.6.1](https://github.com/Hertzole/unity-toolbox/compare/v1.6.0...v1.6.1) (2023-09-09)
+
+
+### Bug Fixes
+
+* GenerateInputCallback not working on asset reference classes ([3e12619](https://github.com/Hertzole/unity-toolbox/commit/3e12619811291c180a400aeb4c5952a8c15d789a))
+
 # [1.6.0](https://github.com/Hertzole/unity-toolbox/compare/v1.5.0...v1.6.0) (2023-09-08)
 
 
