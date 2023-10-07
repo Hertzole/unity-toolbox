@@ -7,7 +7,7 @@ using UnityEngine.UIElements;
 namespace Hertzole.UnityToolbox.Editor
 {
 	[CustomPropertyDrawer(typeof(ScriptableValueMatch<>), true)]
-	public sealed class ScriptableValueMatch : ToolboxPropertyDrawer
+	public sealed class ScriptableValueMatchDrawer : ToolboxPropertyDrawer
 	{
 		private static readonly float lineHeight = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
 
