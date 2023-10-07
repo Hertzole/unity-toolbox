@@ -3,7 +3,9 @@ using System;
 using Hertzole.ScriptableValues;
 using Hertzole.ScriptableValues.Helpers;
 using UnityEngine;
+#if TOOLBOX_ADDRESSABLES
 using UnityEngine.AddressableAssets;
+#endif
 
 namespace Hertzole.UnityToolbox.Matches
 {
