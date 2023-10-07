@@ -1,3 +1,11 @@
+## [1.6.2](https://github.com/Hertzole/unity-toolbox/compare/v1.6.1...v1.6.2) (2023-10-07)
+
+
+### Bug Fixes
+
+* compile error when not using Addressables ([5bd9ad2](https://github.com/Hertzole/unity-toolbox/commit/5bd9ad295d34272068f9f875e0e89f3e5082545b))
+* ScriptableValueMatchDrawer being sealed ([aaeb36b](https://github.com/Hertzole/unity-toolbox/commit/aaeb36b05f5269bf3ed31437be7ddf5746d6fa17))
+
 ## [1.6.1](https://github.com/Hertzole/unity-toolbox/compare/v1.6.0...v1.6.1) (2023-09-09)
 
 
