@@ -57,6 +57,9 @@ namespace Hertzole.UnityToolbox
 			SerializedProperty nameProperty = property.FindPropertyRelative("name");
 			int selectedIndex = GetSelectedIndex(parameters, nameProperty.stringValue);
 
+			// Makes sure something is selected if the name is empty.
+			SetDefaultIfNeeded(parameters, nameProperty);
+
 			EditorGUI.BeginChangeCheck();
 			int value = EditorGUI.Popup(position, label, selectedIndex, choicesArray);
 			if (EditorGUI.EndChangeCheck())
@@ -102,13 +105,16 @@ namespace Hertzole.UnityToolbox
 			int selectedIndex = GetSelectedIndex(parameters, nameProperty.stringValue);
 
 			PopupField<int> popupField = new PopupField<int>(label, choices, selectedIndex, FormatParameterName, FormatParameterName);
-			popupField.RegisterCallback<ChangeEvent<int>, SerializedProperty>((evt, prop) =>
+			popupField.RegisterCallback<ChangeEvent<int>, (SerializedProperty property, List<ParameterData> parameterData)>((evt, args) =>
 			{
-				prop.stringValue = parameters[evt.newValue].name;
-				prop.serializedObject.ApplyModifiedProperties();
-			}, nameProperty);
+				args.property.stringValue = args.parameterData[evt.newValue].name;
+				args.property.serializedObject.ApplyModifiedProperties();
+			}, (nameProperty, parameters));
 
 			popupField.SetEnabled(parameters.Count != 0);
+
+			// Makes sure something is selected if the name is empty.
+			SetDefaultIfNeeded(parameters, nameProperty);
 
 			return popupField;
 		}
@@ -231,6 +237,15 @@ namespace Hertzole.UnityToolbox
 			}
 
 			return -1;
+		}
+
+		private static void SetDefaultIfNeeded(in IReadOnlyList<ParameterData> parameters, SerializedProperty property)
+		{
+			if (parameters.Count > 0 && string.IsNullOrEmpty(property.stringValue))
+			{
+				property.stringValue = parameters[0].name;
+				property.serializedObject.ApplyModifiedProperties();
+			}
 		}
 	}
 }
