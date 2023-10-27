@@ -1,3 +1,10 @@
+## [1.6.3](https://github.com/Hertzole/unity-toolbox/compare/v1.6.2...v1.6.3) (2023-10-27)
+
+
+### Bug Fixes
+
+* animator paramater types having empty types ([83b5991](https://github.com/Hertzole/unity-toolbox/commit/83b599110f9ce026e3b41a7b30d5c4c6ae5b9e90))
+
 ## [1.6.2](https://github.com/Hertzole/unity-toolbox/compare/v1.6.1...v1.6.2) (2023-10-07)
 
 
