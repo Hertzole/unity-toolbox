@@ -1,8 +1,0 @@
-{
-    "name": "Hertzole.UnityToolbox.Tests",
-    "rootNamespace": "Hertzole.UnityToolbox.Tests",
-    "optionalUnityReferences": [
-        "TestAssemblies"
-    ],
-    "references":[ "GUID:ec45778daa71a29488062f6d5d6a9fb3" ]
-}
