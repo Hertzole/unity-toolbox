@@ -1,3 +1,12 @@
+# [1.7.0](https://github.com/Hertzole/unity-toolbox/compare/v1.6.3...v1.7.0) (2023-11-01)
+
+
+### Features
+
+* add collection extensions to NativeArray ([04283c7](https://github.com/Hertzole/unity-toolbox/commit/04283c736ae83cc4e24ab88cba0bdd9ff3b1b366))
+* add collection extensions to NativeList ([40ecf09](https://github.com/Hertzole/unity-toolbox/commit/40ecf09bce47d7274a31bb4505380f0d9cee0811))
+* get elements by ref in native collections ([4ae44c9](https://github.com/Hertzole/unity-toolbox/commit/4ae44c9a613f5d1788f72853e93c565814b9fcb8))
+
 ## [1.6.3](https://github.com/Hertzole/unity-toolbox/compare/v1.6.2...v1.6.3) (2023-10-27)
 
 
