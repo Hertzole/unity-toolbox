@@ -12,7 +12,9 @@ namespace Hertzole.UnityToolbox
 {
 #if TOOLBOX_BURST
 	[BurstCompile]
-#if TOOLBOX_COLLECTIONS
+#if TOOLBOX_COLLECTIONS_2
+	[GenerateTestsForBurstCompatibility]
+#elif TOOLBOX_COLLECTIONS
 	[BurstCompatible]
 #endif
 #endif
@@ -20,9 +22,6 @@ namespace Hertzole.UnityToolbox
 	{
 #if TOOLBOX_BURST
 		[BurstDiscard]
-#if TOOLBOX_COLLECTIONS
-		[BurstCompatible]
-#endif
 #endif
 		public static void Shuffle<T>(this NativeArray<T> array) where T : struct
 		{
@@ -61,9 +60,6 @@ namespace Hertzole.UnityToolbox
 
 #if TOOLBOX_BURST
 		[BurstDiscard]
-#if TOOLBOX_COLLECTIONS
-		[BurstCompatible]
-#endif
 #endif
 		public static void Shuffle<T>(this NativeArray<T> array, SystemRandom random) where T : struct
 		{
@@ -83,9 +79,6 @@ namespace Hertzole.UnityToolbox
 
 #if TOOLBOX_BURST
 		[BurstDiscard]
-#if TOOLBOX_COLLECTIONS
-		[BurstCompatible]
-#endif
 #endif
 		public static T GetRandom<T>(this NativeArray<T> array) where T : struct
 		{
@@ -116,9 +109,6 @@ namespace Hertzole.UnityToolbox
 
 #if TOOLBOX_BURST
 		[BurstDiscard]
-#if TOOLBOX_COLLECTIONS
-		[BurstCompatible]
-#endif
 #endif
 		public static T GetRandom<T>(this NativeArray<T> array, SystemRandom random) where T : struct
 		{
@@ -134,9 +124,6 @@ namespace Hertzole.UnityToolbox
 
 #if TOOLBOX_BURST
 		[BurstDiscard]
-#if TOOLBOX_COLLECTIONS
-		[BurstCompatible]
-#endif
 #endif
 		public static ref T GetRandomRef<T>(this NativeArray<T> array) where T : struct
 		{
@@ -167,9 +154,6 @@ namespace Hertzole.UnityToolbox
 
 #if TOOLBOX_BURST
 		[BurstDiscard]
-#if TOOLBOX_COLLECTIONS
-		[BurstCompatible]
-#endif
 #endif
 		public static ref T GetRandomRef<T>(this NativeArray<T> array, SystemRandom random) where T : struct
 		{
@@ -289,9 +273,6 @@ namespace Hertzole.UnityToolbox
 
 #if TOOLBOX_BURST
 		[BurstDiscard]
-#if TOOLBOX_COLLECTIONS
-		[BurstCompatible]
-#endif
 #endif
 		public static string ToCommaSeparatedString<T>(this NativeArray<T> array) where T : struct
 		{
@@ -335,9 +316,6 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_COLLECTIONS
 #if TOOLBOX_BURST
 		[BurstDiscard]
-#if TOOLBOX_COLLECTIONS
-		[BurstCompatible]
-#endif
 #endif
 		public static void Shuffle<T>(this NativeList<T> array) where T : unmanaged
 		{
@@ -376,9 +354,6 @@ namespace Hertzole.UnityToolbox
 
 #if TOOLBOX_BURST
 		[BurstDiscard]
-#if TOOLBOX_COLLECTIONS
-		[BurstCompatible]
-#endif
 #endif
 		public static void Shuffle<T>(this NativeList<T> array, SystemRandom random) where T : unmanaged
 		{
@@ -398,16 +373,13 @@ namespace Hertzole.UnityToolbox
 
 #if TOOLBOX_BURST
 		[BurstDiscard]
-#if TOOLBOX_COLLECTIONS
-		[BurstCompatible]
-#endif
 #endif
 		public static T GetRandom<T>(this NativeList<T> list) where T : unmanaged
 		{
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
 			if (list.Length == 0)
 			{
-				throw new IndexOutOfRangeException("Array is empty.");
+				throw new IndexOutOfRangeException("List is empty.");
 			}
 #endif
 
@@ -422,7 +394,7 @@ namespace Hertzole.UnityToolbox
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
 			if (list.Length == 0)
 			{
-				throw new IndexOutOfRangeException("Array is empty.");
+				throw new IndexOutOfRangeException("List is empty.");
 			}
 #endif
 
@@ -431,16 +403,13 @@ namespace Hertzole.UnityToolbox
 
 #if TOOLBOX_BURST
 		[BurstDiscard]
-#if TOOLBOX_COLLECTIONS
-		[BurstCompatible]
-#endif
 #endif
 		public static T GetRandom<T>(this NativeList<T> list, SystemRandom random) where T : unmanaged
 		{
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
 			if (list.Length == 0)
 			{
-				throw new IndexOutOfRangeException("Array is empty.");
+				throw new IndexOutOfRangeException("List is empty.");
 			}
 #endif
 
@@ -449,16 +418,13 @@ namespace Hertzole.UnityToolbox
 
 #if TOOLBOX_BURST
 		[BurstDiscard]
-#if TOOLBOX_COLLECTIONS
-		[BurstCompatible]
-#endif
 #endif
 		public static ref T GetRandomRef<T>(this NativeList<T> list) where T : unmanaged
 		{
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
 			if (list.Length == 0)
 			{
-				throw new IndexOutOfRangeException("Array is empty.");
+				throw new IndexOutOfRangeException("List is empty.");
 			}
 #endif
 
@@ -473,7 +439,7 @@ namespace Hertzole.UnityToolbox
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
 			if (list.Length == 0)
 			{
-				throw new IndexOutOfRangeException("Array is empty.");
+				throw new IndexOutOfRangeException("List is empty.");
 			}
 #endif
 
@@ -482,16 +448,13 @@ namespace Hertzole.UnityToolbox
 
 #if TOOLBOX_BURST
 		[BurstDiscard]
-#if TOOLBOX_COLLECTIONS
-		[BurstCompatible]
-#endif
 #endif
 		public static ref T GetRandomRef<T>(this NativeList<T> list, SystemRandom random) where T : unmanaged
 		{
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
 			if (list.Length == 0)
 			{
-				throw new IndexOutOfRangeException("Array is empty.");
+				throw new IndexOutOfRangeException("List is empty.");
 			}
 #endif
 
@@ -506,7 +469,7 @@ namespace Hertzole.UnityToolbox
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
 			if (list.Length == 0)
 			{
-				throw new IndexOutOfRangeException("Array is empty.");
+				throw new IndexOutOfRangeException("List is empty.");
 			}
 #endif
 
@@ -532,7 +495,7 @@ namespace Hertzole.UnityToolbox
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
 			if (list.Length == 0)
 			{
-				throw new IndexOutOfRangeException("Array is empty.");
+				throw new IndexOutOfRangeException("List is empty.");
 			}
 #endif
 
@@ -558,7 +521,7 @@ namespace Hertzole.UnityToolbox
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
 			if (list.Length == 0)
 			{
-				throw new IndexOutOfRangeException("Array is empty.");
+				throw new IndexOutOfRangeException("List is empty.");
 			}
 #endif
 
@@ -584,7 +547,7 @@ namespace Hertzole.UnityToolbox
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
 			if (list.Length == 0)
 			{
-				throw new IndexOutOfRangeException("Array is empty.");
+				throw new IndexOutOfRangeException("List is empty.");
 			}
 #endif
 
@@ -604,9 +567,6 @@ namespace Hertzole.UnityToolbox
 
 #if TOOLBOX_BURST
 		[BurstDiscard]
-#if TOOLBOX_COLLECTIONS
-		[BurstCompatible]
-#endif
 #endif
 		public static string ToCommaSeparatedString<T>(this NativeList<T> list) where T : unmanaged
 		{
