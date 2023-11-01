@@ -1,3 +1,16 @@
+## [1.7.1](https://github.com/Hertzole/unity-toolbox/compare/v1.7.0...v1.7.1) (2023-11-01)
+
+
+### Bug Fixes
+
+* compile error with Unity.Collections > 2.0.0 ([4c3bcd9](https://github.com/Hertzole/unity-toolbox/commit/4c3bcd95cfced8bceb89a255df9e582112ce3148))
+* compiling issue without Unity.Collections ([cd2d575](https://github.com/Hertzole/unity-toolbox/commit/cd2d57525a3f040b3b4427ad75fb26dcaa6c4865))
+
+
+### Performance Improvements
+
+* use in and ref for native extensions ([af08ba4](https://github.com/Hertzole/unity-toolbox/commit/af08ba47f57eac3c37f6ca0e9e6c2f6b7f1cb27f))
+
 # [1.7.0](https://github.com/Hertzole/unity-toolbox/compare/v1.6.3...v1.7.0) (2023-11-01)
 
 
