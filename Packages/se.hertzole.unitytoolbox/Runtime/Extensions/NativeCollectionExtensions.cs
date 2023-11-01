@@ -123,6 +123,53 @@ namespace Hertzole.UnityToolbox
 		}
 
 #if TOOLBOX_BURST
+		[BurstDiscard]
+		[NotBurstCompatible]
+#endif
+		public static ref T GetRandomRef<T>(this NativeArray<T> array) where T : struct
+		{
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+			if (array.Length == 0)
+			{
+				throw new IndexOutOfRangeException("Array is empty.");
+			}
+#endif
+
+			return ref array.GetRef(UnityRandom.Range(0, array.Length));
+		}
+
+#if TOOLBOX_BURST
+		[BurstCompile]
+#endif
+		public static ref T GetRandomRef<T>(this NativeArray<T> array, ref MathRandom random) where T : struct
+		{
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+			if (array.Length == 0)
+			{
+				throw new IndexOutOfRangeException("Array is empty.");
+			}
+#endif
+
+			return ref array.GetRef(random.NextInt(array.Length));
+		}
+
+#if TOOLBOX_BURST
+		[BurstDiscard]
+		[NotBurstCompatible]
+#endif
+		public static ref T GetRandomRef<T>(this NativeArray<T> array, SystemRandom random) where T : struct
+		{
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+			if (array.Length == 0)
+			{
+				throw new IndexOutOfRangeException("Array is empty.");
+			}
+#endif
+
+			return ref array.GetRef(random.Next(array.Length));
+		}
+
+#if TOOLBOX_BURST
 		[BurstCompile]
 #endif
 		public static T GetSmallest<T>(this NativeArray<T> array) where T : struct, IComparable<T>
@@ -172,6 +219,58 @@ namespace Hertzole.UnityToolbox
 			}
 
 			return largest;
+		}
+
+#if TOOLBOX_BURST
+		[BurstCompile]
+#endif
+		public static ref T GetSmallestRef<T>(this NativeArray<T> array) where T : struct, IComparable<T>
+		{
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+			if (array.Length == 0)
+			{
+				throw new IndexOutOfRangeException("Array is empty.");
+			}
+#endif
+
+			ref T smallest = ref array.GetRef(0);
+			for (int i = 1; i < array.Length; i++)
+			{
+				ref T current = ref array.GetRef(i);
+
+				if (current.CompareTo(smallest) < 0)
+				{
+					smallest = current;
+				}
+			}
+
+			return ref smallest;
+		}
+
+#if TOOLBOX_BURST
+		[BurstCompile]
+#endif
+		public static ref T GetLargestRef<T>(this NativeArray<T> array) where T : struct, IComparable<T>
+		{
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+			if (array.Length == 0)
+			{
+				throw new IndexOutOfRangeException("Array is empty.");
+			}
+#endif
+
+			ref T largest = ref array.GetRef(0);
+			for (int i = 1; i < array.Length; i++)
+			{
+				ref T current = ref array.GetRef(i);
+
+				if (current.CompareTo(largest) > 0)
+				{
+					largest = current;
+				}
+			}
+
+			return ref largest;
 		}
 
 #if TOOLBOX_BURST
@@ -325,6 +424,53 @@ namespace Hertzole.UnityToolbox
 		}
 
 #if TOOLBOX_BURST
+		[BurstDiscard]
+		[NotBurstCompatible]
+#endif
+		public static ref T GetRandomRef<T>(this NativeList<T> list) where T : unmanaged
+		{
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+			if (list.Length == 0)
+			{
+				throw new IndexOutOfRangeException("Array is empty.");
+			}
+#endif
+
+			return ref list.GetRef(UnityRandom.Range(0, list.Length));
+		}
+
+#if TOOLBOX_BURST
+		[BurstCompile]
+#endif
+		public static ref T GetRandomRef<T>(this NativeList<T> list, ref MathRandom random) where T : unmanaged
+		{
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+			if (list.Length == 0)
+			{
+				throw new IndexOutOfRangeException("Array is empty.");
+			}
+#endif
+
+			return ref list.GetRef(random.NextInt(list.Length));
+		}
+
+#if TOOLBOX_BURST
+		[BurstDiscard]
+		[NotBurstCompatible]
+#endif
+		public static ref T GetRandomRef<T>(this NativeList<T> list, SystemRandom random) where T : unmanaged
+		{
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+			if (list.Length == 0)
+			{
+				throw new IndexOutOfRangeException("Array is empty.");
+			}
+#endif
+
+			return ref list.GetRef(random.Next(list.Length));
+		}
+
+#if TOOLBOX_BURST
 		[BurstCompile]
 #endif
 		public static T GetSmallest<T>(this NativeList<T> list) where T : unmanaged, IComparable<T>
@@ -353,6 +499,32 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_BURST
 		[BurstCompile]
 #endif
+		public static ref T GetSmallestRef<T>(this NativeList<T> list) where T : unmanaged, IComparable<T>
+		{
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+			if (list.Length == 0)
+			{
+				throw new IndexOutOfRangeException("Array is empty.");
+			}
+#endif
+
+			ref T smallest = ref list.GetRef(0);
+			for (int i = 1; i < list.Length; i++)
+			{
+				ref T current = ref list.GetRef(i);
+
+				if (current.CompareTo(smallest) < 0)
+				{
+					smallest = current;
+				}
+			}
+
+			return ref smallest;
+		}
+
+#if TOOLBOX_BURST
+		[BurstCompile]
+#endif
 		public static T GetLargest<T>(this NativeList<T> list) where T : unmanaged, IComparable<T>
 		{
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
@@ -374,6 +546,32 @@ namespace Hertzole.UnityToolbox
 			}
 
 			return largest;
+		}
+
+#if TOOLBOX_BURST
+		[BurstCompile]
+#endif
+		public static ref T GetLargestRef<T>(this NativeList<T> list) where T : unmanaged, IComparable<T>
+		{
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+			if (list.Length == 0)
+			{
+				throw new IndexOutOfRangeException("Array is empty.");
+			}
+#endif
+
+			ref T largest = ref list.GetRef(0);
+			for (int i = 1; i < list.Length; i++)
+			{
+				ref T current = ref list.GetRef(i);
+
+				if (current.CompareTo(largest) > 0)
+				{
+					largest = current;
+				}
+			}
+
+			return ref largest;
 		}
 
 #if TOOLBOX_BURST
