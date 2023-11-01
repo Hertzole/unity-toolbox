@@ -20,6 +20,17 @@
     "defineConstraints": [
         "UNITY_INCLUDE_TESTS"
     ],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.burst",
+            "expression": "",
+            "define": "TOOLBOX_BURST"
+        },
+        {
+            "name": "com.unity.collections",
+            "expression": "",
+            "define": "TOOLBOX_COLLECTIONS"
+        }
+    ],
     "noEngineReferences": false
 }
