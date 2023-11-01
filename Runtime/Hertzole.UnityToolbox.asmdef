@@ -88,6 +88,11 @@
             "name": "com.unity.collections",
             "expression": "",
             "define": "TOOLBOX_COLLECTIONS"
+        },
+        {
+            "name": "com.unity.collections",
+            "expression": "2.0.0",
+            "define": "TOOLBOX_COLLECTIONS_2"
         }
     ],
     "noEngineReferences": false
