@@ -23,7 +23,7 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_BURST
 		[BurstDiscard]
 #endif
-		public static void Shuffle<T>(this NativeArray<T> array) where T : struct
+		public static void Shuffle<T>(this ref NativeArray<T> array) where T : struct
 		{
 			if (array.Length == 0)
 			{
@@ -42,7 +42,7 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_BURST
 		[BurstCompile]
 #endif
-		public static void Shuffle<T>(this NativeArray<T> array, ref MathRandom random) where T : struct
+		public static void Shuffle<T>(this ref NativeArray<T> array, ref MathRandom random) where T : struct
 		{
 			if (array.Length == 0)
 			{
@@ -61,7 +61,7 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_BURST
 		[BurstDiscard]
 #endif
-		public static void Shuffle<T>(this NativeArray<T> array, SystemRandom random) where T : struct
+		public static void Shuffle<T>(this ref NativeArray<T> array, SystemRandom random) where T : struct
 		{
 			if (array.Length == 0)
 			{
@@ -80,7 +80,7 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_BURST
 		[BurstDiscard]
 #endif
-		public static T GetRandom<T>(this NativeArray<T> array) where T : struct
+		public static T GetRandom<T>(this in NativeArray<T> array) where T : struct
 		{
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
 			if (array.Length == 0)
@@ -95,7 +95,7 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_BURST
 		[BurstCompile]
 #endif
-		public static T GetRandom<T>(this NativeArray<T> array, ref MathRandom random) where T : struct
+		public static T GetRandom<T>(this in NativeArray<T> array, ref MathRandom random) where T : struct
 		{
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
 			if (array.Length == 0)
@@ -110,7 +110,7 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_BURST
 		[BurstDiscard]
 #endif
-		public static T GetRandom<T>(this NativeArray<T> array, SystemRandom random) where T : struct
+		public static T GetRandom<T>(this in NativeArray<T> array, SystemRandom random) where T : struct
 		{
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
 			if (array.Length == 0)
@@ -125,7 +125,7 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_BURST
 		[BurstDiscard]
 #endif
-		public static ref T GetRandomRef<T>(this NativeArray<T> array) where T : struct
+		public static ref T GetRandomRef<T>(this in NativeArray<T> array) where T : struct
 		{
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
 			if (array.Length == 0)
@@ -140,7 +140,7 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_BURST
 		[BurstCompile]
 #endif
-		public static ref T GetRandomRef<T>(this NativeArray<T> array, ref MathRandom random) where T : struct
+		public static ref T GetRandomRef<T>(this in NativeArray<T> array, ref MathRandom random) where T : struct
 		{
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
 			if (array.Length == 0)
@@ -155,7 +155,7 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_BURST
 		[BurstDiscard]
 #endif
-		public static ref T GetRandomRef<T>(this NativeArray<T> array, SystemRandom random) where T : struct
+		public static ref T GetRandomRef<T>(this in NativeArray<T> array, SystemRandom random) where T : struct
 		{
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
 			if (array.Length == 0)
@@ -170,7 +170,7 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_BURST
 		[BurstCompile]
 #endif
-		public static T GetSmallest<T>(this NativeArray<T> array) where T : struct, IComparable<T>
+		public static T GetSmallest<T>(this in NativeArray<T> array) where T : struct, IComparable<T>
 		{
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
 			if (array.Length == 0)
@@ -196,7 +196,7 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_BURST
 		[BurstCompile]
 #endif
-		public static T GetLargest<T>(this NativeArray<T> array) where T : struct, IComparable<T>
+		public static T GetLargest<T>(this in NativeArray<T> array) where T : struct, IComparable<T>
 		{
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
 			if (array.Length == 0)
@@ -222,7 +222,7 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_BURST
 		[BurstCompile]
 #endif
-		public static ref T GetSmallestRef<T>(this NativeArray<T> array) where T : struct, IComparable<T>
+		public static ref T GetSmallestRef<T>(this in NativeArray<T> array) where T : struct, IComparable<T>
 		{
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
 			if (array.Length == 0)
@@ -248,7 +248,7 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_BURST
 		[BurstCompile]
 #endif
-		public static ref T GetLargestRef<T>(this NativeArray<T> array) where T : struct, IComparable<T>
+		public static ref T GetLargestRef<T>(this in NativeArray<T> array) where T : struct, IComparable<T>
 		{
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
 			if (array.Length == 0)
@@ -274,7 +274,7 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_BURST
 		[BurstDiscard]
 #endif
-		public static string ToCommaSeparatedString<T>(this NativeArray<T> array) where T : struct
+		public static string ToCommaSeparatedString<T>(this in NativeArray<T> array) where T : struct
 		{
 			return array.Length == 0 ? string.Empty : string.Join(", ", array);
 		}
@@ -282,7 +282,7 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_BURST
 		[BurstCompile]
 #endif
-		public static bool IsNullOrEmpty<T>(this NativeArray<T> array) where T : struct
+		public static bool IsNullOrEmpty<T>(this in NativeArray<T> array) where T : struct
 		{
 			return !array.IsCreated || array.Length == 0;
 		}
@@ -290,7 +290,7 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_BURST
 		[BurstCompile]
 #endif
-		public static bool IsNullOrEmpty<T>(this NativeArray<T>? array) where T : struct
+		public static bool IsNullOrEmpty<T>(this in NativeArray<T>? array) where T : struct
 		{
 			return !array.HasValue || !array.Value.IsCreated || array.Value.Length == 0;
 		}
@@ -298,7 +298,7 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_BURST
 		[BurstCompile]
 #endif
-		public static ref T GetRef<T>(this NativeArray<T> array, int index) where T : struct
+		public static ref T GetRef<T>(this in NativeArray<T> array, int index) where T : struct
 		{
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
 			// Important! Validate this index first, or else the application will hard crash!
@@ -317,7 +317,7 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_BURST
 		[BurstDiscard]
 #endif
-		public static void Shuffle<T>(this NativeList<T> array) where T : unmanaged
+		public static void Shuffle<T>(this ref NativeList<T> array) where T : unmanaged
 		{
 			if (array.Length == 0)
 			{
@@ -336,7 +336,7 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_BURST
 		[BurstCompile]
 #endif
-		public static void Shuffle<T>(this NativeList<T> array, ref MathRandom random) where T : unmanaged
+		public static void Shuffle<T>(this ref NativeList<T> array, ref MathRandom random) where T : unmanaged
 		{
 			if (array.Length == 0)
 			{
@@ -355,7 +355,7 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_BURST
 		[BurstDiscard]
 #endif
-		public static void Shuffle<T>(this NativeList<T> array, SystemRandom random) where T : unmanaged
+		public static void Shuffle<T>(this ref NativeList<T> array, SystemRandom random) where T : unmanaged
 		{
 			if (array.Length == 0)
 			{
@@ -374,7 +374,7 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_BURST
 		[BurstDiscard]
 #endif
-		public static T GetRandom<T>(this NativeList<T> list) where T : unmanaged
+		public static T GetRandom<T>(this in NativeList<T> list) where T : unmanaged
 		{
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
 			if (list.Length == 0)
@@ -389,7 +389,7 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_BURST
 		[BurstCompile]
 #endif
-		public static T GetRandom<T>(this NativeList<T> list, ref MathRandom random) where T : unmanaged
+		public static T GetRandom<T>(this in NativeList<T> list, ref MathRandom random) where T : unmanaged
 		{
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
 			if (list.Length == 0)
@@ -404,7 +404,7 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_BURST
 		[BurstDiscard]
 #endif
-		public static T GetRandom<T>(this NativeList<T> list, SystemRandom random) where T : unmanaged
+		public static T GetRandom<T>(this in NativeList<T> list, SystemRandom random) where T : unmanaged
 		{
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
 			if (list.Length == 0)
@@ -419,7 +419,7 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_BURST
 		[BurstDiscard]
 #endif
-		public static ref T GetRandomRef<T>(this NativeList<T> list) where T : unmanaged
+		public static ref T GetRandomRef<T>(this in NativeList<T> list) where T : unmanaged
 		{
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
 			if (list.Length == 0)
@@ -434,7 +434,7 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_BURST
 		[BurstCompile]
 #endif
-		public static ref T GetRandomRef<T>(this NativeList<T> list, ref MathRandom random) where T : unmanaged
+		public static ref T GetRandomRef<T>(this in NativeList<T> list, ref MathRandom random) where T : unmanaged
 		{
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
 			if (list.Length == 0)
@@ -449,7 +449,7 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_BURST
 		[BurstDiscard]
 #endif
-		public static ref T GetRandomRef<T>(this NativeList<T> list, SystemRandom random) where T : unmanaged
+		public static ref T GetRandomRef<T>(this in NativeList<T> list, SystemRandom random) where T : unmanaged
 		{
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
 			if (list.Length == 0)
@@ -464,7 +464,7 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_BURST
 		[BurstCompile]
 #endif
-		public static T GetSmallest<T>(this NativeList<T> list) where T : unmanaged, IComparable<T>
+		public static T GetSmallest<T>(this in NativeList<T> list) where T : unmanaged, IComparable<T>
 		{
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
 			if (list.Length == 0)
@@ -490,7 +490,7 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_BURST
 		[BurstCompile]
 #endif
-		public static ref T GetSmallestRef<T>(this NativeList<T> list) where T : unmanaged, IComparable<T>
+		public static ref T GetSmallestRef<T>(this in NativeList<T> list) where T : unmanaged, IComparable<T>
 		{
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
 			if (list.Length == 0)
@@ -516,7 +516,7 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_BURST
 		[BurstCompile]
 #endif
-		public static T GetLargest<T>(this NativeList<T> list) where T : unmanaged, IComparable<T>
+		public static T GetLargest<T>(this in NativeList<T> list) where T : unmanaged, IComparable<T>
 		{
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
 			if (list.Length == 0)
@@ -542,7 +542,7 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_BURST
 		[BurstCompile]
 #endif
-		public static ref T GetLargestRef<T>(this NativeList<T> list) where T : unmanaged, IComparable<T>
+		public static ref T GetLargestRef<T>(this in NativeList<T> list) where T : unmanaged, IComparable<T>
 		{
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
 			if (list.Length == 0)
@@ -568,7 +568,7 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_BURST
 		[BurstDiscard]
 #endif
-		public static string ToCommaSeparatedString<T>(this NativeList<T> list) where T : unmanaged
+		public static string ToCommaSeparatedString<T>(this in NativeList<T> list) where T : unmanaged
 		{
 			return list.Length == 0 ? string.Empty : string.Join(", ", list);
 		}
@@ -576,7 +576,7 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_BURST
 		[BurstCompile]
 #endif
-		public static bool IsNullOrEmpty<T>(this NativeList<T> list) where T : unmanaged
+		public static bool IsNullOrEmpty<T>(this in NativeList<T> list) where T : unmanaged
 		{
 			return !list.IsCreated || list.Length == 0;
 		}
@@ -584,7 +584,7 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_BURST
 		[BurstCompile]
 #endif
-		public static bool IsNullOrEmpty<T>(this NativeList<T>? list) where T : unmanaged
+		public static bool IsNullOrEmpty<T>(this in NativeList<T>? list) where T : unmanaged
 		{
 			return !list.HasValue || !list.Value.IsCreated || list.Value.Length == 0;
 		}
@@ -592,7 +592,7 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_BURST
 		[BurstCompile]
 #endif
-		public static ref T GetRef<T>(this NativeList<T> array, int index) where T : unmanaged
+		public static ref T GetRef<T>(this in NativeList<T> array, int index) where T : unmanaged
 		{
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
 			// Important! Validate this index first, or else the application will hard crash!
