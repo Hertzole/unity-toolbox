@@ -14,60 +14,60 @@ namespace Hertzole.UnityToolbox.Tests
 		[Test]
 		public void GetLargest()
 		{
-			NativeList<int> array = new NativeList<int>(10, Allocator.Temp);
+			NativeList<int> list = new NativeList<int>(10, Allocator.Temp);
 
 			for (int i = 0; i < 10; i++)
 			{
-				array.Add(i);
+				list.Add(i);
 			}
 
-			array.Shuffle();
+			list.Shuffle();
 
-			int largest = array.GetLargest();
-			array.Dispose();
+			int largest = list.GetLargest();
+			list.Dispose();
 			Assert.AreEqual(9, largest);
 		}
 
 		[Test]
 		public void GetSmallest()
 		{
-			NativeList<int> array = new NativeList<int>(10, Allocator.Temp);
+			NativeList<int> list = new NativeList<int>(10, Allocator.Temp);
 
 			for (int i = 0; i < 10; i++)
 			{
-				array.Add(i);
+				list.Add(i);
 			}
 
-			array.Shuffle();
+			list.Shuffle();
 
-			int smallest = array.GetSmallest();
-			array.Dispose();
+			int smallest = list.GetSmallest();
+			list.Dispose();
 			Assert.AreEqual(0, smallest);
 		}
 
 		[Test]
 		public void GetLargest_Burst()
 		{
-			NativeList<int> array = new NativeList<int>(Allocator.TempJob);
+			NativeList<int> list = new NativeList<int>(Allocator.TempJob);
 
 			for (int i = 0; i < 10; i++)
 			{
-				array.Add(i);
+				list.Add(i);
 			}
 
-			array.Shuffle();
+			list.Shuffle();
 
 			NativeArray<int> result = new NativeArray<int>(1, Allocator.TempJob);
 
 			GetLargestJob job = new GetLargestJob
 			{
-				array = array,
+				list = list,
 				result = result
 			};
 
 			job.Schedule().Complete();
 
-			array.Dispose();
+			list.Dispose();
 
 			int largest = result[0];
 			result.Dispose();
@@ -77,26 +77,26 @@ namespace Hertzole.UnityToolbox.Tests
 		[Test]
 		public void GetSmallest_Burst()
 		{
-			NativeList<int> array = new NativeList<int>(10, Allocator.TempJob);
+			NativeList<int> list = new NativeList<int>(10, Allocator.TempJob);
 
 			for (int i = 0; i < 10; i++)
 			{
-				array.Add(i);
+				list.Add(i);
 			}
 
-			array.Shuffle();
+			list.Shuffle();
 
 			NativeArray<int> result = new NativeArray<int>(1, Allocator.TempJob);
 
 			GetSmallestJob job = new GetSmallestJob
 			{
-				array = array,
+				list = list,
 				result = result
 			};
 
 			job.Schedule().Complete();
 
-			array.Dispose();
+			list.Dispose();
 
 			int smallest = result[0];
 			result.Dispose();
@@ -106,100 +106,100 @@ namespace Hertzole.UnityToolbox.Tests
 		[Test]
 		public void Shuffle_UnityRandom()
 		{
-			NativeList<int> array = new NativeList<int>(1000, Allocator.Temp);
+			NativeList<int> list = new NativeList<int>(1000, Allocator.Temp);
 
 			for (int i = 0; i < 1000; i++)
 			{
-				array.Add(i);
+				list.Add(i);
 			}
 
-			array.Shuffle();
+			list.Shuffle();
 
 			bool allEqual = true;
 
 			for (int i = 0; i < 1000; i++)
 			{
-				if (array[i] != i)
+				if (list[i] != i)
 				{
 					allEqual = false;
 					break;
 				}
 			}
 
-			array.Dispose();
+			list.Dispose();
 			Assert.IsFalse(allEqual);
 		}
 
 		[Test]
 		public void Shuffle_MathRandom()
 		{
-			NativeList<int> array = new NativeList<int>(1000, Allocator.Temp);
+			NativeList<int> list = new NativeList<int>(1000, Allocator.Temp);
 
 			for (int i = 0; i < 1000; i++)
 			{
-				array.Add(i);
+				list.Add(i);
 			}
 
 			MathRandom random = new MathRandom(1234);
-			array.Shuffle(ref random);
+			list.Shuffle(ref random);
 
 			bool allEqual = true;
 
 			for (int i = 0; i < 1000; i++)
 			{
-				if (array[i] != i)
+				if (list[i] != i)
 				{
 					allEqual = false;
 					break;
 				}
 			}
 
-			array.Dispose();
+			list.Dispose();
 			Assert.IsFalse(allEqual);
 		}
 
 		[Test]
 		public void Shuffle_SystemRandom()
 		{
-			NativeList<int> array = new NativeList<int>(1000, Allocator.Temp);
+			NativeList<int> list = new NativeList<int>(1000, Allocator.Temp);
 
 			for (int i = 0; i < 1000; i++)
 			{
-				array.Add(i);
+				list.Add(i);
 			}
 
 			SystemRandom random = new SystemRandom(1234);
-			array.Shuffle(random);
+			list.Shuffle(random);
 
 			bool allEqual = true;
 
 			for (int i = 0; i < 1000; i++)
 			{
-				if (array[i] != i)
+				if (list[i] != i)
 				{
 					allEqual = false;
 					break;
 				}
 			}
 
-			array.Dispose();
+			list.Dispose();
 			Assert.IsFalse(allEqual);
 		}
 
 		[Test]
 		public void Shuffle_Burst()
 		{
-			NativeList<int> array = new NativeList<int>(1000, Allocator.TempJob);
+			NativeList<int> list = new NativeList<int>(1000, Allocator.TempJob);
 
 			for (int i = 0; i < 1000; i++)
 			{
-				array.Add(i);
+				list.Add(i);
 			}
 
 			MathRandom random = new MathRandom(1234);
 			ShuffleJob job = new ShuffleJob
 			{
-				array = array,
+				list = list,
 				random = random
 			};
 
@@ -209,29 +209,29 @@ namespace Hertzole.UnityToolbox.Tests
 
 			for (int i = 0; i < 1000; i++)
 			{
-				if (array[i] != i)
+				if (list[i] != i)
 				{
 					allEqual = false;
 					break;
 				}
 			}
 
-			array.Dispose();
+			list.Dispose();
 			Assert.IsFalse(allEqual);
 		}
 
 		[Test]
 		public void GetRandom_UnityRandom()
 		{
-			NativeList<int> array = new NativeList<int>(1000, Allocator.Temp);
+			NativeList<int> list = new NativeList<int>(1000, Allocator.Temp);
 
 			for (int i = 0; i < 1000; i++)
 			{
-				array.Add(i);
+				list.Add(i);
 			}
 
-			int random = array.GetRandom();
-			array.Dispose();
+			int random = list.GetRandom();
+			list.Dispose();
 			Assert.GreaterOrEqual(random, 0);
 			Assert.Less(random, 1000);
 		}
@@ -239,16 +239,16 @@ namespace Hertzole.UnityToolbox.Tests
 		[Test]
 		public void GetRandom_MathRandom()
 		{
-			NativeList<int> array = new NativeList<int>(1000, Allocator.Temp);
+			NativeList<int> list = new NativeList<int>(1000, Allocator.Temp);
 
 			for (int i = 0; i < 1000; i++)
 			{
-				array.Add(i);
+				list.Add(i);
 			}
 
 			MathRandom random = new MathRandom(1234);
-			int randomInt = array.GetRandom(ref random);
-			array.Dispose();
+			int randomInt = list.GetRandom(ref random);
+			list.Dispose();
 			Assert.GreaterOrEqual(randomInt, 0);
 			Assert.Less(randomInt, 1000);
 		}
@@ -256,16 +256,16 @@ namespace Hertzole.UnityToolbox.Tests
 		[Test]
 		public void GetRandom_SystemRandom()
 		{
-			NativeList<int> array = new NativeList<int>(1000, Allocator.Temp);
+			NativeList<int> list = new NativeList<int>(1000, Allocator.Temp);
 
 			for (int i = 0; i < 1000; i++)
 			{
-				array.Add(i);
+				list.Add(i);
 			}
 
 			SystemRandom random = new SystemRandom(1234);
-			int randomInt = array.GetRandom(random);
-			array.Dispose();
+			int randomInt = list.GetRandom(random);
+			list.Dispose();
 			Assert.GreaterOrEqual(randomInt, 0);
 			Assert.Less(randomInt, 1000);
 		}
@@ -273,18 +273,18 @@ namespace Hertzole.UnityToolbox.Tests
 		[Test]
 		public void GetRandom_Burst()
 		{
-			NativeList<int> array = new NativeList<int>(1000, Allocator.TempJob);
+			NativeList<int> list = new NativeList<int>(1000, Allocator.TempJob);
 			NativeArray<int> result = new NativeArray<int>(1, Allocator.TempJob);
 
 			for (int i = 0; i < 1000; i++)
 			{
-				array.Add(i);
+				list.Add(i);
 			}
 
 			MathRandom random = new MathRandom(1234);
 			GetRandomJob job = new GetRandomJob
 			{
-				array = array,
+				list = list,
 				random = random,
 				result = result
 			};
@@ -292,7 +292,7 @@ namespace Hertzole.UnityToolbox.Tests
 			job.Schedule().Complete();
 
 			int randomInt = job.result[0];
-			array.Dispose();
+			list.Dispose();
 			result.Dispose();
 			Assert.GreaterOrEqual(randomInt, 0);
 			Assert.Less(randomInt, 1000);
@@ -301,47 +301,47 @@ namespace Hertzole.UnityToolbox.Tests
 		[Test]
 		public void IsNullOrEmpty_NotCreated()
 		{
-			NativeList<int> array = default;
-			Assert.IsTrue(array.IsNullOrEmpty());
+			NativeList<int> list = default;
+			Assert.IsTrue(list.IsNullOrEmpty());
 		}
 
 		[Test]
 		public void IsNullOrEmpty_CreatedButEmpty()
 		{
-			NativeList<int> array = new NativeList<int>(0, Allocator.Temp);
+			NativeList<int> list = new NativeList<int>(0, Allocator.Temp);
 
-			bool isNullOrEmpty = array.IsNullOrEmpty();
-			array.Dispose();
+			bool isNullOrEmpty = list.IsNullOrEmpty();
+			list.Dispose();
 			Assert.IsTrue(isNullOrEmpty);
 		}
 
 		[Test]
 		public void IsNullOrEmpty_CreatedAndNotEmpty()
 		{
-			NativeList<int> array = new NativeList<int>(1, Allocator.Temp);
-			array.Add(1);
+			NativeList<int> list = new NativeList<int>(1, Allocator.Temp);
+			list.Add(1);
 
-			bool isNullOrEmpty = array.IsNullOrEmpty();
-			array.Dispose();
+			bool isNullOrEmpty = list.IsNullOrEmpty();
+			list.Dispose();
 			Assert.IsFalse(isNullOrEmpty);
 		}
 
 		[Test]
 		public void IsNullOrEmpty_CreatedButEmpty_Burst()
 		{
-			NativeList<int> array = new NativeList<int>(0, Allocator.TempJob);
+			NativeList<int> list = new NativeList<int>(0, Allocator.TempJob);
 			NativeArray<bool> result = new NativeArray<bool>(1, Allocator.TempJob);
 
 			IsNullOrEmptyJob job = new IsNullOrEmptyJob
 			{
-				array = array,
+				list = list,
 				result = result
 			};
 
 			job.Schedule().Complete();
 
 			bool isNullOrEmpty = job.result[0];
-			array.Dispose();
+			list.Dispose();
 			result.Dispose();
 			Assert.IsTrue(isNullOrEmpty);
 		}
@@ -349,21 +349,21 @@ namespace Hertzole.UnityToolbox.Tests
 		[Test]
 		public void IsNullOrEmpty_CreatedAndNotEmpty_Burst()
 		{
-			NativeList<int> array = new NativeList<int>(1, Allocator.TempJob);
+			NativeList<int> list = new NativeList<int>(1, Allocator.TempJob);
 			NativeArray<bool> result = new NativeArray<bool>(1, Allocator.TempJob);
 
-			array.Add(1);
-            
+			list.Add(1);
+
 			IsNullOrEmptyJob job = new IsNullOrEmptyJob
 			{
-				array = array,
+				list = list,
 				result = result
 			};
 
 			job.Schedule().Complete();
 
 			bool isNullOrEmpty = job.result[0];
-			array.Dispose();
+			list.Dispose();
 			result.Dispose();
 			Assert.IsFalse(isNullOrEmpty);
 		}
@@ -371,12 +371,12 @@ namespace Hertzole.UnityToolbox.Tests
 		[BurstCompile(CompileSynchronously = true)]
 		private struct GetLargestJob : IJob
 		{
-			public NativeList<int> array;
 			public NativeArray<int> result;
+			public NativeList<int> list;
 
 			public void Execute()
 			{
-				int smallest = array.GetLargest();
+				int smallest = list.GetLargest();
 				result[0] = smallest;
 			}
 		}
@@ -384,12 +384,12 @@ namespace Hertzole.UnityToolbox.Tests
 		[BurstCompile(CompileSynchronously = true, Debug = true)]
 		private struct GetSmallestJob : IJob
 		{
-			public NativeList<int> array;
 			public NativeArray<int> result;
+			public NativeList<int> list;
 
 			public void Execute()
 			{
-				int smallest = array.GetSmallest();
+				int smallest = list.GetSmallest();
 				result[0] = smallest;
 			}
 		}
@@ -398,11 +398,11 @@ namespace Hertzole.UnityToolbox.Tests
 		private struct ShuffleJob : IJob
 		{
 			public MathRandom random;
-			public NativeList<int> array;
+			public NativeList<int> list;
 
 			public void Execute()
 			{
-				array.Shuffle(ref random);
+				list.Shuffle(ref random);
 			}
 		}
 
@@ -410,12 +410,12 @@ namespace Hertzole.UnityToolbox.Tests
 		private struct GetRandomJob : IJob
 		{
 			public MathRandom random;
-			public NativeList<int> array;
 			public NativeArray<int> result;
+			public NativeList<int> list;
 
 			public void Execute()
 			{
-				int randomInt = array.GetRandom(ref random);
+				int randomInt = list.GetRandom(ref random);
 				result[0] = randomInt;
 			}
 		}
@@ -423,12 +423,12 @@ namespace Hertzole.UnityToolbox.Tests
 		[BurstCompile(CompileSynchronously = true)]
 		private struct IsNullOrEmptyJob : IJob
 		{
-			public NativeList<int> array;
 			public NativeArray<bool> result;
+			public NativeList<int> list;
 
 			public void Execute()
 			{
-				result[0] = array.IsNullOrEmpty();
+				result[0] = list.IsNullOrEmpty();
 			}
 		}
 	}
