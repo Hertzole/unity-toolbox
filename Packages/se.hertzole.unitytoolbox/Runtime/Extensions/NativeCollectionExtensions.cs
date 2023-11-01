@@ -11,14 +11,18 @@ using Unity.Burst;
 namespace Hertzole.UnityToolbox
 {
 #if TOOLBOX_BURST
-	[BurstCompatible]
 	[BurstCompile]
+#if TOOLBOX_COLLECTIONS
+	[BurstCompatible]
+#endif
 #endif
 	public static class NativeCollectionExtensions
 	{
 #if TOOLBOX_BURST
 		[BurstDiscard]
-		[NotBurstCompatible]
+#if TOOLBOX_COLLECTIONS
+		[BurstCompatible]
+#endif
 #endif
 		public static void Shuffle<T>(this NativeArray<T> array) where T : struct
 		{
@@ -57,7 +61,9 @@ namespace Hertzole.UnityToolbox
 
 #if TOOLBOX_BURST
 		[BurstDiscard]
-		[NotBurstCompatible]
+#if TOOLBOX_COLLECTIONS
+		[BurstCompatible]
+#endif
 #endif
 		public static void Shuffle<T>(this NativeArray<T> array, SystemRandom random) where T : struct
 		{
@@ -77,7 +83,9 @@ namespace Hertzole.UnityToolbox
 
 #if TOOLBOX_BURST
 		[BurstDiscard]
-		[NotBurstCompatible]
+#if TOOLBOX_COLLECTIONS
+		[BurstCompatible]
+#endif
 #endif
 		public static T GetRandom<T>(this NativeArray<T> array) where T : struct
 		{
@@ -108,7 +116,9 @@ namespace Hertzole.UnityToolbox
 
 #if TOOLBOX_BURST
 		[BurstDiscard]
-		[NotBurstCompatible]
+#if TOOLBOX_COLLECTIONS
+		[BurstCompatible]
+#endif
 #endif
 		public static T GetRandom<T>(this NativeArray<T> array, SystemRandom random) where T : struct
 		{
@@ -124,7 +134,9 @@ namespace Hertzole.UnityToolbox
 
 #if TOOLBOX_BURST
 		[BurstDiscard]
-		[NotBurstCompatible]
+#if TOOLBOX_COLLECTIONS
+		[BurstCompatible]
+#endif
 #endif
 		public static ref T GetRandomRef<T>(this NativeArray<T> array) where T : struct
 		{
@@ -155,7 +167,9 @@ namespace Hertzole.UnityToolbox
 
 #if TOOLBOX_BURST
 		[BurstDiscard]
-		[NotBurstCompatible]
+#if TOOLBOX_COLLECTIONS
+		[BurstCompatible]
+#endif
 #endif
 		public static ref T GetRandomRef<T>(this NativeArray<T> array, SystemRandom random) where T : struct
 		{
@@ -275,7 +289,9 @@ namespace Hertzole.UnityToolbox
 
 #if TOOLBOX_BURST
 		[BurstDiscard]
-		[NotBurstCompatible]
+#if TOOLBOX_COLLECTIONS
+		[BurstCompatible]
+#endif
 #endif
 		public static string ToCommaSeparatedString<T>(this NativeArray<T> array) where T : struct
 		{
@@ -319,7 +335,9 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_COLLECTIONS
 #if TOOLBOX_BURST
 		[BurstDiscard]
-		[NotBurstCompatible]
+#if TOOLBOX_COLLECTIONS
+		[BurstCompatible]
+#endif
 #endif
 		public static void Shuffle<T>(this NativeList<T> array) where T : unmanaged
 		{
@@ -358,7 +376,9 @@ namespace Hertzole.UnityToolbox
 
 #if TOOLBOX_BURST
 		[BurstDiscard]
-		[NotBurstCompatible]
+#if TOOLBOX_COLLECTIONS
+		[BurstCompatible]
+#endif
 #endif
 		public static void Shuffle<T>(this NativeList<T> array, SystemRandom random) where T : unmanaged
 		{
@@ -378,7 +398,9 @@ namespace Hertzole.UnityToolbox
 
 #if TOOLBOX_BURST
 		[BurstDiscard]
-		[NotBurstCompatible]
+#if TOOLBOX_COLLECTIONS
+		[BurstCompatible]
+#endif
 #endif
 		public static T GetRandom<T>(this NativeList<T> list) where T : unmanaged
 		{
@@ -409,7 +431,9 @@ namespace Hertzole.UnityToolbox
 
 #if TOOLBOX_BURST
 		[BurstDiscard]
-		[NotBurstCompatible]
+#if TOOLBOX_COLLECTIONS
+		[BurstCompatible]
+#endif
 #endif
 		public static T GetRandom<T>(this NativeList<T> list, SystemRandom random) where T : unmanaged
 		{
@@ -425,7 +449,9 @@ namespace Hertzole.UnityToolbox
 
 #if TOOLBOX_BURST
 		[BurstDiscard]
-		[NotBurstCompatible]
+#if TOOLBOX_COLLECTIONS
+		[BurstCompatible]
+#endif
 #endif
 		public static ref T GetRandomRef<T>(this NativeList<T> list) where T : unmanaged
 		{
@@ -456,7 +482,9 @@ namespace Hertzole.UnityToolbox
 
 #if TOOLBOX_BURST
 		[BurstDiscard]
-		[NotBurstCompatible]
+#if TOOLBOX_COLLECTIONS
+		[BurstCompatible]
+#endif
 #endif
 		public static ref T GetRandomRef<T>(this NativeList<T> list, SystemRandom random) where T : unmanaged
 		{
@@ -576,7 +604,9 @@ namespace Hertzole.UnityToolbox
 
 #if TOOLBOX_BURST
 		[BurstDiscard]
-		[NotBurstCompatible]
+#if TOOLBOX_COLLECTIONS
+		[BurstCompatible]
+#endif
 #endif
 		public static string ToCommaSeparatedString<T>(this NativeList<T> list) where T : unmanaged
 		{
