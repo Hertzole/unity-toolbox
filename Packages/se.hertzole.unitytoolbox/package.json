@@ -6,6 +6,7 @@
     "unity": "2022.2",
     "unityRelease": "0f1",
     "changelogUrl": "https://github.com/Hertzole/unity-toolbox/blob/master/Packages/se.hertzole.unitytoolbox/CHANGELOG.md",
+    "licensesUrl": "https://github.com/Hertzole/unity-toolbox/blob/master/LICENSE",
     "dependencies": {
         "com.unity.mathematics": "1.2.6"
     },
