@@ -1,3 +1,17 @@
+# [1.8.0](https://github.com/Hertzole/unity-toolbox/compare/v1.7.1...v1.8.0) (2023-11-12)
+
+
+### Bug Fixes
+
+* no changelog url in package manifest ([5171502](https://github.com/Hertzole/unity-toolbox/commit/5171502a98e7a3275717138b4f3a06c6f1614e53))
+* no docs url in package manifest ([d7c1cdd](https://github.com/Hertzole/unity-toolbox/commit/d7c1cdd6ec68e8aabbb581834f4ed505d6819e8c))
+* no license url in package manifest ([9c73433](https://github.com/Hertzole/unity-toolbox/commit/9c73433794e9aef1e29868f228b0d446e12e0e3d))
+
+
+### Features
+
+* show hidden game objects tool ([db42b79](https://github.com/Hertzole/unity-toolbox/commit/db42b79691756837059afad6f89ac56a3551a6f2))
+
 ## [1.7.1](https://github.com/Hertzole/unity-toolbox/compare/v1.7.0...v1.7.1) (2023-11-01)
 
 
