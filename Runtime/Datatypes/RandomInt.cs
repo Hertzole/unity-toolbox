@@ -5,18 +5,29 @@ using Random = UnityEngine.Random;
 namespace Hertzole.UnityToolbox
 {
 	[Serializable]
-	public struct RandomInt
+	public struct RandomInt : IMinMaxInt
 	{
-		[SerializeField] 
+		[SerializeField]
 		private int min;
-		[SerializeField] 
+		[SerializeField]
 		private int max;
 
-		public int Min { get { return min; } set { min = value; } }
-		public int Max { get { return max; } set { max = value; } }
-		
-		public int Value { get { return GetRandom(); } }
-		
+		public int Value
+		{
+			get { return GetRandom(); }
+		}
+
+		public int Min
+		{
+			get { return min; }
+			set { min = value; }
+		}
+		public int Max
+		{
+			get { return max; }
+			set { max = value; }
+		}
+
 		public RandomInt(int min, int max)
 		{
 			this.min = min;
@@ -27,7 +38,7 @@ namespace Hertzole.UnityToolbox
 		{
 			return Random.Range(min, max);
 		}
-		
+
 		public static implicit operator int(RandomInt random)
 		{
 			return random.GetRandom();
