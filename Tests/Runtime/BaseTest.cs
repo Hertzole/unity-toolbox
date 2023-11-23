@@ -13,7 +13,11 @@ namespace Hertzole.UnityToolbox.Tests
 		public void SetUp()
 		{
 			Assert.AreEqual(0, objects.Count);
+			
+			OnSetUp();
 		}
+
+		protected virtual void OnSetUp() { }
 
 		[TearDown]
 		public void TearDown()
@@ -29,7 +33,11 @@ namespace Hertzole.UnityToolbox.Tests
 			}
 
 			Assert.AreEqual(0, objects.Count);
+			
+			OnTearDown();
 		}
+		
+		protected virtual void OnTearDown() { }
 
 		protected GameObject CreateGameObject(string name = "GameObject")
 		{
