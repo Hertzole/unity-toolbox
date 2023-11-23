@@ -1,3 +1,12 @@
+# [1.9.0](https://github.com/Hertzole/unity-toolbox/compare/v1.8.0...v1.9.0) (2023-11-23)
+
+
+### Features
+
+* circular object pool class ([b55ee64](https://github.com/Hertzole/unity-toolbox/commit/b55ee64f0e99d837e634bbde58fe38970a5e1077))
+* custom property drawers for RandomInt and RandomFloat ([87c3185](https://github.com/Hertzole/unity-toolbox/commit/87c318598845f74b23de226a5813c1b84f420ff9))
+* open paths utility ([513fb81](https://github.com/Hertzole/unity-toolbox/commit/513fb813c8f1df0ca8c58e87ecd7a318a5bbcb1a))
+
 # [1.8.0](https://github.com/Hertzole/unity-toolbox/compare/v1.7.1...v1.8.0) (2023-11-12)
 
 
