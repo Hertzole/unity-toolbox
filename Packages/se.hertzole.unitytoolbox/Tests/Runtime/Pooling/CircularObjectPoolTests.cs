@@ -98,6 +98,20 @@ namespace Hertzole.UnityToolbox.Tests
 			Assert.AreEqual(pool.CountActive, 1);
 			Assert.AreEqual(pool.CountInactive, 0);
 		}
+		
+		[Test]
+		public void ReleaseAll_ReleasesAllObjects()
+		{
+			CircularObjectPool<PoolObject> pool = CreatePool(10);
+			PoolObject obj1 = pool.Get();
+			PoolObject obj2 = pool.Get();
+			pool.ReleaseAll();
+			Assert.IsFalse(obj1.IsActive);
+			Assert.IsFalse(obj2.IsActive);
+			Assert.AreEqual(pool.CountAll, 2);
+			Assert.AreEqual(pool.CountActive, 0);
+			Assert.AreEqual(pool.CountInactive, 2);
+		}
 
 		private static CircularObjectPool<PoolObject> CreatePool(int maxCount)
 		{
