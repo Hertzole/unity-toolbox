@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.Pool;
 
 namespace Hertzole.UnityToolbox
@@ -58,10 +59,12 @@ namespace Hertzole.UnityToolbox
 		{
 			while (active.Count > 0)
 			{
-				pool.Release(active[active.Count - 1]);
+				int index = active.Count - 1;
+				pool.Release(active[index]);
+				active.RemoveAt(index);
 			}
 
-			active.Clear();
+			Assert.AreEqual(0, active.Count, "All objects should have been released.");
 		}
 
 		/// <summary>
