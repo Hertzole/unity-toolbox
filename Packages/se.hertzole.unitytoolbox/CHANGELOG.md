@@ -1,3 +1,10 @@
+## [1.9.1](https://github.com/Hertzole/unity-toolbox/compare/v1.9.0...v1.9.1) (2023-11-24)
+
+
+### Bug Fixes
+
+* circular pool ReleaseAll not releasing properly ([feab174](https://github.com/Hertzole/unity-toolbox/commit/feab174bfffa12c31f7567a7f94e7bd68d70e3c9))
+
 # [1.9.0](https://github.com/Hertzole/unity-toolbox/compare/v1.8.0...v1.9.0) (2023-11-23)
 
 
