@@ -1,3 +1,10 @@
+# [1.10.0](https://github.com/Hertzole/unity-toolbox/compare/v1.9.1...v1.10.0) (2023-11-28)
+
+
+### Features
+
+* scene reference ([1ba824e](https://github.com/Hertzole/unity-toolbox/commit/1ba824e35e0dfe092870c9d7ec500095460f17df))
+
 ## [1.9.1](https://github.com/Hertzole/unity-toolbox/compare/v1.9.0...v1.9.1) (2023-11-24)
 
 
