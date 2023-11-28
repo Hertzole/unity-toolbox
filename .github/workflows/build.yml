@@ -17,7 +17,7 @@ jobs:
   generator:
     name: Test and Build Generator
     runs-on: ubuntu-latest
-    container: unityci/editor-ubuntu-2023.2.0f1-base-3.0.0
+    container: unityci/editor:ubuntu-2023.2.0f1-base-3.0.0
     outputs:
       has_changes: ${{ steps.filter.outputs.workflows }}
     steps:
@@ -93,7 +93,7 @@ jobs:
     name: Test and Build Unity Package
     runs-on: ubuntu-latest
     needs: generator
-    container: unityci/editor-ubuntu-2023.2.0f1-base-3.0.0
+    container: unityci/editor:ubuntu-2023.2.0f1-base-3.0.0
     steps:
       - name: Install Node
         uses: actions/setup-node@v3
