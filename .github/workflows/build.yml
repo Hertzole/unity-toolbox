@@ -172,7 +172,7 @@ jobs:
           if [[ -d "Assets/Samples" ]]; then
             mv "Assets/Samples" /tmp/example
           fi
-          if [[ -d "README.md" ]]; then
+          if [[ -f "README.md" ]]; then
             mv README.md /tmp/README.md
           fi
           mv Packages/se.hertzole.unitytoolbox/Plugins/Hertzole.UnityToolbox.Generator.dll /tmp/Generator.dll
