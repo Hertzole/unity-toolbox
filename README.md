@@ -1,4 +1,7 @@
 # Unity Toolbox
+
+[![openupm](https://img.shields.io/npm/v/se.hertzole.unitytoolbox?label=openupm&registry_uri=https://package.openupm.com)](https://openupm.com/packages/se.hertzole.unitytoolbox/)
+
 A library of useful Unity tools, extensions, and source generators.
 
 ## Data Types
@@ -54,6 +57,18 @@ A unique identifier that can be serialized and used in the inspector. It will ha
 Identifier id = "Player";
 Identifier otherId = other.Id;
 if (id == otherId) { ... }
+```
+
+### Scene Reference
+
+Scene Reference is a `struct` that can be serialized and used in the inspector to reference a scene. It can be implicitly converted to an `int` for the build index. Unlike most other scene references, this one will not break when you move scenes around. It will also not break when you rename scenes. It also provides a quick fix button for when you try to add a scene that is not in the build settings.
+
+```cs
+SceneReference scene = new SceneReference(0);
+SceneManager.LoadScene(scene);
+
+Debug.Log(scene.SceneName);
+Debug.Log(scene.ScenePath);
 ```
 
 ## Extensions

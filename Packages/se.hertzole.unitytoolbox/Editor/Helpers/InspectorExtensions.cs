@@ -7,6 +7,11 @@ namespace Hertzole.UnityToolbox.Editor
 	{
 		public static void MakePropertyField<T>(this BaseField<T> field)
 		{
+			if (!field.ClassListContains(BaseField<T>.alignedFieldUssClassName))
+			{
+				field.AddToClassList(BaseField<T>.alignedFieldUssClassName);
+			}
+
 			field.labelElement.AddToClassList(PropertyField.labelUssClassName);
 		}
 	}
