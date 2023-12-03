@@ -1,3 +1,10 @@
+## [1.10.1](https://github.com/Hertzole/unity-toolbox/compare/v1.10.0...v1.10.1) (2023-12-03)
+
+
+### Bug Fixes
+
+* cursor manager unlocking cursor when destroying non-main instance ([38ad014](https://github.com/Hertzole/unity-toolbox/commit/38ad014cfff44e4cb0ab44c0d71127cc02dee601))
+
 # [1.10.0](https://github.com/Hertzole/unity-toolbox/compare/v1.9.1...v1.10.0) (2023-11-28)
 
 
