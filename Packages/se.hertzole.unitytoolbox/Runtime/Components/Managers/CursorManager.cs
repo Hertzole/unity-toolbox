@@ -50,19 +50,22 @@ namespace Hertzole.UnityToolbox
 			ReleaseAssets();
 #endif
 
-			if (lockCursor != null)
+			if (Instance == this)
 			{
-				lockCursor.OnValueChanged -= OnLockCursorChanged;
-			}
+				if (lockCursor != null)
+				{
+					lockCursor.OnValueChanged -= OnLockCursorChanged;
+				}
 
-			for (int i = 0; i < matches.Length; i++)
-			{
-				matches[i].Dispose();
-				matches[i].OnValueChanged -= OnValueChanged;
-			}
+				for (int i = 0; i < matches.Length; i++)
+				{
+					matches[i].Dispose();
+					matches[i].OnValueChanged -= OnValueChanged;
+				}
 
-			Cursor.lockState = CursorLockMode.None;
-			Cursor.visible = true;
+				Cursor.lockState = CursorLockMode.None;
+				Cursor.visible = true;
+			}
 		}
 
 		protected override void OnAwake()
