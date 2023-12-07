@@ -45,7 +45,9 @@ namespace Hertzole.UnityToolbox
 	///  </code>
 	/// </example>
 	/// <typeparam name="T">Must be the same type as your class.</typeparam>
+#if UNITY_EDITOR
 	[DisallowMultipleComponent]
+#endif
 	public abstract class MonoSingleton<T> : MonoBehaviour where T : Object
 	{
 		[SerializeField]
@@ -76,6 +78,11 @@ namespace Hertzole.UnityToolbox
 		}
 
 		/// <summary>
+		///     Returns true if this object is the singleton instance.
+		/// </summary>
+		public bool IsSingletonInstance { get; private set; }
+
+		/// <summary>
 		///     The current instance of the singleton in the scene.
 		/// </summary>
 		/// <exception cref="System.NullReferenceException">If the singleton can't be found in the scene.</exception>
@@ -103,6 +110,7 @@ namespace Hertzole.UnityToolbox
 				switch (destroyStrategy)
 				{
 					case SingletonDestroyStrategy.DestroyNewestComponent:
+						IsSingletonInstance = false;
 						Destroy(this);
 						return;
 					case SingletonDestroyStrategy.DestroyOldestComponent:
@@ -116,6 +124,7 @@ namespace Hertzole.UnityToolbox
 					case SingletonDestroyStrategy.KeepBoth:
 						break;
 					case SingletonDestroyStrategy.DestroyNewestGameObject:
+						IsSingletonInstance = false;
 						Destroy(gameObject);
 						return;
 					case SingletonDestroyStrategy.DestroyOldestGameObject:
@@ -132,6 +141,7 @@ namespace Hertzole.UnityToolbox
 			}
 
 			singletonInstance = (T) (object) this;
+			IsSingletonInstance = true;
 
 			if (keepAlive)
 			{
