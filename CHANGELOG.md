@@ -1,3 +1,10 @@
+# [1.11.0](https://github.com/Hertzole/unity-toolbox/compare/v1.10.1...v1.11.0) (2023-12-07)
+
+
+### Features
+
+* IsSingletonInstance bool to MonoSingleton.cs ([f4c1bec](https://github.com/Hertzole/unity-toolbox/commit/f4c1bece86931c8ad84501ccb04628dcb65e29ff))
+
 ## [1.10.1](https://github.com/Hertzole/unity-toolbox/compare/v1.10.0...v1.10.1) (2023-12-03)
 
 
