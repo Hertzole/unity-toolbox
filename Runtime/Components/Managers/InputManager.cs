@@ -12,7 +12,7 @@ namespace Hertzole.UnityToolbox
 	[RequireComponent(typeof(PlayerInput))]
 #endif
 	[DefaultExecutionOrder(-1_000_000)]
-	public class InputManager : MonoBehaviour
+	public partial class InputManager : MonoBehaviour
 	{
 		[SerializeField]
 		private ScriptablePlayerInputsList inputsList = default;

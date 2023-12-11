@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 namespace Hertzole.UnityToolbox.Editor
 {
 	[CustomEditor(typeof(InputManager))]
-	public sealed class InputManagerEditor : UnityEditor.Editor
+	public sealed class InputManagerEditor : ToolboxEditor
 	{
 		private SerializedProperty inputsList;
 		private SerializedProperty setInputActions;
@@ -15,8 +15,10 @@ namespace Hertzole.UnityToolbox.Editor
 		private SerializedProperty autoEnableNewInputs;
 		private SerializedProperty autoDisableRemovedInputs;
 
-		private void OnEnable()
+		protected override void OnEnable()
 		{
+			base.OnEnable();
+			
 #if TOOLBOX_ADDRESSABLES
 			useAddressables = serializedObject.FindProperty(nameof(useAddressables));
 			inputsListReference = serializedObject.FindProperty(nameof(inputsListReference));
@@ -160,7 +162,7 @@ namespace Hertzole.UnityToolbox.Editor
 
 			return root;
 		}
-
+		
 		private readonly struct SetInputActionsArgs
 		{
 			public readonly SerializedProperty setActionsProperty;

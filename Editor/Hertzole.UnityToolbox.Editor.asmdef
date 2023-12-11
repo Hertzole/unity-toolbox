@@ -2,7 +2,7 @@
     "name": "Hertzole.UnityToolbox.Editor",
     "rootNamespace": "Hertzole.UnityToolbox.Editor",
     "references": [
-        "Hertzole.UnityToolbox",
+        "GUID:ec45778daa71a29488062f6d5d6a9fb3",
         "GUID:d8b63aba1907145bea998dd612889d6b",
         "GUID:75469ad4d38634e559750d17036d5f7c",
         "GUID:6055be8ebefd69e48b49212b09b47b2f",
@@ -16,8 +16,10 @@
     ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "Sirenix.OdinInspector.Editor.dll"
+    ],
     "autoReferenced": true,
     "defineConstraints": [],
     "versionDefines": [
