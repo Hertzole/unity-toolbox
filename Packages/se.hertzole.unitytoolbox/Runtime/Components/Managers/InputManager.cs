@@ -14,18 +14,17 @@ namespace Hertzole.UnityToolbox
 	[DefaultExecutionOrder(-1_000_000)]
 	public class InputManager : MonoBehaviour
 	{
-#if TOOLBOX_ADDRESSABLES
-		[SerializeField]
-		private bool useAddressables = false;
-		[SerializeField]
-		private AssetReferenceT<ScriptablePlayerInputsList> inputsListReference = default;
-#endif
 		[SerializeField]
 		private ScriptablePlayerInputsList inputsList = default;
 		[SerializeField]
 		[HideInInspector]
 		private PlayerInput playerInput = default;
-		
+
+		[SerializeField]
+		private bool setInputActions = default;
+		[SerializeField]
+		private InputActionAsset inputActions = default;
+
 		[SerializeField]
 		private bool enableOnStart = true;
 		[SerializeField]
@@ -36,23 +35,30 @@ namespace Hertzole.UnityToolbox
 		private bool isEnabled;
 		private bool hasSubscribed;
 
-#if TOOLBOX_ADDRESSABLES
-		private AsyncOperationHandle<ScriptablePlayerInputsList>? assetHandle;
-#endif
-
 		private void Start()
 		{
 #if TOOLBOX_ADDRESSABLES
 			if (useAddressables)
 			{
-				assetHandle = Addressables.LoadAssetAsync<ScriptablePlayerInputsList>(inputsListReference);
-				assetHandle.Value.Completed += OnLoadedAsset;
+				inputsListHandle = inputsListReference.LoadAsync(OnLoadedInputsList);
+
+				if (setInputActions)
+				{
+					actionsHandle = inputActionsReference.LoadAsync(OnLoadedInputActions);
+				}
 			}
 			else
 #endif
-			if (enableOnStart)
 			{
-				EnableInput();
+				if (setInputActions)
+				{
+					playerInput.actions = inputActions;
+				}
+
+				if (enableOnStart)
+				{
+					EnableInput();
+				}
 			}
 		}
 
@@ -87,10 +93,8 @@ namespace Hertzole.UnityToolbox
 			}
 
 #if TOOLBOX_ADDRESSABLES
-			if (assetHandle != null)
-			{
-				Addressables.Release(assetHandle.Value);
-			}
+			inputsListHandle.Release();
+			actionsHandle.Release();
 #endif
 		}
 
@@ -114,8 +118,44 @@ namespace Hertzole.UnityToolbox
 			}
 		}
 
+		private void SubscribeToEvents()
+		{
+			inputsList.OnAddedOrInserted += OnInputAdded;
+			inputsList.OnRemoved += OnInputRemoved;
+			hasSubscribed = true;
+		}
+
+		private void OnInputAdded(int index, IHasPlayerInput input)
+		{
+			if (autoEnableNewInputs && isEnabled && playerInput.actions != null)
+			{
+				input.EnableInput(playerInput);
+			}
+		}
+
+		private void OnInputRemoved(int index, IHasPlayerInput input)
+		{
+			if (autoDisableRemovedInputs && isEnabled && playerInput.actions != null)
+			{
+				input.DisableInput(playerInput);
+			}
+		}
 #if TOOLBOX_ADDRESSABLES
-		private void OnLoadedAsset(AsyncOperationHandle<ScriptablePlayerInputsList> operation)
+		[SerializeField]
+		private bool useAddressables = false;
+		[SerializeField]
+		private AssetReferenceT<ScriptablePlayerInputsList> inputsListReference = default;
+		[SerializeField]
+		private AssetReferenceT<InputActionAsset> inputActionsReference = default;
+#endif
+
+#if TOOLBOX_ADDRESSABLES
+		private AsyncOperationHandle<ScriptablePlayerInputsList> inputsListHandle;
+		private AsyncOperationHandle<InputActionAsset> actionsHandle;
+#endif
+
+#if TOOLBOX_ADDRESSABLES
+		private void OnLoadedInputsList(AsyncOperationHandle<ScriptablePlayerInputsList> operation)
 		{
 			inputsList = operation.Result;
 
@@ -124,35 +164,23 @@ namespace Hertzole.UnityToolbox
 				SubscribeToEvents();
 			}
 
-			if (enableOnStart)
+			if (enableOnStart && playerInput.actions != null && !isEnabled)
+			{
+				EnableInput();
+			}
+		}
+
+		private void OnLoadedInputActions(AsyncOperationHandle<InputActionAsset> operation)
+		{
+			inputActions = operation.Result;
+			playerInput.actions = inputActions;
+
+			if (enableOnStart && inputsList != null && !isEnabled)
 			{
 				EnableInput();
 			}
 		}
 #endif
-
-		private void SubscribeToEvents()
-		{
-			inputsList.OnAddedOrInserted += OnInputAdded;
-			inputsList.OnRemoved += OnInputRemoved;
-			hasSubscribed = true;
-		}
-
-		private void OnInputAdded(int arg1, IHasPlayerInput arg2)
-		{
-			if (autoEnableNewInputs && isEnabled)
-			{
-				arg2.EnableInput(playerInput);
-			}
-		}
-
-		private void OnInputRemoved(int arg1, IHasPlayerInput arg2)
-		{
-			if (autoDisableRemovedInputs && isEnabled)
-			{
-				arg2.DisableInput(playerInput);
-			}
-		}
 
 #if UNITY_EDITOR
 		private void Reset()
@@ -173,9 +201,10 @@ namespace Hertzole.UnityToolbox
 			}
 
 #if TOOLBOX_ADDRESSABLES
-			if (useAddressables && inputsList != null && !Application.isPlaying)
+			if (useAddressables && !Application.isPlaying)
 			{
 				inputsList = null;
+				inputActions = null;
 			}
 #endif
 		}
