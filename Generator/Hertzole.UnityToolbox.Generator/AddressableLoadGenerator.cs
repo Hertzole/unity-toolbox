@@ -20,12 +20,12 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 	{
 		Log.LogInfo("=== INITIALIZE ADDRESSABLE LOAD GENERATOR ===");
 
-		IncrementalValuesProvider<ClassDeclarationSyntax> provider = context.SyntaxProvider.CreateSyntaxProvider(
-			                                                                    IsClassTargetForGeneration,
-			                                                                    (n, _) => (ClassDeclarationSyntax) n.Node)
+		IncrementalValuesProvider<TypeDeclarationSyntax> provider = context.SyntaxProvider.CreateSyntaxProvider(
+			                                                                    IsTypeTargetForGeneration,
+			                                                                    (n, _) => (TypeDeclarationSyntax) n.Node)
 		                                                                    .Where(syntax => syntax is not null);
 
-		IncrementalValueProvider<(Compilation Left, ImmutableArray<ClassDeclarationSyntax> Right)> compilation =
+		IncrementalValueProvider<(Compilation Left, ImmutableArray<TypeDeclarationSyntax> Right)> compilation =
 			context.CompilationProvider.Combine(provider.Collect());
 
 		Log.LogInfo("Registering source output...");
@@ -33,30 +33,38 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 		context.RegisterSourceOutput(compilation, (productionContext, tuple) => Execute(productionContext, tuple.Left, tuple.Right));
 	}
 
-	private static bool IsClassTargetForGeneration(SyntaxNode c, CancellationToken cancellationToken)
+	private static bool IsTypeTargetForGeneration(SyntaxNode c, CancellationToken cancellationToken)
 	{
-		if (c is not ClassDeclarationSyntax classSyntax)
+		// If it's not a type declaration, we don't care.
+		if (c is not TypeDeclarationSyntax typeDeclaration)
 		{
 			return false;
 		}
+		
+		cancellationToken.ThrowIfCancellationRequested();
 
-		try
+		// If there are no members, we don't care.
+		if (typeDeclaration.Members.Count == 0)
 		{
-			if (classSyntax.Members.Count == 0)
+			return false;
+		}
+		
+		cancellationToken.ThrowIfCancellationRequested();
+
+		foreach (MemberDeclarationSyntax member in typeDeclaration.Members)
+		{
+			// If the member is a field or property and has any attribute, we care.
+			if (member is FieldDeclarationSyntax or PropertyDeclarationSyntax && member.AttributeLists.Count > 0)
 			{
-				return false;
+				return true;
 			}
 		}
-		catch (Exception e)
-		{
-			Log.LogError($"Failed to check if class '{classSyntax.Identifier.Text}' has any members. {e.Message}");
-			return false;
-		}
 
-		return true;
+		// If we got here, we don't care.
+		return false;
 	}
 
-	private void Execute(SourceProductionContext context, Compilation compilation, ImmutableArray<ClassDeclarationSyntax> typeList)
+	private void Execute(SourceProductionContext context, Compilation compilation, ImmutableArray<TypeDeclarationSyntax> typeList)
 	{
 		if (typeList.IsDefaultOrEmpty)
 		{
@@ -96,6 +104,8 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 				continue;
 			}
 
+			bool isStruct = typeSymbol.IsValueType;
+
 			fields.Clear();
 
 			foreach (ISymbol member in typeSymbol.GetMembers())
@@ -110,9 +120,7 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 						continue;
 					}
 
-					INamedTypeSymbol? addressableType = AddressablesHelper.GetAddressableType(field, assetReferenceT);
-
-					if (addressableType == null)
+					if (!AddressablesHelper.TryGetAddressableType(field.Type, out INamedTypeSymbol? addressableType) || addressableType == null)
 					{
 						Log.LogWarning($"Could not get addressable type for field {field.Name} in {typeSymbol.Name}");
 						continue;
@@ -155,7 +163,7 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 				{
 					using (SourceScope source = new SourceScope($"{typeSymbol.Name}.Addressables", context))
 					{
-						using (TypeScope type = source.WithClass(typeSymbol.GetGenericFriendlyName()).WithAccessor(TypeAccessor.None)
+						using (TypeScope type = source.WithType(typeSymbol.GetGenericFriendlyName(), isStruct ? TypeType.Struct : TypeType.Class).WithAccessor(TypeAccessor.None)
 						                              .WithNamespace(typeSymbol.ContainingNamespace)
 						                              .Partial())
 						{
