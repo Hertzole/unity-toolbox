@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Threading;
 using Hertzole.UnityToolbox.Generator.Data;
+using Hertzole.UnityToolbox.Generator.Helpers;
 using Hertzole.UnityToolbox.Shared;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -80,7 +82,7 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 			return;
 		}
 
-		foreach (ClassDeclarationSyntax typeSyntax in typeList)
+		foreach (TypeDeclarationSyntax? typeSyntax in typeList.Distinct(TypeNameDeclarationComparer.Instance))
 		{
 			if (typeSyntax == null)
 			{

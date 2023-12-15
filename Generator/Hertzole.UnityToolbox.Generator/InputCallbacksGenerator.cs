@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Threading;
+using Hertzole.UnityToolbox.Generator.Helpers;
 using Hertzole.UnityToolbox.Shared;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -98,7 +100,7 @@ internal sealed class InputCallbacksGenerator : IIncrementalGenerator
 			return;
 		}
 
-		foreach (TypeDeclarationSyntax syntax in typesList)
+		foreach (TypeDeclarationSyntax syntax in typesList.Distinct(TypeNameDeclarationComparer.Instance))
 		{
 			context.CancellationToken.ThrowIfCancellationRequested();
 

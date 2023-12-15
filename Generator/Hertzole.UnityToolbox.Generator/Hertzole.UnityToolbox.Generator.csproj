@@ -27,11 +27,6 @@
       <ProjectReference Include="..\Hertzole.UnityToolbox.Shared\Hertzole.UnityToolbox.Shared.csproj" />
     </ItemGroup>
 
-
-    <ItemGroup>
-      <Folder Include="Helpers\" />
-    </ItemGroup>
-
     <Target Name="CopyDLLs" AfterTargets="Build">
         <Message Text="Executing CopyDLLs task" Importance="High"/>
 
