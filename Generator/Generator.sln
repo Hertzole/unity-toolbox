@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hertzole.UnityToolbox.Analy
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hertzole.UnityToolbox.Shared", "Hertzole.UnityToolbox.Shared\Hertzole.UnityToolbox.Shared.csproj", "{0C163C5A-A2C3-4E28-A42A-50613C387334}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hertzole.UnityToolbox.Generator.Benchmarks", "Hertzole.UnityToolbox.Generator.Benchmarks\Hertzole.UnityToolbox.Generator.Benchmarks.csproj", "{44C3859A-713E-4B5B-91B6-0E49011D32CE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{0C163C5A-A2C3-4E28-A42A-50613C387334}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0C163C5A-A2C3-4E28-A42A-50613C387334}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0C163C5A-A2C3-4E28-A42A-50613C387334}.Release|Any CPU.Build.0 = Release|Any CPU
+		{44C3859A-713E-4B5B-91B6-0E49011D32CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44C3859A-713E-4B5B-91B6-0E49011D32CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44C3859A-713E-4B5B-91B6-0E49011D32CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44C3859A-713E-4B5B-91B6-0E49011D32CE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
