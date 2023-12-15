@@ -11,21 +11,20 @@ public class AddressableLoadGeneratorBenchmarks
 	private CSharpGeneratorDriver driver = null!;
 	private CSharpCompilation compilation = null!;
 
+	[Params(AddressableLoadGeneratorTests.ADDRESSABLE_LOAD_CLASS_SIMPLE, AddressableLoadGeneratorTests.ADDRESSABLE_LOAD_CLASS_SIMPLE_T)]
+	public string syntaxTree;
+
 	[GlobalSetup]
 	public void GlobalSetup()
 	{
 		AddressableLoadGenerator generator = new AddressableLoadGenerator();
 
 		driver = CSharpGeneratorDriver.Create(generator);
-		
+
 		const string base_path = "../../../../../../../../../Library/ScriptAssemblies/";
 
 		compilation =
-			CSharpCompilation.Create(nameof(AddressableLoadGeneratorBenchmarks), new[]
-				{
-					CSharpSyntaxTree.ParseText(AddressableLoadGeneratorTests.ADDRESSABLE_LOAD_CLASS_SIMPLE),
-					CSharpSyntaxTree.ParseText(AddressableLoadGeneratorTests.ADDRESSABLE_LOAD_CLASS_SIMPLE_T)
-				},
+			CSharpCompilation.Create(nameof(AddressableLoadGeneratorBenchmarks), new[] { CSharpSyntaxTree.ParseText(syntaxTree) },
 				new[]
 				{
 					MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
