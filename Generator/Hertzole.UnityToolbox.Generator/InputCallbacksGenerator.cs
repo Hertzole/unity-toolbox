@@ -83,7 +83,7 @@ internal sealed class InputCallbacksGenerator : IIncrementalGenerator
 
 				string attributeName = attributeData.AttributeClass.ToDisplayString();
 
-				if (string.Equals(Attributes.generateInputCallbacks, attributeName, StringComparison.Ordinal))
+				if (string.Equals(Attributes.GENERATE_INPUT_CALLBACKS, attributeName, StringComparison.Ordinal))
 				{
 					return (typeDeclaration, true);
 				}
@@ -263,7 +263,7 @@ internal sealed class InputCallbacksGenerator : IIncrementalGenerator
 
 				Log.LogInfo($"[INPUT CALLBACKS] : {attributeName} | {attribute.ConstructorArguments.Length}");
 
-				if (attribute.ConstructorArguments.Length == 1 && string.Equals(attributeName, Attributes.generateInputCallbacks, StringComparison.Ordinal))
+				if (attribute.ConstructorArguments.Length == 1 && string.Equals(attributeName, Attributes.GENERATE_INPUT_CALLBACKS, StringComparison.Ordinal))
 				{
 					Log.LogInfo($"Found input callback field on {symbol.Name}.");
 

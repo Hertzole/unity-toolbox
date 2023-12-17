@@ -18,12 +18,12 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 
 	public void Initialize(IncrementalGeneratorInitializationContext context)
 	{
-		IncrementalValuesProvider<ClassDeclarationSyntax> provider = context.SyntaxProvider.CreateSyntaxProvider(
-			                                                                    IsClassTargetForGeneration,
-			                                                                    (n, _) => (ClassDeclarationSyntax) n.Node)
-		                                                                    .Where(syntax => syntax is not null);
+		IncrementalValuesProvider<TypeDeclarationSyntax> provider = context.SyntaxProvider.CreateSyntaxProvider(
+			                                                                   IsClassTargetForGeneration,
+			                                                                   (n, _) => (TypeDeclarationSyntax) n.Node)
+		                                                                   .Where(syntax => syntax is not null);
 
-		IncrementalValueProvider<(Compilation Left, ImmutableArray<ClassDeclarationSyntax> Right)> compilation =
+		IncrementalValueProvider<(Compilation Left, ImmutableArray<TypeDeclarationSyntax> Right)> compilation =
 			context.CompilationProvider.Combine(provider.Collect());
 
 		context.RegisterSourceOutput(compilation, (productionContext, tuple) => Execute(productionContext, tuple.Left, tuple.Right));
@@ -31,27 +31,36 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 
 	private static bool IsClassTargetForGeneration(SyntaxNode c, CancellationToken cancellationToken)
 	{
-		if (c is not ClassDeclarationSyntax classSyntax)
+		// If it's not a type declaration, we don't care.
+		if (c is not TypeDeclarationSyntax typeDeclaration)
 		{
 			return false;
 		}
+		
+		cancellationToken.ThrowIfCancellationRequested();
 
-		try
+		// If there are no members, we don't care.
+		if (typeDeclaration.Members.Count == 0)
 		{
-			if (classSyntax.Members.Count == 0)
+			return false;
+		}
+		
+		cancellationToken.ThrowIfCancellationRequested();
+
+		foreach (MemberDeclarationSyntax member in typeDeclaration.Members)
+		{
+			// If the member is a field or property and has any attribute, we care.
+			if (member is FieldDeclarationSyntax or PropertyDeclarationSyntax && member.AttributeLists.Count > 0)
 			{
-				return false;
+				return true;
 			}
 		}
-		catch (Exception)
-		{
-			return false;
-		}
 
-		return true;
+		// If we got here, we don't care.
+		return false;
 	}
 
-	private void Execute(SourceProductionContext context, Compilation compilation, ImmutableArray<ClassDeclarationSyntax> typeList)
+	private void Execute(SourceProductionContext context, Compilation compilation, ImmutableArray<TypeDeclarationSyntax> typeList)
 	{
 		if (typeList.IsDefaultOrEmpty)
 		{
@@ -102,12 +111,11 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 						continue;
 					}
 
-					INamedTypeSymbol? addressableSymbol = null;
 					string fieldName = field.Name;
 
 					if (generateLoadAttribute != null && referenceSymbols.AssetReferenceT != null && field.TryGetAttribute(generateLoadAttribute, out _))
 					{
-						addressableSymbol = AddressablesHelper.GetAddressableType(field, referenceSymbols.AssetReferenceT);
+						INamedTypeSymbol? addressableSymbol = AddressablesHelper.GetAddressableType(field, referenceSymbols.AssetReferenceT);
 						if (addressableSymbol != null)
 						{
 							fieldName = TextUtility.FormatAddressableName(field.Name);

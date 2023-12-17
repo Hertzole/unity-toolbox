@@ -26,7 +26,7 @@ internal sealed class InputCallbacksAnalyzer : DiagnosticAnalyzer
 		{
 			compileContext.RegisterSymbolAction(symbolContext =>
 			{
-				if (!symbolContext.Symbol.TryGetAttribute(Attributes.generateInputCallbacks, out AttributeData? attribute) || attribute is null ||
+				if (!symbolContext.Symbol.TryGetAttribute(Attributes.GENERATE_INPUT_CALLBACKS, out AttributeData? attribute) || attribute is null ||
 				    attribute.AttributeClass is null)
 				{
 					return;

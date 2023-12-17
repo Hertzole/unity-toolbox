@@ -35,6 +35,11 @@ public sealed class SourceScope : IDisposable
 		writeCommands.Add(FormatWriteCommand(value, includeIndent, true));
 	}
 
+	public TypeScope WithType(string name, TypeType type)
+	{
+		return new TypeScope(this, name, type);
+	}
+
 	public TypeScope WithClass(string name)
 	{
 		return new TypeScope(this, name, TypeType.Class);
@@ -82,7 +87,7 @@ public sealed class SourceScope : IDisposable
 		{
 			sb.Append(command);
 		}
-
+		
 		context.AddSource($"{sourceName}.g.cs", SourceText.From(sb.ToString(), Encoding.UTF8));
 		
 		Log.LogInfo($"Adding source '{sourceName}.g.cs'");

@@ -62,7 +62,7 @@ internal sealed class InputCallbacksCodeFixer : CodeFixProvider
 			symbol = semanticModel.GetDeclaredSymbol(propertySyntax);
 		}
 
-		if (symbol is null || !symbol.TryGetAttribute(Attributes.generateInputCallbacks, out AttributeData? attribute) || attribute == null)
+		if (symbol is null || !symbol.TryGetAttribute(Attributes.GENERATE_INPUT_CALLBACKS, out AttributeData? attribute) || attribute == null)
 		{
 			return;
 		}
