@@ -219,7 +219,7 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 				{
 					using PoolHandle<StringBuilder> handle = StringBuilderPool.Get(out StringBuilder? typeNameBuilder);
 					typeNameBuilder.Append(typeSyntax.type.Name);
-					typeNameBuilder.Append("Addressables");
+					typeNameBuilder.Append(".Addressables");
 
 					using (NewScopes.SourceScope source = NewScopes.SourceScope.Create(typeNameBuilder.ToString(), context)
 					                                               .WithNamespace(typeSyntax.type.ContainingNamespace))
