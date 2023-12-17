@@ -1,18 +1,14 @@
 ﻿using BenchmarkDotNet.Attributes;
-using Hertzole.UnityToolbox.Generator.Tests;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
 namespace Hertzole.UnityToolbox.Generator.Benchmarks;
 
 [MemoryDiagnoser]
-public class AddressableLoadGeneratorBenchmarks
+public partial class AddressableLoadGeneratorBenchmarks
 {
 	private CSharpGeneratorDriver driver = null!;
 	private CSharpCompilation compilation = null!;
-
-	[Params(AddressableLoadGeneratorTests.ADDRESSABLE_LOAD_CLASS_SIMPLE, AddressableLoadGeneratorTests.ADDRESSABLE_LOAD_CLASS_SIMPLE_T)]
-	public string syntaxTree;
 
 	[GlobalSetup]
 	public void GlobalSetup()
@@ -24,7 +20,7 @@ public class AddressableLoadGeneratorBenchmarks
 		const string base_path = "../../../../../../../../../Library/ScriptAssemblies/";
 
 		compilation =
-			CSharpCompilation.Create(nameof(AddressableLoadGeneratorBenchmarks), new[] { CSharpSyntaxTree.ParseText(syntaxTree) },
+			CSharpCompilation.Create(nameof(AddressableLoadGeneratorBenchmarks), new[] { CSharpSyntaxTree.ParseText(TEST_CLASS) },
 				new[]
 				{
 					MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
