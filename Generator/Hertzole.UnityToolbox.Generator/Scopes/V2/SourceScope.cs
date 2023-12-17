@@ -71,19 +71,18 @@ public sealed class SourceScope : IDisposable
 		}
 
 		nspace = namespaceSymbol.ToDisplayString();
+		Indent++;
 		return this;
 	}
 
 	public TypeScope WithType(string typeName, TypeType type)
 	{
-		Indent++;
 		return TypeScope.Create(this, typeName, type);
 	}
 
 	public void AddType(string type)
 	{
 		types.Add(type);
-		Indent--;
 	}
 	
 	public void Dispose()
