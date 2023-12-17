@@ -31,9 +31,10 @@ public partial class TestClass
 
 partial class TestClassT
 {
-	private global::UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<global::Hertzole.UnityToolbox.Spawnpoint> assetReferenceHandle;
 	[global::JetBrains.Annotations.CanBeNull]
 	private global::Hertzole.UnityToolbox.Spawnpoint asset = null;
+	private global::UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<global::Hertzole.UnityToolbox.Spawnpoint> assetReferenceHandle;
+
 	private void LoadAssets()
 	{
 		assetReferenceHandle = global::UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<global::Hertzole.UnityToolbox.Spawnpoint>(assetReference);
@@ -50,6 +51,7 @@ partial class TestClassT
 			}
 		};
 	}
+
 	private void ReleaseAssets()
 	{
 		if (assetReferenceHandle.IsValid())
@@ -57,6 +59,7 @@ partial class TestClassT
 			global::UnityEngine.AddressableAssets.Addressables.Release(assetReferenceHandle);
 		}
 	}
+
 	partial void OnAssetLoaded(global::Hertzole.UnityToolbox.Spawnpoint value);
 }
 ";
@@ -68,9 +71,10 @@ partial class TestClassT
 
 partial class TestClass
 {
-	private global::UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<global::UnityEngine.GameObject> assetReferenceHandle;
 	[global::JetBrains.Annotations.CanBeNull]
 	private global::UnityEngine.GameObject asset = null;
+	private global::UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<global::UnityEngine.GameObject> assetReferenceHandle;
+
 	private void LoadAssets()
 	{
 		assetReferenceHandle = global::UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<global::UnityEngine.GameObject>(assetReference);
@@ -87,6 +91,7 @@ partial class TestClass
 			}
 		};
 	}
+
 	private void ReleaseAssets()
 	{
 		if (assetReferenceHandle.IsValid())
@@ -94,6 +99,7 @@ partial class TestClass
 			global::UnityEngine.AddressableAssets.Addressables.Release(assetReferenceHandle);
 		}
 	}
+
 	partial void OnAssetLoaded(global::UnityEngine.GameObject value);
 }
 ";
