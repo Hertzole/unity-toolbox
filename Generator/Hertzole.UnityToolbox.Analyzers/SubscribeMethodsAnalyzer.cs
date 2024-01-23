@@ -56,7 +56,7 @@ public sealed class SubscribeMethodsAnalyzer : DiagnosticAnalyzer
 				}
 
 				if (!ScriptableValueHelper.TryGetScriptableType(fieldSymbol.Type as INamedTypeSymbol, out ScriptableType scriptableType,
-					    out ITypeSymbol? genericType, referenceSymbols))
+					    out ITypeSymbol? genericType))
 				{
 					return;
 				}

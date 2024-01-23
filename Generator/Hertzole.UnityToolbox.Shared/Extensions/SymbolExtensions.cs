@@ -79,4 +79,10 @@ public static class SymbolExtensions
 			return nameBuilder.ToString();
 		}
 	}
+	
+	public static bool StringEquals(this ISymbol symbol, string value)
+	{
+		Log.LogInfo($"{symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} == {value} ({string.Equals(symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), value, StringComparison.Ordinal)})");
+		return string.Equals(symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), value, StringComparison.Ordinal);
+	}
 }

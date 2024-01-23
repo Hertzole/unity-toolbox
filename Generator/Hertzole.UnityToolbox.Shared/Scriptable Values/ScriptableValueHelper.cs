@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System;
+using Microsoft.CodeAnalysis;
 
 namespace Hertzole.UnityToolbox.Shared;
 
@@ -12,21 +13,20 @@ public enum ScriptableType
 
 public static class ScriptableValueHelper
 {
-	public static bool TryGetScriptableType(INamedTypeSymbol? type,
-		out ScriptableType scriptableType,
-		out ITypeSymbol? genericType,
-		ReferenceSymbols referenceSymbols)
+	public static bool TryGetScriptableType(INamedTypeSymbol? type, out ScriptableType scriptableType, out ITypeSymbol? genericType)
 	{
+		Log.LogInfo("Get scriptable type. (Type: " + type?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) + ")");
+		
 		genericType = null;
 
 		if (type != null)
 		{
-			if (TryGetScriptableTypeFromType(type, out scriptableType, out genericType, referenceSymbols))
+			if (TryGetScriptableTypeFromType(type, out scriptableType, out genericType))
 			{
 				return true;
 			}
 
-			if (TryGetScriptableTypeFromAddressable(type, out scriptableType, out genericType, referenceSymbols))
+			if (TryGetScriptableTypeFromAddressable(type, out scriptableType, out genericType))
 			{
 				return true;
 			}
@@ -36,26 +36,23 @@ public static class ScriptableValueHelper
 		return false;
 	}
 
-	private static bool TryGetScriptableTypeFromType(INamedTypeSymbol type,
-		out ScriptableType scriptableType,
-		out ITypeSymbol? genericType,
-		ReferenceSymbols referenceSymbols)
+	private static bool TryGetScriptableTypeFromType(INamedTypeSymbol type, out ScriptableType scriptableType, out ITypeSymbol? genericType)
 	{
-		if (type.ConstructedFrom.Equals(referenceSymbols.ScriptableValue, SymbolEqualityComparer.Default))
+		if (type.ConstructedFrom.StringEquals(Types.SCRIPTABLE_VALUE))
 		{
 			genericType = type.TypeArguments[0];
 			scriptableType = ScriptableType.Value;
 			return true;
 		}
 
-		if (type.ConstructedFrom.Equals(referenceSymbols.ScriptableEvent, SymbolEqualityComparer.Default))
+		if (type.ConstructedFrom.StringEquals(Types.SCRIPTABLE_EVENT))
 		{
-			genericType = referenceSymbols.EventArgs;
+			genericType = null;
 			scriptableType = ScriptableType.Event;
 			return true;
 		}
 
-		if (type.ConstructedFrom.Equals(referenceSymbols.ScriptableGenericEvent, SymbolEqualityComparer.IncludeNullability))
+		if (type.ConstructedFrom.StringEquals(Types.GENERIC_SCRIPTABLE_EVENT))
 		{
 			genericType = type.TypeArguments[0];
 			scriptableType = ScriptableType.GenericEvent;
@@ -64,21 +61,21 @@ public static class ScriptableValueHelper
 
 		if (type.BaseType != null)
 		{
-			if (type.BaseType.ConstructedFrom.Equals(referenceSymbols.ScriptableValue, SymbolEqualityComparer.Default))
+			if (type.BaseType.ConstructedFrom.StringEquals(Types.SCRIPTABLE_VALUE))
 			{
 				genericType = type.BaseType.TypeArguments[0];
 				scriptableType = ScriptableType.Value;
 				return true;
 			}
 
-			if (type.BaseType.ConstructedFrom.Equals(referenceSymbols.ScriptableEvent, SymbolEqualityComparer.Default))
+			if (type.BaseType.ConstructedFrom.StringEquals(Types.SCRIPTABLE_EVENT))
 			{
 				scriptableType = ScriptableType.Event;
 				genericType = null;
 				return true;
 			}
 
-			if (type.BaseType.ConstructedFrom.Equals(referenceSymbols.ScriptableGenericEvent, SymbolEqualityComparer.IncludeNullability))
+			if (type.BaseType.ConstructedFrom.StringEquals(Types.GENERIC_SCRIPTABLE_EVENT))
 			{
 				genericType = type.BaseType.TypeArguments[0];
 				scriptableType = ScriptableType.GenericEvent;
@@ -91,14 +88,13 @@ public static class ScriptableValueHelper
 		return false;
 	}
 
-	private static bool TryGetScriptableTypeFromAddressable(INamedTypeSymbol type,
-		out ScriptableType scriptableType,
-		out ITypeSymbol? genericType,
-		ReferenceSymbols referenceSymbols)
+	private static bool TryGetScriptableTypeFromAddressable(INamedTypeSymbol type, out ScriptableType scriptableType, out ITypeSymbol? genericType)
 	{
+		Log.LogInfo("Trying to get scriptable type from addressable. (Type: " + type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) + ")");
+		
 		while (true)
 		{
-			if (type.ConstructedFrom.Equals(referenceSymbols.AssetReferenceT, SymbolEqualityComparer.Default))
+			if (type.ConstructedFrom.StringEquals(Types.ASSET_REFERENCE_T))
 			{
 				if (type.TypeArguments[0] is not INamedTypeSymbol namedTypeSymbol)
 				{
@@ -107,7 +103,7 @@ public static class ScriptableValueHelper
 					return false;
 				}
 
-				return TryGetScriptableTypeFromType(namedTypeSymbol, out scriptableType, out genericType, referenceSymbols);
+				return TryGetScriptableTypeFromType(namedTypeSymbol, out scriptableType, out genericType);
 			}
 
 			if (type.BaseType != null)

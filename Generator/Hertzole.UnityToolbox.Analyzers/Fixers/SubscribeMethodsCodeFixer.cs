@@ -52,11 +52,6 @@ public sealed class SubscribeMethodsCodeFixer : CodeFixProvider
 			diagnostic);
 	}
 
-	public override FixAllProvider? GetFixAllProvider()
-	{
-		return WellKnownFixAllProviders.BatchFixer;
-	}
-
 	private async Task<Document> ImplementMethodAsync(Document contextDocument,
 		TypeDeclarationSyntax typeDeclarationSyntax,
 		FieldDeclarationSyntax fieldDeclarationSyntax,
@@ -81,7 +76,7 @@ public sealed class SubscribeMethodsCodeFixer : CodeFixProvider
 			return contextDocument;
 		}
 
-		if (!ScriptableValueHelper.TryGetScriptableType(typeSymbol, out ScriptableType scriptableType, out ITypeSymbol? genericType, referenceSymbols))
+		if (!ScriptableValueHelper.TryGetScriptableType(typeSymbol, out ScriptableType scriptableType, out ITypeSymbol? genericType))
 		{
 			return contextDocument;
 		}
