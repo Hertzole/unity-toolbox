@@ -4,7 +4,6 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using Hertzole.UnityToolbox.Generator.NewScopes;
 using Hertzole.UnityToolbox.Shared;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -239,19 +238,19 @@ internal sealed class InputCallbacksGenerator : IIncrementalGenerator
 			nameBuilder.Append(callbackType.type.Name);
 			nameBuilder.Append(".InputCallbacks");
 
-			using (NewScopes.SourceScope source = NewScopes.SourceScope.Create(nameBuilder.ToString(), context)
-			                                               .WithNamespace(callbackType.type.ContainingNamespace))
+			using (SourceScope source = SourceScope.Create(nameBuilder.ToString(), context)
+			                                       .WithNamespace(callbackType.type.ContainingNamespace))
 			{
 				source.AddUsing("Hertzole.UnityToolbox");
 
-				using (NewScopes.TypeScope type = source.WithType(callbackType.type.GetGenericFriendlyName(), isStruct ? TypeType.Struct : TypeType.Class)
-				                                        .WithAccessor(TypeAccessor.None).Partial())
+				using (TypeScope type = source.WithType(callbackType.type.GetGenericFriendlyName(), isStruct ? TypeType.Struct : TypeType.Class)
+				                              .WithAccessor(TypeAccessor.None).Partial())
 				{
 					foreach (InputCallbackField field in callbackType.fields)
 					{
 						type.WithField(field.hasSubscribedField, "bool", "false").WithAccessor(FieldAccessor.Private).Dispose();
 
-						using (NewScopes.MethodScope subscribe = type.WithMethod(field.subscribeToField).WithAccessor(MethodAccessor.Private))
+						using (MethodScope subscribe = type.WithMethod(field.subscribeToField).WithAccessor(MethodAccessor.Private))
 						{
 							subscribe.Append("if (!");
 							subscribe.Append(field.hasSubscribedField);
@@ -308,7 +307,7 @@ internal sealed class InputCallbacksGenerator : IIncrementalGenerator
 							}
 						}
 
-						using (NewScopes.MethodScope unsubscribe = type.WithMethod(field.unsubscribeFromField).WithAccessor(MethodAccessor.Private))
+						using (MethodScope unsubscribe = type.WithMethod(field.unsubscribeFromField).WithAccessor(MethodAccessor.Private))
 						{
 							unsubscribe.Append("if (");
 							unsubscribe.Append(field.hasSubscribedField);
@@ -367,7 +366,7 @@ internal sealed class InputCallbacksGenerator : IIncrementalGenerator
 
 						if ((field.callbackType & InputCallbackType.Started) != 0)
 						{
-							using (NewScopes.MethodScope startedMethod = type.WithMethod(field.startedMethod!).WithAccessor(MethodAccessor.Private).Partial())
+							using (MethodScope startedMethod = type.WithMethod(field.startedMethod!).WithAccessor(MethodAccessor.Private).Partial())
 							{
 								startedMethod.AddParameter("global::UnityEngine.InputSystem.InputAction.CallbackContext", "context");
 							}
@@ -375,7 +374,7 @@ internal sealed class InputCallbacksGenerator : IIncrementalGenerator
 
 						if ((field.callbackType & InputCallbackType.Performed) != 0)
 						{
-							using (NewScopes.MethodScope performedMethod =
+							using (MethodScope performedMethod =
 							       type.WithMethod(field.performedMethod!).WithAccessor(MethodAccessor.Private).Partial())
 							{
 								performedMethod.AddParameter("global::UnityEngine.InputSystem.InputAction.CallbackContext", "context");
@@ -384,7 +383,7 @@ internal sealed class InputCallbacksGenerator : IIncrementalGenerator
 
 						if ((field.callbackType & InputCallbackType.Canceled) != 0)
 						{
-							using (NewScopes.MethodScope canceledMethod = type.WithMethod(field.canceledMethod!).WithAccessor(MethodAccessor.Private).Partial())
+							using (MethodScope canceledMethod = type.WithMethod(field.canceledMethod!).WithAccessor(MethodAccessor.Private).Partial())
 							{
 								canceledMethod.AddParameter("global::UnityEngine.InputSystem.InputAction.CallbackContext", "context");
 							}
@@ -392,7 +391,7 @@ internal sealed class InputCallbacksGenerator : IIncrementalGenerator
 
 						if ((field.callbackType & InputCallbackType.All) != 0)
 						{
-							using (NewScopes.MethodScope allMethod = type.WithMethod(field.allMethod!).WithAccessor(MethodAccessor.Private).Partial())
+							using (MethodScope allMethod = type.WithMethod(field.allMethod!).WithAccessor(MethodAccessor.Private).Partial())
 							{
 								allMethod.AddParameter("global::UnityEngine.InputSystem.InputAction.CallbackContext", "context");
 							}

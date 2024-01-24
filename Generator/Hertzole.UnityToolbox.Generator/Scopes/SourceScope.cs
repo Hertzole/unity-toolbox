@@ -9,60 +9,85 @@ namespace Hertzole.UnityToolbox.Generator;
 
 public sealed class SourceScope : IDisposable
 {
-	private static readonly StringBuilder sb = new StringBuilder();
+	private StringBuilder sb;
+	private string name;
+	private SourceProductionContext context;
 
-	private readonly string sourceName;
-	public readonly SourceProductionContext context;
+	private List<string> usings = null!;
+	private List<string> types = null!;
 
-	private readonly List<string> usings = new List<string>();
-	private readonly List<string> writeCommands = new List<string>();
+	internal string? nspace;
 
-	public int Indent { get; set; }
+	private string indentString;
+	private int indent;
 
-	public SourceScope(string name, SourceProductionContext context)
+	private static readonly ObjectPool<SourceScope> pool = new ObjectPool<SourceScope>(() => new SourceScope(), null, null);
+
+	public int Indent
 	{
-		sourceName = name;
-		this.context = context;
+		get { return indent; }
+		set
+		{
+			if (indent != value)
+			{
+				// Make sure indent is never negative.
+				indent = value < 0 ? 0 : value;
+
+				indentString = new string('\t', indent);
+			}
+		}
 	}
 
-	public void Write(string? value = null, bool includeIndent = true)
+	public static SourceScope Create(in string name, in SourceProductionContext context)
 	{
-		writeCommands.Add(FormatWriteCommand(value, includeIndent));
+		SourceScope scope = pool.Get();
+		scope.name = name;
+		scope.context = context;
+
+		scope.sb = StringBuilderPool.Get();
+
+		scope.usings = ListPool<string>.Get();
+		scope.types = ListPool<string>.Get();
+
+		scope.indent = 0;
+		scope.indentString = string.Empty;
+
+		scope.nspace = string.Empty;
+
+		return scope;
 	}
 
-	public void WriteLine(string? value = null, bool includeIndent = true)
+	public SourceScope WithNamespace(string value)
 	{
-		writeCommands.Add(FormatWriteCommand(value, includeIndent, true));
+		nspace = value;
+		return this;
 	}
 
-	public TypeScope WithType(string name, TypeType type)
+	public SourceScope WithNamespace(INamespaceSymbol? namespaceSymbol)
 	{
-		return new TypeScope(this, name, type);
+		if (namespaceSymbol == null || namespaceSymbol.IsGlobalNamespace)
+		{
+			return this;
+		}
+
+		nspace = namespaceSymbol.ToDisplayString();
+		Indent++;
+		return this;
 	}
 
-	public TypeScope WithClass(string name)
+	public TypeScope WithType(string typeName, TypeType type)
 	{
-		return new TypeScope(this, name, TypeType.Class);
+		return TypeScope.Create(this, typeName, type);
 	}
 
-	public TypeScope WithStruct(string name)
-	{
-		return new TypeScope(this, name, TypeType.Struct);
-	}
-
-	public TypeScope WithInterface(string name)
-	{
-		return new TypeScope(this, name, TypeType.Interface);
-	}
-
-	public void WriteUsing(string value)
+	public void AddUsing(string value)
 	{
 		usings.Add(value);
 	}
 
-	public string FormatWriteCommand(string? value = null, bool includeIndent = true, bool newLine = false)
+	public void AddType(string type)
 	{
-		return GetIndent(includeIndent ? Indent : 0) + value + (newLine ? Environment.NewLine : "");
+		types.Add(type);
 	}
 
 	public void Dispose()
@@ -77,31 +102,56 @@ public sealed class SourceScope : IDisposable
 		{
 			for (int i = 0; i < usings.Count; i++)
 			{
-				sb.AppendLine($"using {usings[i]};");
+				sb.Append("using ");
+				sb.Append(usings[i]);
+				sb.AppendLine(";");
 			}
 
 			sb.AppendLine();
 		}
 
-		foreach (string command in writeCommands)
+		if (!string.IsNullOrEmpty(nspace))
 		{
-			sb.Append(command);
+			sb.Append("namespace ");
+			sb.AppendLine(nspace);
+			sb.AppendLine("{");
+			Indent++;
 		}
-		
-		context.AddSource($"{sourceName}.g.cs", SourceText.From(sb.ToString(), Encoding.UTF8));
-		
-		Log.LogInfo($"Adding source '{sourceName}.g.cs'");
 
-		sb.Clear();
+		for (int i = 0; i < types.Count; i++)
+		{
+			sb.AppendLine(types[i]);
+
+			// Add a space between each type.
+			if (i < types.Count - 1)
+			{
+				sb.AppendLine();
+			}
+		}
+
+		if (!string.IsNullOrEmpty(nspace))
+		{
+			Indent--;
+			sb.AppendLine("}");
+		}
+
+		using (StringBuilderPool.Get(out StringBuilder nameBuilder))
+		{
+			nameBuilder.Append(name);
+			nameBuilder.Append(".g.cs");
+
+			context.AddSource(nameBuilder.ToString(), SourceText.From(sb.ToString(), Encoding.UTF8));
+		}
+
+		StringBuilderPool.Return(sb);
+		ListPool<string>.Return(usings);
+		ListPool<string>.Return(types);
+
+		pool.Return(this);
 	}
 
 	public string GetIndent()
 	{
-		return GetIndent(Indent);
-	}
-
-	public string GetIndent(int indentAmount)
-	{
-		return new string('\t', indentAmount);
+		return indentString;
 	}
 }

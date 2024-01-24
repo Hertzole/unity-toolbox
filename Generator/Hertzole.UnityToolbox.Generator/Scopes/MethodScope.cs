@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Hertzole.UnityToolbox.Shared;
 
 namespace Hertzole.UnityToolbox.Generator;
 
@@ -15,96 +16,144 @@ public enum MethodAccessor
 
 public sealed class MethodScope : IDisposable
 {
-	private bool isStatic;
-	private bool isPartial;
-
-	public readonly TypeScope parentType;
-
-	private readonly string methodName;
+	internal TypeScope type;
+	private string name;
+	private string returnType;
+	private List<Parameter> parameters;
+	private StringBuilder sb;
 
 	private MethodAccessor accessor;
-	private string returnType;
+	private bool isPartial;
+	private bool hasIndentedBody;
+	private bool shouldIndentWrite;
 
-	private readonly StringBuilder sb = new StringBuilder();
-	private readonly List<string> writes = new List<string>();
-	private readonly List<string> lineWrites = new List<string>();
-	private readonly List<string> parameters = new List<string>();
-	private readonly List<string> attributes = new List<string>();
+	private StringBuilder bodyWriter;
 
-	public MethodScope(TypeScope parentType, string name)
+	private static readonly ObjectPool<MethodScope> pool = new ObjectPool<MethodScope>(() => new MethodScope(), null, null);
+
+	private MethodScope()
 	{
-		this.parentType = parentType;
+		type = null!;
+		name = null!;
 
-		methodName = name;
-		accessor = MethodAccessor.Private;
-		returnType = "void";
+		accessor = MethodAccessor.None;
+		isPartial = false;
+		returnType = string.Empty;
+
+		parameters = null!;
+		sb = null!;
+		bodyWriter = null!;
+	}
+
+	public static MethodScope Create(in TypeScope type, in string name)
+	{
+		MethodScope scope = pool.Get();
+		scope.type = type;
+		scope.name = name;
+
+		scope.accessor = MethodAccessor.None;
+		scope.isPartial = false;
+		scope.returnType = "void";
+		scope.shouldIndentWrite = true;
+		scope.hasIndentedBody = false;
+
+		scope.parameters = ListPool<Parameter>.Get();
+		scope.sb = StringBuilderPool.Get();
+		scope.bodyWriter = StringBuilderPool.Get();
+
+		return scope;
 	}
 
 	public MethodScope WithAccessor(MethodAccessor value)
 	{
 		accessor = value;
-
 		return this;
 	}
 
-	public MethodScope WithReturnType(string value)
+	public void Append(string value)
 	{
-		returnType = value;
+		IndentBodyIfNeeded();
+		WriteIndentIfNeeded();
+
+		bodyWriter.Append(value);
+	}
+
+	public void AppendLine(string value)
+	{
+		IndentBodyIfNeeded();
+		WriteIndentIfNeeded();
+
+		bodyWriter.AppendLine(value);
+		shouldIndentWrite = true;
+	}
+
+	public void AppendLine()
+	{
+		bodyWriter.AppendLine();
+		shouldIndentWrite = true;
+	}
+
+	public void AppendBlock(string value, bool asLambda)
+	{
+		IndentBodyIfNeeded();
+		WriteIndentIfNeeded();
+
+		bodyWriter.AppendLine("{");
+		bodyWriter.AppendLine(value);
+		bodyWriter.Append(type.source.GetIndent());
+		bodyWriter.Append(asLambda ? "};" : "}");
+
+		shouldIndentWrite = true;
+	}
+
+	public BlockScope WithBlock()
+	{
+		return BlockScope.Create(this, null);
+	}
+
+	public void AddParameter(string parameterType, string parameterName)
+	{
+		parameters.Add(new Parameter(parameterType, parameterName));
+	}
+
+	public MethodScope Partial()
+	{
+		isPartial = true;
 		return this;
 	}
 
-	public MethodScope WithParameter(string type, string name)
+	private void IndentBodyIfNeeded()
 	{
-		parameters.Add($"{type} {name}");
-		return this;
-	}
-
-	public MethodScope WithAttribute(string attribute)
-	{
-		attributes.Add(attribute);
-		return this;
-	}
-
-	public MethodScope Static()
-	{
-		isStatic = true;
-		return this;
-	}
-
-	public void Write(string? value = null, bool includeIndent = true)
-	{
-		string indent = parentType.Source.GetIndent(includeIndent ? parentType.Source.Indent + 1 : 0);
-		writes.Add(string.IsNullOrEmpty(value) ? string.Empty : indent + value!);
-	}
-
-	public void WriteLine(string? value = null, bool includeIndent = true)
-	{
-		string prefix;
-
-		if (writes.Count > 0)
+		if (!hasIndentedBody)
 		{
-			prefix = string.Concat(writes);
-			writes.Clear();
+			type.source.Indent++;
+			hasIndentedBody = true;
 		}
-		else
-		{
-			prefix = parentType.Source.GetIndent(includeIndent ? parentType.Source.Indent + 1 : 0);
-		}
+	}
 
-		lineWrites.Add(string.IsNullOrEmpty(value) ? Environment.NewLine : prefix + value! + Environment.NewLine);
+	private void WriteIndentIfNeeded()
+	{
+		if (shouldIndentWrite)
+		{
+			bodyWriter.Append(type.source.GetIndent());
+			shouldIndentWrite = false;
+		}
 	}
 
 	public void Dispose()
 	{
-		for (int i = 0; i < attributes.Count; i++)
+		if (hasIndentedBody)
 		{
-			sb.AppendLine($"{parentType.Source.GetIndent()}[{attributes[i]}]");
+			type.source.Indent--;
+			hasIndentedBody = false;
 		}
 
-		sb.Append(parentType.Source.GetIndent());
+		sb.Append(type.source.GetIndent());
 
 		switch (accessor)
 		{
+			case MethodAccessor.None:
+				break;
 			case MethodAccessor.Public:
 				sb.Append("public ");
 				break;
@@ -117,11 +166,8 @@ public sealed class MethodScope : IDisposable
 			case MethodAccessor.Internal:
 				sb.Append("internal ");
 				break;
-		}
-
-		if (isStatic)
-		{
-			sb.Append("static ");
+			default:
+				throw new ArgumentOutOfRangeException();
 		}
 
 		if (isPartial)
@@ -129,49 +175,64 @@ public sealed class MethodScope : IDisposable
 			sb.Append("partial ");
 		}
 
-		if (!string.IsNullOrEmpty(returnType))
+		sb.Append(returnType);
+		sb.Append(' ');
+		sb.Append(name);
+
+		sb.Append('(');
+
+		if (parameters.Count > 0)
 		{
-			sb.Append($"{returnType} ");
+			for (int i = 0; i < parameters.Count; i++)
+			{
+				sb.Append(parameters[i].type);
+				sb.Append(' ');
+				sb.Append(parameters[i].name);
+
+				if (i < parameters.Count - 1)
+				{
+					sb.Append(", ");
+				}
+			}
 		}
 
-		sb.Append(methodName);
+		sb.Append(')');
 
-		sb.Append("(");
-
-		sb.Append(string.Join(", ", parameters));
-
-		if (isPartial)
+		if (bodyWriter.Length > 0)
 		{
-			sb.AppendLine(");");
-			parentType.AddMethodWrite(sb.ToString());
+			sb.AppendLine();
+			sb.Append(type.source.GetIndent());
+			sb.AppendLine("{");
+
+			sb.AppendLine(bodyWriter.ToString());
+
+			sb.Append(type.source.GetIndent());
+			sb.Append("}");
 		}
 		else
 		{
-			sb.AppendLine(")");
-			parentType.AddMethodWrite(sb.ToString());
-
-			sb.Clear();
-			sb.AppendLine(parentType.Source.GetIndent() + "{");
-			parentType.AddMethodWrite(sb.ToString());
-
-			sb.Clear();
-
-			if (lineWrites.Count > 0)
-			{
-				for (int i = 0; i < lineWrites.Count; i++)
-				{
-					parentType.AddMethodWrite(lineWrites[i]);
-				}
-			}
-
-			sb.AppendLine(parentType.Source.GetIndent() + "}");
-			parentType.AddMethodWrite(sb.ToString());
+			sb.Append(';');
 		}
+
+		type.AddMethodBody(sb.ToString());
+		type.source.Indent--;
+
+		ListPool<Parameter>.Return(parameters);
+		StringBuilderPool.Return(bodyWriter);
+		StringBuilderPool.Return(sb);
+
+		pool.Return(this);
 	}
 
-	public MethodScope Partial()
+	private readonly struct Parameter
 	{
-		isPartial = true;
-		return this;
+		public readonly string type;
+		public readonly string name;
+
+		public Parameter(string type, string name)
+		{
+			this.type = type;
+			this.name = name;
+		}
 	}
 }

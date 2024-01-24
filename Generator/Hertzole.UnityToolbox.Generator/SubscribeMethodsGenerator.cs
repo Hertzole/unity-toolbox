@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using Hertzole.UnityToolbox.Generator.Data;
-using Hertzole.UnityToolbox.Generator.NewScopes;
 using Hertzole.UnityToolbox.Shared;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -205,13 +204,13 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 			typeNameBuilder.Append(subscribeType.type.Name);
 			typeNameBuilder.Append(".ScriptableValueSubscriptions");
 
-			using (NewScopes.SourceScope source = NewScopes.SourceScope.Create(typeNameBuilder.ToString(), context)
-			                                               .WithNamespace(subscribeType.type.ContainingNamespace))
+			using (SourceScope source = SourceScope.Create(typeNameBuilder.ToString(), context)
+			                                       .WithNamespace(subscribeType.type.ContainingNamespace))
 			{
-				using (NewScopes.TypeScope type = source.WithType(subscribeType.type.GetGenericFriendlyName(), isStruct ? TypeType.Struct : TypeType.Class)
-				                                        .WithAccessor(TypeAccessor.None).Partial())
+				using (TypeScope type = source.WithType(subscribeType.type.GetGenericFriendlyName(), isStruct ? TypeType.Struct : TypeType.Class)
+				                              .WithAccessor(TypeAccessor.None).Partial())
 				{
-					using (NewScopes.MethodScope subscribeALl = type.WithMethod("SubscribeToAllScriptableValues").WithAccessor(MethodAccessor.Private))
+					using (MethodScope subscribeALl = type.WithMethod("SubscribeToAllScriptableValues").WithAccessor(MethodAccessor.Private))
 					{
 						for (int i = 0; i < subscribeType.fields.Length; i++)
 						{
@@ -228,7 +227,7 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 						}
 					}
 
-					using (NewScopes.MethodScope unsubscribeAll = type.WithMethod("UnsubscribeFromAllScriptableValues").WithAccessor(MethodAccessor.Private))
+					using (MethodScope unsubscribeAll = type.WithMethod("UnsubscribeFromAllScriptableValues").WithAccessor(MethodAccessor.Private))
 					{
 						for (int i = 0; i < subscribeType.fields.Length; i++)
 						{
@@ -254,7 +253,7 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 		}
 	}
 
-	public static void GenerateSubscribeMethods(NewScopes.TypeScope type, INamedTypeSymbol? typeSymbol, string valueName)
+	public static void GenerateSubscribeMethods(TypeScope type, INamedTypeSymbol? typeSymbol, string valueName)
 	{
 		if (!ScriptableValueHelper.TryGetScriptableType(typeSymbol, out ScriptableType scriptableType, out ITypeSymbol? genericType))
 		{
@@ -269,7 +268,7 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 		nameBuilder.Append("SubscribeTo");
 		nameBuilder.Append(formattedValueName);
 
-		using (NewScopes.MethodScope subscribe = type.WithMethod(nameBuilder.ToString()).WithAccessor(MethodAccessor.Private))
+		using (MethodScope subscribe = type.WithMethod(nameBuilder.ToString()).WithAccessor(MethodAccessor.Private))
 		{
 			subscribe.Append("if (");
 			subscribe.Append(valueName);
@@ -311,7 +310,7 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 		nameBuilder.Append("UnsubscribeFrom");
 		nameBuilder.Append(formattedValueName);
 
-		using (NewScopes.MethodScope unsubscribe = type.WithMethod(nameBuilder.ToString()).WithAccessor(MethodAccessor.Private))
+		using (MethodScope unsubscribe = type.WithMethod(nameBuilder.ToString()).WithAccessor(MethodAccessor.Private))
 		{
 			unsubscribe.Append("if (");
 			unsubscribe.Append(valueName);
@@ -359,7 +358,7 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 				nameBuilder.Append(formattedValueName);
 				nameBuilder.Append("Invoked");
 
-				using (NewScopes.MethodScope m = type.WithMethod(nameBuilder.ToString()).Partial().WithAccessor(MethodAccessor.Private))
+				using (MethodScope m = type.WithMethod(nameBuilder.ToString()).Partial().WithAccessor(MethodAccessor.Private))
 				{
 					m.AddParameter("object", "sender");
 					m.AddParameter("global::System.EventArgs", "e");
@@ -371,7 +370,7 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 				nameBuilder.Append(formattedValueName);
 				nameBuilder.Append("Invoked");
 
-				using (NewScopes.MethodScope m = type.WithMethod(nameBuilder.ToString()).Partial().WithAccessor(MethodAccessor.Private))
+				using (MethodScope m = type.WithMethod(nameBuilder.ToString()).Partial().WithAccessor(MethodAccessor.Private))
 				{
 					m.AddParameter("object", "sender");
 					m.AddParameter(genericType!.ToDisplayString(), "args");
@@ -385,7 +384,7 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 
 				string genericTypeString = genericType!.ToDisplayString();
 
-				using (NewScopes.MethodScope m = type.WithMethod(nameBuilder.ToString()).Partial().WithAccessor(MethodAccessor.Private))
+				using (MethodScope m = type.WithMethod(nameBuilder.ToString()).Partial().WithAccessor(MethodAccessor.Private))
 				{
 					m.AddParameter(genericTypeString, "previousValue");
 					m.AddParameter(genericTypeString, "newValue");

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using Microsoft.CodeAnalysis;
+using System.Text;
+using Hertzole.UnityToolbox.Shared;
 
 namespace Hertzole.UnityToolbox.Generator;
 
@@ -33,55 +33,48 @@ public enum TypeModifier
 
 public sealed class TypeScope : IDisposable
 {
-	private bool isPartial;
-	private bool isStatic;
-	private bool isSealed;
-	private bool isReadOnly;
-
-	private readonly TypeType type;
+	internal SourceScope source;
+	private string name;
+	private TypeType type;
 
 	private TypeAccessor accessor;
+	private bool isPartial;
 
-	private readonly string className;
+	private StringBuilder sb;
+	private List<string> fields;
+	private List<string> methods;
 
-	private string? nspace;
+	private static readonly ObjectPool<TypeScope> pool = new ObjectPool<TypeScope>(() => new TypeScope(), null, null);
 
-	private readonly List<string> methodWrites = new List<string>();
-	private readonly List<string> baseTypes = new List<string>();
-	private readonly List<FieldInfo> fields = new List<FieldInfo>();
-	private readonly List<PropertyInfo> properties = new List<PropertyInfo>();
-
-	private readonly List<string> writeCommands = new List<string>();
-	private readonly List<string> attributes = new List<string>();
-	private readonly List<(string, bool)> customWrites = new List<(string, bool)>();
-
-	public SourceScope Source { get; }
-
-	public TypeScope(SourceScope source, string name, TypeType type)
+	private TypeScope()
 	{
-		Source = source;
-		this.type = type;
+		source = null!;
+		name = string.Empty;
+		type = TypeType.Class;
 
-		className = name;
-		nspace = null;
-		accessor = TypeAccessor.Public;
+		accessor = TypeAccessor.None;
+		isPartial = false;
+
+		sb = null!;
+		fields = null!;
+		methods = null!;
 	}
 
-	public TypeScope WithNamespace(string value)
+	public static TypeScope Create(in SourceScope source, in string name, in TypeType type)
 	{
-		nspace = value;
-		return this;
-	}
+		TypeScope scope = pool.Get();
+		scope.source = source;
+		scope.name = name;
+		scope.type = type;
 
-	public TypeScope WithNamespace(INamespaceSymbol? namespaceSymbol)
-	{
-		if (namespaceSymbol == null || namespaceSymbol.IsGlobalNamespace)
-		{
-			return this;
-		}
+		scope.accessor = TypeAccessor.None;
+		scope.isPartial = false;
 
-		nspace = namespaceSymbol?.ToDisplayString();
-		return this;
+		scope.sb = StringBuilderPool.Get();
+		scope.fields = ListPool<string>.Get();
+		scope.methods = ListPool<string>.Get();
+
+		return scope;
 	}
 
 	public TypeScope WithAccessor(TypeAccessor value)
@@ -90,311 +83,116 @@ public sealed class TypeScope : IDisposable
 		return this;
 	}
 
+	public MethodScope WithMethod(string methodName)
+	{
+		MethodScope method = MethodScope.Create(this, methodName);
+		source.Indent++;
+		return method;
+	}
+
+	internal void AddMethodBody(string method)
+	{
+		methods.Add(method);
+	}
+
 	public TypeScope Partial()
 	{
 		isPartial = true;
 		return this;
 	}
 
-	public TypeScope Static()
+	public FieldScope WithField(string fieldName, string fieldType, string? defaultValue = null)
 	{
-		isStatic = true;
-		return this;
+		source.Indent++;
+		return FieldScope.Create(this, fieldName, fieldType, defaultValue);
 	}
 
-	public TypeScope Sealed()
+	public void WithField(string field)
 	{
-		isSealed = true;
-		return this;
-	}
-
-	public TypeScope ReadOnly()
-	{
-		isReadOnly = true;
-		return this;
-	}
-
-	public TypeScope WithBaseType(string value)
-	{
-		baseTypes.Add(value);
-		return this;
-	}
-
-	public TypeScope WithAttribute(string attribute)
-	{
-		attributes.Add(attribute);
-		return this;
-	}
-
-	public void AddField(TypeAccessor fieldAccessor, string fieldType, string name, string? value = null, TypeModifier typeModifier = TypeModifier.None)
-	{
-		fields.Add(new FieldInfo(fieldAccessor, fieldType, name, value, typeModifier));
-	}
-
-	public void AddProperty(TypeAccessor propertyAccessor,
-		string propertyType,
-		string name,
-		bool hasGetter,
-		bool hasSetter,
-		string? getter = null,
-		string? setter = null)
-	{
-		properties.Add(new PropertyInfo(propertyAccessor, propertyType, name, getter, setter, hasGetter, hasSetter));
-	}
-
-	public MethodScope WithMethod(string methodName)
-	{
-		return new MethodScope(this, methodName);
-	}
-
-	public void AddMethodWrite(string methodWrite)
-	{
-		customWrites.Add((methodWrite, true));
-	}
-
-	public void Write(string? value = null, bool includeIndent = true)
-	{
-		customWrites.Add((Source.FormatWriteCommand(value, includeIndent), includeIndent));
-	}
-
-	public void WriteLine(string? value = null, bool includeIndent = true)
-	{
-		customWrites.Add((Source.FormatWriteCommand(value, includeIndent, true), includeIndent));
+		fields.Add(field);
 	}
 
 	public void Dispose()
 	{
-		if (!string.IsNullOrEmpty(nspace))
-		{
-			writeCommands.Add(Source.GetIndent() + $"namespace {nspace}{Environment.NewLine}");
-			writeCommands.Add(Source.GetIndent() + "{" + Environment.NewLine);
-			Source.Indent++;
-		}
-
-		for (int i = 0; i < attributes.Count; i++)
-		{
-			writeCommands.Add($"{Source.GetIndent()}[{attributes[i]}]{Environment.NewLine}");
-		}
-
-		writeCommands.Add(Source.GetIndent());
+		sb.Append(source.GetIndent());
 
 		switch (accessor)
 		{
+			case TypeAccessor.None:
+				break;
 			case TypeAccessor.Public:
-				writeCommands.Add("public ");
+				sb.Append("public ");
 				break;
 			case TypeAccessor.Private:
-				writeCommands.Add("private ");
+				sb.Append("private ");
 				break;
 			case TypeAccessor.Internal:
-				writeCommands.Add("internal ");
+				sb.Append("internal ");
 				break;
-		}
-
-		if (isStatic)
-		{
-			writeCommands.Add("static ");
+			default:
+				throw new ArgumentOutOfRangeException();
 		}
 
 		if (isPartial)
 		{
-			writeCommands.Add("partial ");
-		}
-
-		if (isSealed)
-		{
-			writeCommands.Add("sealed ");
-		}
-
-		if (isReadOnly)
-		{
-			writeCommands.Add("readonly ");
+			sb.Append("partial ");
 		}
 
 		switch (type)
 		{
 			case TypeType.Class:
-				writeCommands.Add("class");
+				sb.Append("class ");
 				break;
 			case TypeType.Struct:
-				writeCommands.Add("struct");
+				sb.Append("struct ");
 				break;
 			case TypeType.Interface:
-				writeCommands.Add("interface");
+				sb.Append("interface ");
 				break;
+			default:
+				throw new ArgumentOutOfRangeException();
 		}
 
-		writeCommands.Add($" {className}");
+		sb.AppendLine(name);
+		sb.Append(source.GetIndent());
+		sb.AppendLine("{");
 
-		if (baseTypes.Count > 0)
-		{
-			writeCommands.Add(" : ");
+		source.Indent++;
 
-			for (int i = 0; i < baseTypes.Count; i++)
-			{
-				writeCommands.Add(baseTypes[i]);
-				if (i < baseTypes.Count - 1)
-				{
-					writeCommands.Add(", ");
-				}
-			}
-		}
-
-		writeCommands.Add(Source.GetIndent() + Environment.NewLine);
-
-		writeCommands.Add(Source.GetIndent() + "{" + Environment.NewLine);
-
-		Source.Indent++;
-
-		WriteFields();
-		WriteProperties();
-
-		for (int i = 0; i < customWrites.Count; i++)
-		{
-			writeCommands.Add((customWrites[i].Item2 ? Source.GetIndent() : string.Empty) + customWrites[i].Item1);
-		}
-
-		Source.Indent--;
-
-		writeCommands.Add(Source.GetIndent() + "}" + Environment.NewLine);
-
-		if (!string.IsNullOrEmpty(nspace))
-		{
-			Source.Indent--;
-			writeCommands.Add(Source.GetIndent() + "}" + Environment.NewLine);
-		}
-
-		for (int i = 0; i < writeCommands.Count; i++)
-		{
-			Source.Write(writeCommands[i], false);
-		}
-	}
-
-	private void WriteFields()
-	{
 		if (fields.Count > 0)
 		{
 			for (int i = 0; i < fields.Count; i++)
 			{
-				writeCommands.Add(Source.GetIndent());
-
-				switch (fields[i].accessor)
-				{
-					case TypeAccessor.Public:
-						writeCommands.Add("public ");
-						break;
-					case TypeAccessor.Private:
-						writeCommands.Add("private ");
-						break;
-					case TypeAccessor.Internal:
-						writeCommands.Add("internal ");
-						break;
-				}
-
-				if ((fields[i].modifiers & TypeModifier.Static) != 0)
-				{
-					writeCommands.Add("static ");
-				}
-
-				if ((fields[i].modifiers & TypeModifier.Partial) != 0)
-				{
-					writeCommands.Add("partial ");
-				}
-
-				if ((fields[i].modifiers & TypeModifier.ReadOnly) != 0)
-				{
-					writeCommands.Add("readonly ");
-				}
-
-				writeCommands.Add($"{fields[i].type} {fields[i].name}");
-
-				if (fields[i].value != null)
-				{
-					writeCommands.Add($" = {fields[i].value}");
-				}
-
-				writeCommands.Add(";" + Environment.NewLine);
+				sb.AppendLine(fields[i]);
 			}
-		}
-	}
 
-	private void WriteProperties()
-	{
-		if (properties.Count > 0)
+			sb.AppendLine();
+		}
+
+		if (methods.Count > 0)
 		{
-			for (int i = 0; i < properties.Count; i++)
+			for (int i = 0; i < methods.Count; i++)
 			{
-				writeCommands.Add(Source.GetIndent());
+				sb.AppendLine(methods[i]);
 
-				switch (properties[i].accessor)
+				if (i < methods.Count - 1)
 				{
-					case TypeAccessor.Public:
-						writeCommands.Add("public ");
-						break;
-					case TypeAccessor.Private:
-						writeCommands.Add("private ");
-						break;
-					case TypeAccessor.Internal:
-						writeCommands.Add("internal ");
-						break;
+					sb.AppendLine();
 				}
-
-				writeCommands.Add($"{properties[i].type} {properties[i].name} {{");
-
-				if (properties[i].hasGetter)
-				{
-					writeCommands.Add(string.IsNullOrEmpty(properties[i].getter) ? " get;" : $" {properties[i].getter}");
-				}
-
-				if (properties[i].hasSetter)
-				{
-					writeCommands.Add(string.IsNullOrEmpty(properties[i].setter) ? " set;" : $" {properties[i].setter}");
-				}
-
-				writeCommands.Add(" }" + Environment.NewLine);
 			}
 		}
-	}
 
-	[StructLayout(LayoutKind.Sequential)]
-	private readonly struct FieldInfo
-	{
-		public readonly TypeAccessor accessor;
-		public readonly string type;
-		public readonly string name;
-		public readonly string? value;
-		public readonly TypeModifier modifiers;
+		source.Indent--;
 
-		public FieldInfo(TypeAccessor accessor, string type, string name, string? value, TypeModifier modifiers)
-		{
-			this.accessor = accessor;
-			this.type = type;
-			this.name = name;
-			this.value = value;
-			this.modifiers = modifiers;
-		}
-	}
+		sb.Append(source.GetIndent());
+		sb.Append("}");
 
-	[StructLayout(LayoutKind.Sequential)]
-	private readonly struct PropertyInfo
-	{
-		public readonly TypeAccessor accessor;
-		public readonly string type;
-		public readonly string name;
-		public readonly string? getter;
-		public readonly string? setter;
-		public readonly bool hasGetter;
-		public readonly bool hasSetter;
+		source.AddType(sb.ToString());
 
-		public PropertyInfo(TypeAccessor accessor, string type, string name, string? getter, string? setter, bool hasGetter, bool hasSetter)
-		{
-			this.accessor = accessor;
-			this.type = type;
-			this.name = name;
-			this.getter = getter;
-			this.setter = setter;
-			this.hasGetter = hasGetter;
-			this.hasSetter = hasSetter;
-		}
+		StringBuilderPool.Return(sb);
+		ListPool<string>.Return(fields);
+		ListPool<string>.Return(methods);
+
+		pool.Return(this);
 	}
 }

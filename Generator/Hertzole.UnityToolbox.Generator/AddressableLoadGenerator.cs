@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using Hertzole.UnityToolbox.Generator.Data;
-using Hertzole.UnityToolbox.Generator.NewScopes;
 using Hertzole.UnityToolbox.Shared;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -220,12 +219,12 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 			typeNameBuilder.Append(typeSyntax.type.Name);
 			typeNameBuilder.Append(".Addressables");
 
-			using (NewScopes.SourceScope source = NewScopes.SourceScope.Create(typeNameBuilder.ToString(), context)
-			                                               .WithNamespace(typeSyntax.type.ContainingNamespace))
+			using (SourceScope source = SourceScope.Create(typeNameBuilder.ToString(), context)
+			                                       .WithNamespace(typeSyntax.type.ContainingNamespace))
 			{
-				using (NewScopes.TypeScope type = source.WithType(typeSyntax.type.GetGenericFriendlyName(), isStruct ? TypeType.Struct : TypeType.Class)
-				                                        .WithAccessor(TypeAccessor.None)
-				                                        .Partial())
+				using (TypeScope type = source.WithType(typeSyntax.type.GetGenericFriendlyName(), isStruct ? TypeType.Struct : TypeType.Class)
+				                              .WithAccessor(TypeAccessor.None)
+				                              .Partial())
 				{
 					foreach ((IFieldSymbol _, INamedTypeSymbol addressableType, string valueName, bool _, bool fieldExists, bool _) in
 					         typeSyntax.fields)
@@ -258,7 +257,7 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 						}
 					}
 
-					using (NewScopes.MethodScope load = type.WithMethod("LoadAssets").WithAccessor(MethodAccessor.Private))
+					using (MethodScope load = type.WithMethod("LoadAssets").WithAccessor(MethodAccessor.Private))
 					{
 						int i = 0;
 						foreach ((IFieldSymbol field, INamedTypeSymbol addressableType, string valueName, bool generateSubscribeMethods,
@@ -322,7 +321,7 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 						}
 					}
 
-					using (NewScopes.MethodScope release = type.WithMethod("ReleaseAssets").WithAccessor(MethodAccessor.Private))
+					using (MethodScope release = type.WithMethod("ReleaseAssets").WithAccessor(MethodAccessor.Private))
 					{
 						int i = 0;
 						foreach ((IFieldSymbol field, INamedTypeSymbol _, string _, bool _, bool _, bool _) in typeSyntax.fields)
@@ -354,7 +353,7 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 							nameBuilder.Append(TextUtility.FormatVariableLabel(valueName));
 							nameBuilder.Append("Loaded");
 
-							using (NewScopes.MethodScope onLoadedMethod =
+							using (MethodScope onLoadedMethod =
 							       type.WithMethod(nameBuilder.ToString()).WithAccessor(MethodAccessor.None).Partial())
 							{
 								using (StringBuilderPool.Get(out StringBuilder? parameterBuilder))

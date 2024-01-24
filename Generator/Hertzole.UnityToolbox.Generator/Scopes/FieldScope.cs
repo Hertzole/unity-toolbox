@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Hertzole.UnityToolbox.Shared;
 
-namespace Hertzole.UnityToolbox.Generator.NewScopes;
+namespace Hertzole.UnityToolbox.Generator;
 
 public enum FieldAccessor
 {
