@@ -211,167 +211,161 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 		{
 			bool isStruct = typeSyntax.type.IsValueType;
 
-			if (typeSyntax.fields.Length > 0)
+			if (typeSyntax.fields.IsDefaultOrEmpty)
 			{
-				Log.LogInfo($"Generating source for {typeSyntax.type.Name}");
+				continue;
+			}
 
-				try
+			using PoolHandle<StringBuilder> handle = StringBuilderPool.Get(out StringBuilder? typeNameBuilder);
+			typeNameBuilder.Append(typeSyntax.type.Name);
+			typeNameBuilder.Append(".Addressables");
+
+			using (NewScopes.SourceScope source = NewScopes.SourceScope.Create(typeNameBuilder.ToString(), context)
+			                                               .WithNamespace(typeSyntax.type.ContainingNamespace))
+			{
+				using (NewScopes.TypeScope type = source.WithType(typeSyntax.type.GetGenericFriendlyName(), isStruct ? TypeType.Struct : TypeType.Class)
+				                                        .WithAccessor(TypeAccessor.None)
+				                                        .Partial())
 				{
-					using PoolHandle<StringBuilder> handle = StringBuilderPool.Get(out StringBuilder? typeNameBuilder);
-					typeNameBuilder.Append(typeSyntax.type.Name);
-					typeNameBuilder.Append(".Addressables");
-
-					using (NewScopes.SourceScope source = NewScopes.SourceScope.Create(typeNameBuilder.ToString(), context)
-					                                               .WithNamespace(typeSyntax.type.ContainingNamespace))
+					foreach ((IFieldSymbol _, INamedTypeSymbol addressableType, string valueName, bool _, bool fieldExists, bool _) in
+					         typeSyntax.fields)
 					{
-						using (NewScopes.TypeScope type = source.WithType(typeSyntax.type.GetGenericFriendlyName(), isStruct ? TypeType.Struct : TypeType.Class)
-						                                        .WithAccessor(TypeAccessor.None)
-						                                        .Partial())
+						if (!fieldExists)
 						{
-							foreach ((IFieldSymbol _, INamedTypeSymbol addressableType, string valueName, bool _, bool fieldExists, bool _) in
-							         typeSyntax.fields)
+							using (FieldScope field = type.AddField(valueName,
+								       addressableType.ToDisplayString(NullableFlowState.None, SymbolDisplayFormat.FullyQualifiedFormat), "null"))
 							{
-								if (!fieldExists)
+								field.AddAttribute("JetBrains.Annotations.CanBeNull");
+							}
+						}
+					}
+
+					foreach ((IFieldSymbol field, INamedTypeSymbol addressableType, string _, bool _, bool _, bool _) in typeSyntax.fields)
+					{
+						using (StringBuilderPool.Get(out StringBuilder typeBuilder))
+						{
+							typeBuilder.Append("global::UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<");
+							typeBuilder.Append(addressableType.ToDisplayString(NullableFlowState.None, SymbolDisplayFormat.FullyQualifiedFormat));
+							typeBuilder.Append(">");
+
+							using (StringBuilderPool.Get(out StringBuilder nameBuilder))
+							{
+								nameBuilder.Append(field.Name);
+								nameBuilder.Append("Handle");
+
+								using (type.AddField(nameBuilder.ToString(), typeBuilder.ToString())) { }
+							}
+						}
+					}
+
+					using (NewScopes.MethodScope load = type.AddMethod("LoadAssets").WithAccessor(MethodAccessor.Private))
+					{
+						int i = 0;
+						foreach ((IFieldSymbol field, INamedTypeSymbol addressableType, string valueName, bool generateSubscribeMethods,
+						          bool _, bool generateInputCallbacks) in typeSyntax.fields)
+						{
+							load.Append(field.Name);
+							load.Append("Handle = global::UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<");
+							load.Append(addressableType.ToDisplayString(NullableFlowState.None, SymbolDisplayFormat.FullyQualifiedFormat));
+							load.Append(">(");
+							load.Append(field.Name);
+							load.AppendLine(");");
+
+							load.Append(field.Name);
+							load.AppendLine("Handle.Completed += (op) =>");
+							using (BlockScope lambdaBlock = load.AddBlock().AsLambda())
+							{
+								lambdaBlock.AppendLine(
+									"if (op.Status == global::UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)");
+
+								using (BlockScope ifBlock = lambdaBlock.AddBlock())
 								{
-									using (FieldScope field = type.AddField(valueName, addressableType.ToDisplayString(NullableFlowState.None, SymbolDisplayFormat.FullyQualifiedFormat), "null"))
+									ifBlock.Append(valueName);
+									ifBlock.AppendLine(" = op.Result;");
+
+									if (generateSubscribeMethods)
 									{
-										field.AddAttribute("JetBrains.Annotations.CanBeNull");
+										ifBlock.Append("SubscribeTo");
+										ifBlock.Append(TextUtility.FormatVariableLabel(valueName));
+										ifBlock.AppendLine("();");
 									}
+
+									if (generateInputCallbacks)
+									{
+										ifBlock.Append("SubscribeTo");
+										ifBlock.Append(TextUtility.FormatVariableLabel(valueName));
+										ifBlock.AppendLine("();");
+									}
+
+									ifBlock.Append("On");
+									ifBlock.Append(TextUtility.FormatVariableLabel(valueName));
+									ifBlock.Append("Loaded(op.Result);");
+								}
+
+								lambdaBlock.AppendLine();
+								lambdaBlock.AppendLine("else");
+
+								using (BlockScope elseBlock = lambdaBlock.AddBlock())
+								{
+									elseBlock.Append("global::UnityEngine.Debug.LogError($\"Failed to load reference ");
+									elseBlock.Append(field.Name);
+									elseBlock.Append(" with error: {op.OperationException}\");");
 								}
 							}
 
-							foreach ((IFieldSymbol field, INamedTypeSymbol addressableType, string _, bool _, bool _, bool _) in typeSyntax.fields)
+							if (i < typeSyntax.fields.Length - 1)
 							{
-								using (StringBuilderPool.Get(out StringBuilder typeBuilder))
-								{
-									typeBuilder.Append("global::UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<");
-									typeBuilder.Append(addressableType.ToDisplayString(NullableFlowState.None, SymbolDisplayFormat.FullyQualifiedFormat));
-									typeBuilder.Append(">");
-
-									using (StringBuilderPool.Get(out StringBuilder nameBuilder))
-									{
-										nameBuilder.Append(field.Name);
-										nameBuilder.Append("Handle");
-
-										using (type.AddField(nameBuilder.ToString(), typeBuilder.ToString())) { }
-									}
-								}
+								load.AppendLine();
 							}
 
-							using (NewScopes.MethodScope load = type.AddMethod("LoadAssets").WithAccessor(MethodAccessor.Private))
+							i++;
+						}
+					}
+
+					using (NewScopes.MethodScope release = type.AddMethod("ReleaseAssets").WithAccessor(MethodAccessor.Private))
+					{
+						int i = 0;
+						foreach ((IFieldSymbol field, INamedTypeSymbol _, string _, bool _, bool _, bool _) in typeSyntax.fields)
+						{
+							release.Append("if (");
+							release.Append(field.Name);
+							release.AppendLine("Handle.IsValid())");
+							using (BlockScope ifBlock = release.AddBlock())
 							{
-								int i = 0;
-								foreach ((IFieldSymbol field, INamedTypeSymbol addressableType, string valueName, bool generateSubscribeMethods,
-								          bool _, bool generateInputCallbacks) in typeSyntax.fields)
-								{
-									load.Append(field.Name);
-									load.Append("Handle = global::UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<");
-									load.Append(addressableType.ToDisplayString(NullableFlowState.None, SymbolDisplayFormat.FullyQualifiedFormat));
-									load.Append(">(");
-									load.Append(field.Name);
-									load.AppendLine(");");
-
-									load.Append(field.Name);
-									load.AppendLine("Handle.Completed += (op) =>");
-									using (BlockScope lambdaBlock = load.AddBlock().AsLambda())
-									{
-										lambdaBlock.AppendLine(
-											"if (op.Status == global::UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)");
-
-										using (BlockScope ifBlock = lambdaBlock.AddBlock())
-										{
-											ifBlock.Append(valueName);
-											ifBlock.AppendLine(" = op.Result;");
-
-											if (generateSubscribeMethods)
-											{
-												ifBlock.Append("SubscribeTo");
-												ifBlock.Append(TextUtility.FormatVariableLabel(valueName));
-												ifBlock.AppendLine("();");
-											}
-
-											if (generateInputCallbacks)
-											{
-												ifBlock.Append("SubscribeTo");
-												ifBlock.Append(TextUtility.FormatVariableLabel(valueName));
-												ifBlock.AppendLine("();");
-											}
-
-											ifBlock.Append("On");
-											ifBlock.Append(TextUtility.FormatVariableLabel(valueName));
-											ifBlock.Append("Loaded(op.Result);");
-										}
-
-										lambdaBlock.AppendLine();
-										lambdaBlock.AppendLine("else");
-
-										using (BlockScope elseBlock = lambdaBlock.AddBlock())
-										{
-											elseBlock.Append("global::UnityEngine.Debug.LogError($\"Failed to load reference ");
-											elseBlock.Append(field.Name);
-											elseBlock.Append(" with error: {op.OperationException}\");");
-										}
-									}
-									
-									if (i < typeSyntax.fields.Length - 1)
-									{
-										load.AppendLine();
-									}
-
-									i++;
-								}
+								ifBlock.Append("global::UnityEngine.AddressableAssets.Addressables.Release(");
+								ifBlock.Append(field.Name);
+								ifBlock.Append("Handle);");
 							}
 
-							using (NewScopes.MethodScope release = type.AddMethod("ReleaseAssets").WithAccessor(MethodAccessor.Private))
+							if (i < typeSyntax.fields.Length - 1)
 							{
-								int i = 0;
-								foreach ((IFieldSymbol field, INamedTypeSymbol _, string _, bool _, bool _, bool _) in typeSyntax.fields)
-								{
-									release.Append("if (");
-									release.Append(field.Name);
-									release.AppendLine("Handle.IsValid())");
-									using (BlockScope ifBlock = release.AddBlock())
-									{
-										ifBlock.Append("global::UnityEngine.AddressableAssets.Addressables.Release(");
-										ifBlock.Append(field.Name);
-										ifBlock.Append("Handle);");
-									}
-									
-									if (i < typeSyntax.fields.Length - 1)
-									{
-										release.AppendLine();
-									}
-									
-									i++;
-								}
+								release.AppendLine();
 							}
 
-							foreach ((IFieldSymbol _, INamedTypeSymbol addressableType, string valueName, bool _, bool _, bool _) in typeSyntax.fields)
-							{
-								using (StringBuilderPool.Get(out StringBuilder? nameBuilder))
-								{
-									nameBuilder.Append("On");
-									nameBuilder.Append(TextUtility.FormatVariableLabel(valueName));
-									nameBuilder.Append("Loaded");
+							i++;
+						}
+					}
 
-									using (NewScopes.MethodScope onLoadedMethod =
-									       type.AddMethod(nameBuilder.ToString()).WithAccessor(MethodAccessor.None).Partial())
-									{
-										using (StringBuilderPool.Get(out StringBuilder? parameterBuilder))
-										{
-											parameterBuilder.Append("global::");
-											parameterBuilder.Append(addressableType.ToDisplayString());
-											onLoadedMethod.AddParameter(parameterBuilder.ToString(), "value");
-										}
-									}
+					foreach ((IFieldSymbol _, INamedTypeSymbol addressableType, string valueName, bool _, bool _, bool _) in typeSyntax.fields)
+					{
+						using (StringBuilderPool.Get(out StringBuilder? nameBuilder))
+						{
+							nameBuilder.Append("On");
+							nameBuilder.Append(TextUtility.FormatVariableLabel(valueName));
+							nameBuilder.Append("Loaded");
+
+							using (NewScopes.MethodScope onLoadedMethod =
+							       type.AddMethod(nameBuilder.ToString()).WithAccessor(MethodAccessor.None).Partial())
+							{
+								using (StringBuilderPool.Get(out StringBuilder? parameterBuilder))
+								{
+									parameterBuilder.Append("global::");
+									parameterBuilder.Append(addressableType.ToDisplayString());
+									onLoadedMethod.AddParameter(parameterBuilder.ToString(), "value");
 								}
 							}
 						}
 					}
-				}
-				catch (Exception e)
-				{
-					Log.LogError($"Failed to generate source. {e.Message}{Environment.NewLine}{e.StackTrace}");
 				}
 			}
 		}
