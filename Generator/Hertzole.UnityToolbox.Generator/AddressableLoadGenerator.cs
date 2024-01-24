@@ -232,7 +232,7 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 					{
 						if (!fieldExists)
 						{
-							using (FieldScope field = type.AddField(valueName,
+							using (FieldScope field = type.WithField(valueName,
 								       addressableType.ToDisplayString(NullableFlowState.None, SymbolDisplayFormat.FullyQualifiedFormat), "null"))
 							{
 								field.AddAttribute("JetBrains.Annotations.CanBeNull");
@@ -253,12 +253,12 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 								nameBuilder.Append(field.Name);
 								nameBuilder.Append("Handle");
 
-								using (type.AddField(nameBuilder.ToString(), typeBuilder.ToString())) { }
+								using (type.WithField(nameBuilder.ToString(), typeBuilder.ToString())) { }
 							}
 						}
 					}
 
-					using (NewScopes.MethodScope load = type.AddMethod("LoadAssets").WithAccessor(MethodAccessor.Private))
+					using (NewScopes.MethodScope load = type.WithMethod("LoadAssets").WithAccessor(MethodAccessor.Private))
 					{
 						int i = 0;
 						foreach ((IFieldSymbol field, INamedTypeSymbol addressableType, string valueName, bool generateSubscribeMethods,
@@ -273,7 +273,7 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 
 							load.Append(field.Name);
 							load.AppendLine("Handle.Completed += (op) =>");
-							using (BlockScope lambdaBlock = load.AddBlock().AsLambda())
+							using (BlockScope lambdaBlock = load.WithBlock().AsLambda())
 							{
 								lambdaBlock.AppendLine(
 									"if (op.Status == global::UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)");
@@ -322,7 +322,7 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 						}
 					}
 
-					using (NewScopes.MethodScope release = type.AddMethod("ReleaseAssets").WithAccessor(MethodAccessor.Private))
+					using (NewScopes.MethodScope release = type.WithMethod("ReleaseAssets").WithAccessor(MethodAccessor.Private))
 					{
 						int i = 0;
 						foreach ((IFieldSymbol field, INamedTypeSymbol _, string _, bool _, bool _, bool _) in typeSyntax.fields)
@@ -330,7 +330,7 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 							release.Append("if (");
 							release.Append(field.Name);
 							release.AppendLine("Handle.IsValid())");
-							using (BlockScope ifBlock = release.AddBlock())
+							using (BlockScope ifBlock = release.WithBlock())
 							{
 								ifBlock.Append("global::UnityEngine.AddressableAssets.Addressables.Release(");
 								ifBlock.Append(field.Name);
@@ -355,7 +355,7 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 							nameBuilder.Append("Loaded");
 
 							using (NewScopes.MethodScope onLoadedMethod =
-							       type.AddMethod(nameBuilder.ToString()).WithAccessor(MethodAccessor.None).Partial())
+							       type.WithMethod(nameBuilder.ToString()).WithAccessor(MethodAccessor.None).Partial())
 							{
 								using (StringBuilderPool.Get(out StringBuilder? parameterBuilder))
 								{

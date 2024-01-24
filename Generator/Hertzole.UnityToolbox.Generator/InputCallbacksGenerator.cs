@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Text;
 using System.Threading;
-using Hertzole.UnityToolbox.Generator.Helpers;
+using Hertzole.UnityToolbox.Generator.NewScopes;
 using Hertzole.UnityToolbox.Shared;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -13,17 +14,69 @@ namespace Hertzole.UnityToolbox.Generator;
 [Generator(LanguageNames.CSharp)]
 internal sealed class InputCallbacksGenerator : IIncrementalGenerator
 {
+	private readonly struct InputCallbacksType : IEquatable<InputCallbacksType>
+	{
+		public readonly INamedTypeSymbol type;
+		public readonly ImmutableArray<InputCallbackField> fields;
+
+		public static IEqualityComparer<InputCallbacksType> TypeComparer { get; } = new TypeEqualityComparer();
+
+		public InputCallbacksType(INamedTypeSymbol type, ImmutableArray<InputCallbackField> fields)
+		{
+			this.type = type;
+			this.fields = fields;
+		}
+
+		private sealed class TypeEqualityComparer : IEqualityComparer<InputCallbacksType>
+		{
+			public bool Equals(InputCallbacksType x, InputCallbacksType y)
+			{
+				return x.Equals(y);
+			}
+
+			public int GetHashCode(InputCallbacksType obj)
+			{
+				return obj.GetHashCode();
+			}
+		}
+
+		public bool Equals(InputCallbacksType other)
+		{
+			return SymbolEqualityComparer.Default.Equals(type, other.type);
+		}
+
+		public override bool Equals(object? obj)
+		{
+			return obj is InputCallbacksType other && Equals(other);
+		}
+
+		public override int GetHashCode()
+		{
+			return SymbolEqualityComparer.Default.GetHashCode(type);
+		}
+
+		public static bool operator ==(InputCallbacksType left, InputCallbacksType right)
+		{
+			return left.Equals(right);
+		}
+
+		public static bool operator !=(InputCallbacksType left, InputCallbacksType right)
+		{
+			return !left.Equals(right);
+		}
+	}
+
 	public void Initialize(IncrementalGeneratorInitializationContext context)
 	{
 		Log.LogInfo("==== INITIALIZE INPUT CALLBACKS ====");
 
-		IncrementalValuesProvider<TypeDeclarationSyntax> provider = context.SyntaxProvider.CreateSyntaxProvider(
-			                                                                   IsTypeTargetForGeneration,
-			                                                                   GetMemberDeclarationsForSourceGen)
-		                                                                   .Where(t => t.reportAttributeFound)
-		                                                                   .Select((t, _) => t.Item1);
+		IncrementalValuesProvider<InputCallbacksType> provider = context.SyntaxProvider.CreateSyntaxProvider(
+			                                                                IsTypeTargetForGeneration,
+			                                                                GetMemberDeclarationsForSourceGen)
+		                                                                .Where(t => t.reportAttributeFound)
+		                                                                .Select((t, _) => t.Item1);
 
-		context.RegisterSourceOutput(context.CompilationProvider.Combine(provider.Collect()), (ctx, t) => GenerateCode(ctx, t.Left, t.Right));
+		context.RegisterSourceOutput(context.CompilationProvider.Combine(provider.Collect()), (ctx, t) => GenerateCode(ctx, t.Right));
 	}
 
 	private static bool IsTypeTargetForGeneration(SyntaxNode node, CancellationToken cancellationToken)
@@ -53,17 +106,19 @@ internal sealed class InputCallbacksGenerator : IIncrementalGenerator
 		return false;
 	}
 
-	private static (TypeDeclarationSyntax, bool reportAttributeFound) GetMemberDeclarationsForSourceGen(GeneratorSyntaxContext context,
+	private static (InputCallbacksType, bool reportAttributeFound) GetMemberDeclarationsForSourceGen(GeneratorSyntaxContext context,
 		CancellationToken cancellationToken)
 	{
 		TypeDeclarationSyntax typeDeclaration = (TypeDeclarationSyntax) context.Node;
 
 		if (context.SemanticModel.GetDeclaredSymbol(typeDeclaration) is not INamedTypeSymbol symbol)
 		{
-			return (typeDeclaration, false);
+			return (default, false);
 		}
 
-		foreach (ISymbol? memberDeclaration in symbol.GetMembers())
+		ImmutableArray<InputCallbackField>.Builder fields = ImmutableArray.CreateBuilder<InputCallbackField>();
+
+		foreach (ISymbol memberDeclaration in symbol.GetMembers())
 		{
 			cancellationToken.ThrowIfCancellationRequested();
 
@@ -81,237 +136,267 @@ internal sealed class InputCallbacksGenerator : IIncrementalGenerator
 					continue;
 				}
 
-				string attributeName = attributeData.AttributeClass.ToDisplayString();
-
-				if (string.Equals(Attributes.GENERATE_INPUT_CALLBACKS, attributeName, StringComparison.Ordinal))
+				if (!attributeData.AttributeClass.StringEquals(Attributes.GENERATE_INPUT_CALLBACKS))
 				{
-					return (typeDeclaration, true);
+					continue;
+				}
+
+				if (attributeData.ConstructorArguments.Length != 1)
+				{
+					continue;
+				}
+
+				if (attributeData.ConstructorArguments[0].Value is string inputName)
+				{
+					InputCallbackType callbackType = InputCallbackType.None;
+
+					ImmutableArray<KeyValuePair<string, TypedConstant>> namedArguments = attributeData.NamedArguments;
+					foreach (KeyValuePair<string, TypedConstant> argumentPair in namedArguments)
+					{
+						cancellationToken.ThrowIfCancellationRequested();
+
+						if (argumentPair.Value.Value is bool value && value)
+						{
+							switch (argumentPair.Key)
+							{
+								case "GenerateStarted":
+									callbackType |= InputCallbackType.Started;
+									break;
+								case "GeneratePerformed":
+									callbackType |= InputCallbackType.Performed;
+									break;
+								case "GenerateCanceled":
+									callbackType |= InputCallbackType.Canceled;
+									break;
+								case "GenerateAll":
+									callbackType |= InputCallbackType.All;
+									break;
+							}
+						}
+					}
+
+					ITypeSymbol? typeSymbol = null;
+					string? fieldName = null;
+
+					switch (memberDeclaration)
+					{
+						case IFieldSymbol field:
+							typeSymbol = field.Type;
+							fieldName = field.Name;
+							break;
+						case IPropertySymbol property:
+							typeSymbol = property.Type;
+							fieldName = property.Name;
+							break;
+					}
+
+					if (typeSymbol is null || string.IsNullOrEmpty(fieldName))
+					{
+						continue;
+					}
+
+					bool isAddressable = AddressablesHelper.TryGetAddressableType(typeSymbol, out _);
+					string name = fieldName!;
+
+					if (isAddressable)
+					{
+						name = TextUtility.FormatAddressableName(name);
+					}
+
+					fields.Add(new InputCallbackField(name, inputName, callbackType));
 				}
 			}
 		}
 
-		return (typeDeclaration, false);
+		if (fields.Count == 0)
+		{
+			return (default, false);
+		}
+
+		return (new InputCallbacksType(symbol, fields.ToImmutable()), true);
 	}
 
-	private static void GenerateCode(SourceProductionContext context, Compilation compilation, ImmutableArray<TypeDeclarationSyntax> typesList)
+	private static void GenerateCode(SourceProductionContext context, ImmutableArray<InputCallbacksType> typesList)
 	{
 		if (typesList.IsDefaultOrEmpty)
 		{
 			return;
 		}
 
-		foreach (TypeDeclarationSyntax syntax in typesList.Distinct(TypeNameDeclarationComparer.Instance))
+		foreach (InputCallbacksType callbackType in typesList.Distinct(InputCallbacksType.TypeComparer))
 		{
 			context.CancellationToken.ThrowIfCancellationRequested();
 
-			SemanticModel semanticModel = compilation.GetSemanticModel(syntax.SyntaxTree);
+			bool isStruct = callbackType.type.IsValueType;
 
-			if (semanticModel.GetDeclaredSymbol(syntax) is not INamedTypeSymbol symbol)
+			if (callbackType.fields.IsDefaultOrEmpty)
 			{
 				continue;
 			}
 
-			using (ListPool<InputCallbackField>.Get(out List<InputCallbackField> validFields))
+			using PoolHandle<StringBuilder> nameBuilderHandle = StringBuilderPool.Get(out StringBuilder nameBuilder);
+
+			nameBuilder.Append(callbackType.type.Name);
+			nameBuilder.Append(".InputCallbacks");
+
+			using (NewScopes.SourceScope source = NewScopes.SourceScope.Create(nameBuilder.ToString(), context)
+			                                               .WithNamespace(callbackType.type.ContainingNamespace))
 			{
-				validFields.Clear();
+				source.AddUsing("Hertzole.UnityToolbox");
 
-				GetValidFields<IFieldSymbol>(symbol, validFields, context.CancellationToken);
-				GetValidFields<IPropertySymbol>(symbol, validFields, context.CancellationToken);
-
-				using (SourceScope source = new SourceScope($"{symbol.Name}.InputCallbacks", context))
+				using (NewScopes.TypeScope type = source.WithType(callbackType.type.GetGenericFriendlyName(), isStruct ? TypeType.Struct : TypeType.Class)
+				                                        .WithAccessor(TypeAccessor.None).Partial())
 				{
-					source.WriteUsing("Hertzole.UnityToolbox");
-
-					using (TypeScope type = source.WithClass(symbol.GetGenericFriendlyName()).WithAccessor(TypeAccessor.None)
-					                              .WithNamespace(symbol.ContainingNamespace)
-					                              .Partial())
+					foreach (InputCallbackField field in callbackType.fields)
 					{
-						foreach (InputCallbackField field in validFields)
+						type.WithField(field.hasSubscribedField, "bool", "false").WithAccessor(FieldAccessor.Private).Dispose();
+
+						using (NewScopes.MethodScope subscribe = type.WithMethod(field.subscribeToField).WithAccessor(MethodAccessor.Private))
 						{
-							type.AddField(TypeAccessor.Private, "bool", field.HasSubscribedField, "false");
+							subscribe.Append("if (!");
+							subscribe.Append(field.hasSubscribedField);
+							subscribe.Append(" && ");
+							subscribe.Append(field.name);
+							subscribe.Append(" != null && ");
+							subscribe.Append(field.inputName);
+							subscribe.AppendLine(" != null)");
 
-							using (MethodScope subscribe = type.WithMethod(field.SubscribeToField).WithAccessor(MethodAccessor.Private))
+							using (BlockScope ifBlock = subscribe.WithBlock())
 							{
-								subscribe.WriteLine($"if (!{field.HasSubscribedField} && {field.Name} != null && {field.InputName} != null)");
-								subscribe.WriteLine("{");
-								source.Indent++;
-								if ((field.CallbackType & InputCallbackType.Started) != 0)
+								if ((field.callbackType & InputCallbackType.Started) != 0)
 								{
-									subscribe.WriteLine($"{field.InputName}.AddStartedListener({field.Name}, {field.StartedMethod});");
-
-									source.Indent--;
-
-									type.WithMethod(field.StartedMethod).WithAccessor(MethodAccessor.Private)
-									    .WithParameter("global::UnityEngine.InputSystem.InputAction.CallbackContext", "context").Partial().Dispose();
-
-									source.Indent++;
+									ifBlock.Append(field.inputName);
+									ifBlock.Append(".AddStartedListener(");
+									ifBlock.Append(field.name);
+									ifBlock.Append(", ");
+									ifBlock.Append(field.startedMethod!);
+									ifBlock.AppendLine(");");
 								}
 
-								if ((field.CallbackType & InputCallbackType.Performed) != 0)
+								if ((field.callbackType & InputCallbackType.Performed) != 0)
 								{
-									subscribe.WriteLine($"{field.InputName}.AddPerformedListener({field.Name}, {field.PerformedMethod});");
-
-									source.Indent--;
-
-									type.WithMethod(field.PerformedMethod).WithAccessor(MethodAccessor.Private)
-									    .WithParameter("global::UnityEngine.InputSystem.InputAction.CallbackContext", "context").Partial().Dispose();
-
-									source.Indent++;
+									ifBlock.Append(field.inputName);
+									ifBlock.Append(".AddPerformedListener(");
+									ifBlock.Append(field.name);
+									ifBlock.Append(", ");
+									ifBlock.Append(field.performedMethod!);
+									ifBlock.AppendLine(");");
 								}
 
-								if ((field.CallbackType & InputCallbackType.Canceled) != 0)
+								if ((field.callbackType & InputCallbackType.Canceled) != 0)
 								{
-									subscribe.WriteLine($"{field.InputName}.AddCanceledListener({field.Name}, {field.CanceledMethod});");
-
-									source.Indent--;
-
-									type.WithMethod(field.CanceledMethod).WithAccessor(MethodAccessor.Private)
-									    .WithParameter("global::UnityEngine.InputSystem.InputAction.CallbackContext", "context").Partial().Dispose();
-
-									source.Indent++;
+									ifBlock.Append(field.inputName);
+									ifBlock.Append(".AddCanceledListener(");
+									ifBlock.Append(field.name);
+									ifBlock.Append(", ");
+									ifBlock.Append(field.canceledMethod!);
+									ifBlock.AppendLine(");");
 								}
 
-								if ((field.CallbackType & InputCallbackType.All) != 0)
+								if ((field.callbackType & InputCallbackType.All) != 0)
 								{
-									subscribe.WriteLine($"{field.InputName}.AddAllListeners({field.Name}, {field.AllMethod});");
-
-									source.Indent--;
-
-									type.WithMethod(field.AllMethod).WithAccessor(MethodAccessor.Private)
-									    .WithParameter("global::UnityEngine.InputSystem.InputAction.CallbackContext", "context").Partial().Dispose();
-
-									source.Indent++;
+									ifBlock.Append(field.inputName);
+									ifBlock.Append(".AddAllListeners(");
+									ifBlock.Append(field.name);
+									ifBlock.Append(", ");
+									ifBlock.Append(field.allMethod!);
+									ifBlock.AppendLine(");");
 								}
 
-								subscribe.WriteLine($"{field.HasSubscribedField} = true;");
-								source.Indent--;
-								subscribe.WriteLine("}");
-							}
-
-							using (MethodScope unsubscribe = type.WithMethod(field.UnsubscribeFromField).WithAccessor(MethodAccessor.Private))
-							{
-								unsubscribe.WriteLine($"if ({field.HasSubscribedField} && {field.Name} != null && {field.InputName} != null)");
-								unsubscribe.WriteLine("{");
-								source.Indent++;
-
-								if ((field.CallbackType & InputCallbackType.Started) != 0)
-								{
-									unsubscribe.WriteLine($"{field.InputName}.RemoveStartedListener({field.Name}, {field.StartedMethod});");
-								}
-
-								if ((field.CallbackType & InputCallbackType.Performed) != 0)
-								{
-									unsubscribe.WriteLine($"{field.InputName}.RemovePerformedListener({field.Name}, {field.PerformedMethod});");
-								}
-
-								if ((field.CallbackType & InputCallbackType.Canceled) != 0)
-								{
-									unsubscribe.WriteLine($"{field.InputName}.RemoveCanceledListener({field.Name}, {field.CanceledMethod});");
-								}
-
-								if ((field.CallbackType & InputCallbackType.All) != 0)
-								{
-									unsubscribe.WriteLine($"{field.InputName}.RemoveAllListeners({field.Name}, {field.AllMethod});");
-								}
-
-								unsubscribe.WriteLine($"{field.HasSubscribedField} = false;");
-								source.Indent--;
-								unsubscribe.WriteLine("}");
+								ifBlock.Append(field.hasSubscribedField);
+								ifBlock.Append(" = true;");
 							}
 						}
 
-						using (MethodScope subscribe = type.WithMethod("SubscribeToAllInputCallbacks").WithAccessor(MethodAccessor.Private))
+						using (NewScopes.MethodScope unsubscribe = type.WithMethod(field.unsubscribeFromField).WithAccessor(MethodAccessor.Private))
 						{
-							foreach (InputCallbackField field in validFields)
+							unsubscribe.Append("if (");
+							unsubscribe.Append(field.hasSubscribedField);
+							unsubscribe.Append(" && ");
+							unsubscribe.Append(field.name);
+							unsubscribe.Append(" != null && ");
+							unsubscribe.Append(field.inputName);
+							unsubscribe.AppendLine(" != null)");
+
+							using (BlockScope ifBlock = unsubscribe.WithBlock())
 							{
-								subscribe.WriteLine($"{field.SubscribeToField}();");
-							}
-						}
-
-						using (MethodScope unsubscribe = type.WithMethod("UnsubscribeFromAllInputCallbacks").WithAccessor(MethodAccessor.Private))
-						{
-							foreach (InputCallbackField field in validFields)
-							{
-								unsubscribe.WriteLine($"{field.UnsubscribeFromField}();");
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	private static void GetValidFields<T>(INamespaceOrTypeSymbol symbol, ICollection<InputCallbackField> fields, CancellationToken cancellationToken)
-		where T : ISymbol
-	{
-		foreach (T fieldSymbol in symbol.GetMembers().OfType<T>())
-		{
-			cancellationToken.ThrowIfCancellationRequested();
-
-			ReadOnlySpan<AttributeData> attributes = fieldSymbol.GetAttributes().AsSpan();
-
-			foreach (AttributeData attribute in attributes)
-			{
-				cancellationToken.ThrowIfCancellationRequested();
-
-				if (attribute.AttributeClass is null)
-				{
-					continue;
-				}
-
-				string attributeName = attribute.AttributeClass.ToDisplayString();
-
-				Log.LogInfo($"[INPUT CALLBACKS] : {attributeName} | {attribute.ConstructorArguments.Length}");
-
-				if (attribute.ConstructorArguments.Length == 1 && string.Equals(attributeName, Attributes.GENERATE_INPUT_CALLBACKS, StringComparison.Ordinal))
-				{
-					Log.LogInfo($"Found input callback field on {symbol.Name}.");
-
-					if (attribute.ConstructorArguments[0].Value is string inputName)
-					{
-						InputCallbackType callbackType = InputCallbackType.None;
-
-						ImmutableArray<KeyValuePair<string, TypedConstant>> namedArguments = attribute.NamedArguments;
-						foreach (KeyValuePair<string, TypedConstant> argumentPair in namedArguments)
-						{
-							cancellationToken.ThrowIfCancellationRequested();
-
-							if (argumentPair.Value.Value is bool value && value)
-							{
-								switch (argumentPair.Key)
+								if ((field.callbackType & InputCallbackType.Started) != 0)
 								{
-									case "GenerateStarted":
-										callbackType |= InputCallbackType.Started;
-										break;
-									case "GeneratePerformed":
-										callbackType |= InputCallbackType.Performed;
-										break;
-									case "GenerateCanceled":
-										callbackType |= InputCallbackType.Canceled;
-										break;
-									case "GenerateAll":
-										callbackType |= InputCallbackType.All;
-										break;
+									ifBlock.Append(field.inputName);
+									ifBlock.Append(".RemoveStartedListener(");
+									ifBlock.Append(field.name);
+									ifBlock.Append(", ");
+									ifBlock.Append(field.startedMethod!);
+									ifBlock.AppendLine(");");
 								}
+
+								if ((field.callbackType & InputCallbackType.Performed) != 0)
+								{
+									ifBlock.Append(field.inputName);
+									ifBlock.Append(".RemovePerformedListener(");
+									ifBlock.Append(field.name);
+									ifBlock.Append(", ");
+									ifBlock.Append(field.performedMethod!);
+									ifBlock.AppendLine(");");
+								}
+
+								if ((field.callbackType & InputCallbackType.Canceled) != 0)
+								{
+									ifBlock.Append(field.inputName);
+									ifBlock.Append(".RemoveCanceledListener(");
+									ifBlock.Append(field.name);
+									ifBlock.Append(", ");
+									ifBlock.Append(field.canceledMethod!);
+									ifBlock.AppendLine(");");
+								}
+
+								if ((field.callbackType & InputCallbackType.All) != 0)
+								{
+									ifBlock.Append(field.inputName);
+									ifBlock.Append(".RemoveAllListeners(");
+									ifBlock.Append(field.name);
+									ifBlock.Append(", ");
+									ifBlock.Append(field.allMethod!);
+									ifBlock.AppendLine(");");
+								}
+
+								ifBlock.Append(field.hasSubscribedField);
+								ifBlock.Append(" = false;");
 							}
 						}
 
-						ITypeSymbol? typeSymbol = fieldSymbol switch
+						if ((field.callbackType & InputCallbackType.Started) != 0)
 						{
-							IFieldSymbol field => field.Type,
-							IPropertySymbol property => property.Type,
-							_ => null
-						};
-
-						bool isAddressable = typeSymbol != null && AddressablesHelper.TryGetAddressableType(typeSymbol, out INamedTypeSymbol? addressableType);
-						string name = fieldSymbol.Name;
-
-						if (isAddressable)
-						{
-							name = TextUtility.FormatAddressableName(name);
+							using (NewScopes.MethodScope startedMethod = type.WithMethod(field.startedMethod!).WithAccessor(MethodAccessor.Private).Partial())
+							{
+								startedMethod.AddParameter("global::UnityEngine.InputSystem.InputAction.CallbackContext", "context");
+							}
 						}
 
-						fields.Add(new InputCallbackField(name, inputName, callbackType, isAddressable));
+						if ((field.callbackType & InputCallbackType.Performed) != 0)
+						{
+							using (NewScopes.MethodScope performedMethod =
+							       type.WithMethod(field.performedMethod!).WithAccessor(MethodAccessor.Private).Partial())
+							{
+								performedMethod.AddParameter("global::UnityEngine.InputSystem.InputAction.CallbackContext", "context");
+							}
+						}
+
+						if ((field.callbackType & InputCallbackType.Canceled) != 0)
+						{
+							using (NewScopes.MethodScope canceledMethod = type.WithMethod(field.canceledMethod!).WithAccessor(MethodAccessor.Private).Partial())
+							{
+								canceledMethod.AddParameter("global::UnityEngine.InputSystem.InputAction.CallbackContext", "context");
+							}
+						}
+
+						if ((field.callbackType & InputCallbackType.All) != 0)
+						{
+							using (NewScopes.MethodScope allMethod = type.WithMethod(field.allMethod!).WithAccessor(MethodAccessor.Private).Partial())
+							{
+								allMethod.AddParameter("global::UnityEngine.InputSystem.InputAction.CallbackContext", "context");
+							}
+						}
 					}
 				}
 			}

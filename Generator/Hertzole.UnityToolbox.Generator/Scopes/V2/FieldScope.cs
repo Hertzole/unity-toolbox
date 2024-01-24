@@ -115,13 +115,13 @@ public sealed class FieldScope : IDisposable
 
 			fieldBuilder.Append(';');
 
-			type.AddField(fieldBuilder.ToString());
+			type.WithField(fieldBuilder.ToString());
 		}
 
 		type.source.Indent--;
 
 		ListPool<string>.Return(attributes);
-		
+
 		pool.Return(this);
 	}
 }

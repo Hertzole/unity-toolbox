@@ -13,7 +13,7 @@ public sealed class TypeScope : IDisposable
 
 	private TypeAccessor accessor;
 	private bool isPartial;
-	
+
 	private StringBuilder sb;
 	private List<string> fields;
 	private List<string> methods;
@@ -57,10 +57,11 @@ public sealed class TypeScope : IDisposable
 		return this;
 	}
 
-	public MethodScope AddMethod(string methodName)
+	public MethodScope WithMethod(string methodName)
 	{
+		MethodScope method = MethodScope.Create(this, methodName);
 		source.Indent++;
-		return MethodScope.Create(this, methodName);
+		return method;
 	}
 
 	internal void AddMethodBody(string method)
@@ -74,13 +75,13 @@ public sealed class TypeScope : IDisposable
 		return this;
 	}
 
-	public FieldScope AddField(string fieldName, string fieldType, string? defaultValue = null)
+	public FieldScope WithField(string fieldName, string fieldType, string? defaultValue = null)
 	{
 		source.Indent++;
 		return FieldScope.Create(this, fieldName, fieldType, defaultValue);
 	}
 
-	public void AddField(string field)
+	public void WithField(string field)
 	{
 		fields.Add(field);
 	}

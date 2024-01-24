@@ -65,7 +65,7 @@ public sealed class MethodScope : IDisposable
 	{
 		IndentBodyIfNeeded();
 		WriteIndentIfNeeded();
-		
+
 		bodyWriter.Append(value);
 	}
 
@@ -73,7 +73,7 @@ public sealed class MethodScope : IDisposable
 	{
 		IndentBodyIfNeeded();
 		WriteIndentIfNeeded();
-		
+
 		bodyWriter.AppendLine(value);
 		shouldIndentWrite = true;
 	}
@@ -88,16 +88,16 @@ public sealed class MethodScope : IDisposable
 	{
 		IndentBodyIfNeeded();
 		WriteIndentIfNeeded();
-		
+
 		bodyWriter.AppendLine("{");
 		bodyWriter.AppendLine(value);
 		bodyWriter.Append(type.source.GetIndent());
 		bodyWriter.Append(asLambda ? "};" : "}");
-		
+
 		shouldIndentWrite = true;
 	}
 
-	public BlockScope AddBlock()
+	public BlockScope WithBlock()
 	{
 		return BlockScope.Create(this, null);
 	}
@@ -124,7 +124,7 @@ public sealed class MethodScope : IDisposable
 
 	private void WriteIndentIfNeeded()
 	{
-		if(shouldIndentWrite)
+		if (shouldIndentWrite)
 		{
 			bodyWriter.Append(type.source.GetIndent());
 			shouldIndentWrite = false;
@@ -138,9 +138,9 @@ public sealed class MethodScope : IDisposable
 			type.source.Indent--;
 			hasIndentedBody = false;
 		}
-        
+
 		sb.Append(type.source.GetIndent());
-		
+
 		switch (accessor)
 		{
 			case MethodAccessor.None:
@@ -160,16 +160,16 @@ public sealed class MethodScope : IDisposable
 			default:
 				throw new ArgumentOutOfRangeException();
 		}
-		
+
 		if (isPartial)
 		{
 			sb.Append("partial ");
 		}
-		
+
 		sb.Append(returnType);
 		sb.Append(' ');
 		sb.Append(name);
-		
+
 		sb.Append('(');
 
 		if (parameters.Count > 0)
@@ -186,7 +186,7 @@ public sealed class MethodScope : IDisposable
 				}
 			}
 		}
-		
+
 		sb.Append(')');
 
 		if (bodyWriter.Length > 0)
@@ -196,7 +196,7 @@ public sealed class MethodScope : IDisposable
 			sb.AppendLine("{");
 
 			sb.AppendLine(bodyWriter.ToString());
-		
+
 			sb.Append(type.source.GetIndent());
 			sb.Append("}");
 		}
@@ -204,10 +204,10 @@ public sealed class MethodScope : IDisposable
 		{
 			sb.Append(';');
 		}
-		
+
 		type.AddMethodBody(sb.ToString());
 		type.source.Indent--;
-		
+
 		ListPool<Parameter>.Return(parameters);
 		StringBuilderPool.Return(bodyWriter);
 		StringBuilderPool.Return(sb);

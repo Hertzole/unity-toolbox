@@ -1,5 +1,5 @@
 ﻿using System;
-using Hertzole.UnityToolbox.Shared;
+using System.Text;
 
 namespace Hertzole.UnityToolbox.Shared;
 
@@ -13,24 +13,76 @@ public enum InputCallbackType : byte
 	All = 8
 }
 
-public readonly record struct InputCallbackField(string Name, string InputName, InputCallbackType CallbackType, bool IsAddressable)
+public readonly struct InputCallbackField
 {
-	public string HasSubscribedField { get; } = $"hasSubscribedTo{TextUtility.FormatVariableLabel(Name)}";
+	public readonly string name;
+	public readonly string inputName;
+	public readonly InputCallbackType callbackType;
 
-	public string SubscribeToField { get; } = $"SubscribeTo{TextUtility.FormatVariableLabel(Name)}";
+	public readonly string hasSubscribedField;
+	public readonly string subscribeToField;
+	public readonly string unsubscribeFromField;
+	public readonly string? startedMethod;
+	public readonly string? performedMethod;
+	public readonly string? canceledMethod;
+	public readonly string? allMethod;
 
-	public string UnsubscribeFromField { get; } = $"UnsubscribeFrom{TextUtility.FormatVariableLabel(Name)}";
+	public InputCallbackField(string name, string inputName, InputCallbackType callbackType)
+	{
+		this.name = name;
+		this.inputName = inputName;
+		this.callbackType = callbackType;
 
-	public string StartedMethod { get; } = $"OnInput{TextUtility.FormatVariableLabel(Name)}Started";
+		using (StringBuilderPool.Get(out StringBuilder nameBuilder))
+		{
+			nameBuilder.Append("hasSubscribedTo");
+			nameBuilder.Append(TextUtility.FormatVariableLabel(name));
+			hasSubscribedField = nameBuilder.ToString();
+			nameBuilder.Clear();
 
-	public string PerformedMethod { get; } = $"OnInput{TextUtility.FormatVariableLabel(Name)}Performed";
+			nameBuilder.Append("SubscribeTo");
+			nameBuilder.Append(TextUtility.FormatVariableLabel(name));
+			subscribeToField = nameBuilder.ToString();
+			nameBuilder.Clear();
 
-	public string CanceledMethod { get; } = $"OnInput{TextUtility.FormatVariableLabel(Name)}Canceled";
+			nameBuilder.Append("UnsubscribeFrom");
+			nameBuilder.Append(TextUtility.FormatVariableLabel(name));
+			unsubscribeFromField = nameBuilder.ToString();
+			nameBuilder.Clear();
 
-	public string AllMethod { get; } = $"OnInput{TextUtility.FormatVariableLabel(Name)}";
+			if ((callbackType & InputCallbackType.Started) != 0)
+			{
+				nameBuilder.Append("OnInput");
+				nameBuilder.Append(TextUtility.FormatVariableLabel(name));
+				nameBuilder.Append("Started");
+				startedMethod = nameBuilder.ToString();
+				nameBuilder.Clear();
+			}
 
-	public string Name { get; } = Name;
-	public string InputName { get; } = InputName;
-	public InputCallbackType CallbackType { get; } = CallbackType;
-	public bool IsAddressable { get; } = IsAddressable;
+			if ((callbackType & InputCallbackType.Performed) != 0)
+			{
+				nameBuilder.Append("OnInput");
+				nameBuilder.Append(TextUtility.FormatVariableLabel(name));
+				nameBuilder.Append("Performed");
+				performedMethod = nameBuilder.ToString();
+				nameBuilder.Clear();
+			}
+
+			if ((callbackType & InputCallbackType.Canceled) != 0)
+			{
+				nameBuilder.Append("OnInput");
+				nameBuilder.Append(TextUtility.FormatVariableLabel(name));
+				nameBuilder.Append("Canceled");
+				canceledMethod = nameBuilder.ToString();
+				nameBuilder.Clear();
+			}
+
+			if ((callbackType & InputCallbackType.All) != 0)
+			{
+				nameBuilder.Append("OnInput");
+				nameBuilder.Append(TextUtility.FormatVariableLabel(name));
+				allMethod = nameBuilder.ToString();
+			}
+		}
+	}
 }
