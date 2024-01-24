@@ -196,9 +196,9 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 		{
 			bool isStruct = subscribeType.type.IsValueType;
 
-			if (subscribeType.fields.Length == 0)
+			if (subscribeType.fields.IsDefaultOrEmpty)
 			{
-				return;
+				continue;
 			}
 
 			using PoolHandle<StringBuilder> handle = StringBuilderPool.Get(out StringBuilder? typeNameBuilder);
