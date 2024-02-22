@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using Hertzole.UnityToolbox.Generator.Data;
@@ -16,14 +15,14 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 {
 	private readonly struct SubscribeType : IEquatable<SubscribeType>
 	{
-		public readonly INamedTypeSymbol type;
+		public readonly INamedTypeSymbol? type;
 		public readonly ImmutableArray<SubscribeField> fields;
 
 		public static IEqualityComparer<SubscribeType> TypeComparer { get; } = new TypeEqualityComparer();
 
 		public SubscribeType(INamedTypeSymbol type, ImmutableArray<SubscribeField> fields)
 		{
-			this.type = type;
+			this.type = type ?? throw new ArgumentNullException(nameof(type));
 			this.fields = fields;
 		}
 
@@ -42,6 +41,16 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 
 		public bool Equals(SubscribeType other)
 		{
+			if (type == null)
+			{
+				return false;
+			}
+
+			if (other.type == null)
+			{
+				return false;
+			}
+
 			return string.Equals(type.ToDisplayString(NullableFlowState.NotNull, SymbolDisplayFormat.FullyQualifiedFormat),
 				other.type.ToDisplayString(NullableFlowState.NotNull, SymbolDisplayFormat.FullyQualifiedFormat), StringComparison.Ordinal);
 		}
@@ -73,7 +82,8 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 			                                                           IsClassTargetForGeneration,
 			                                                           GetMemberDeclarationsForSourceGen)
 		                                                           .Where(t => t.reportAttributeFound)
-		                                                           .Select((t, _) => t.Item1);
+		                                                           .Select((t, _) => t.Item1)
+		                                                           .WithComparer(SubscribeType.TypeComparer);
 
 		IncrementalValueProvider<(Compilation Left, ImmutableArray<SubscribeType> Right)> compilation =
 			context.CompilationProvider.Combine(provider.Collect());
@@ -191,9 +201,9 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 			return;
 		}
 
-		foreach (SubscribeType subscribeType in typeList.Distinct(SubscribeType.TypeComparer))
+		foreach (SubscribeType subscribeType in typeList)
 		{
-			bool isStruct = subscribeType.type.IsValueType;
+			bool isStruct = subscribeType.type!.IsValueType;
 
 			if (subscribeType.fields.IsDefaultOrEmpty)
 			{

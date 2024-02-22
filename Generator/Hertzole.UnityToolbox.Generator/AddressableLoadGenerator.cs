@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using Hertzole.UnityToolbox.Generator.Data;
@@ -16,14 +15,14 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 {
 	private readonly struct AddressableLoadType : IEquatable<AddressableLoadType>
 	{
-		public readonly INamedTypeSymbol type;
+		public readonly INamedTypeSymbol? type;
 		public readonly ImmutableArray<AddressableLoadField> fields;
 
 		public static IEqualityComparer<AddressableLoadType> TypeComparer { get; } = new TypeEqualityComparer();
 
 		public AddressableLoadType(INamedTypeSymbol type, ImmutableArray<AddressableLoadField> fields)
 		{
-			this.type = type;
+			this.type = type ?? throw new ArgumentNullException(nameof(type));
 			this.fields = fields;
 		}
 
@@ -42,6 +41,16 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 
 		public bool Equals(AddressableLoadType other)
 		{
+			if (type == null)
+			{
+				return false;
+			}
+
+			if (other.type == null)
+			{
+				return false;
+			}
+
 			return type.ToDisplayString(NullableFlowState.NotNull, SymbolDisplayFormat.FullyQualifiedFormat).Equals(
 				other.type.ToDisplayString(NullableFlowState.NotNull, SymbolDisplayFormat.FullyQualifiedFormat), StringComparison.Ordinal);
 		}
@@ -84,7 +93,8 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 			                                                                 IsTypeTargetForGeneration,
 			                                                                 GetMemberDeclarationsForSourceGen)
 		                                                                 .Where(t => t.reportAttributeFound)
-		                                                                 .Select((t, _) => t.Item1);
+		                                                                 .Select((t, _) => t.Item1)
+		                                                                 .WithComparer(AddressableLoadType.TypeComparer);
 
 		IncrementalValueProvider<(Compilation Left, ImmutableArray<AddressableLoadType> Right)> compilation =
 			context.CompilationProvider.Combine(provider.Collect());
@@ -206,9 +216,9 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 			return;
 		}
 
-		foreach (AddressableLoadType typeSyntax in typeList.Distinct(AddressableLoadType.TypeComparer))
+		foreach (AddressableLoadType typeSyntax in typeList)
 		{
-			bool isStruct = typeSyntax.type.IsValueType;
+			bool isStruct = typeSyntax.type!.IsValueType;
 
 			if (typeSyntax.fields.IsDefaultOrEmpty)
 			{
