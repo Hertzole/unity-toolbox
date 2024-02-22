@@ -166,7 +166,7 @@ internal sealed class InputCallbacksAnalyzer : DiagnosticAnalyzer
 
 	private static bool IsValidMethod(IMethodSymbol symbol)
 	{
-		if (!symbol.IsPartialDefinition || symbol.PartialImplementationPart == null)
+		if (symbol.PartialDefinitionPart == null || symbol.PartialImplementationPart == null)
 		{
 			return false;
 		}

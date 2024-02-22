@@ -18,8 +18,8 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.6.0"/>
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.6.0"/>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.9.0"/>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.9.0"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -39,12 +39,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Hertzole.UnityToolbox.Shared\Hertzole.UnityToolbox.Shared.csproj" />
-    </ItemGroup>
-
-
-
-    <ItemGroup>
-      <Folder Include="Data\" />
     </ItemGroup>
 
     <Target Name="CopyDLLs" AfterTargets="Build">

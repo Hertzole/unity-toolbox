@@ -140,7 +140,7 @@ public sealed class SubscribeMethodsAnalyzer : DiagnosticAnalyzer
 	private static bool IsValidMethod(IMethodSymbol symbol, ScriptableType type, ISymbol? genericType, ISymbol objectSymbol, ISymbol eventArgsSymbol)
 	{
 		// If it's not a partial method and not implemented, it's not valid.
-		if (!symbol.IsPartialDefinition || symbol.PartialImplementationPart == null)
+		if (symbol.PartialDefinitionPart == null || symbol.PartialImplementationPart == null)
 		{
 			return false;
 		}
