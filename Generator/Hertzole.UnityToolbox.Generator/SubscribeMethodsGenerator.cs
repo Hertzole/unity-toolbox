@@ -16,6 +16,14 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 	private static readonly ObjectPool<HashSet<string>> hashSetPool =
 		new ObjectPool<HashSet<string>>(() => new HashSet<string>(StringComparer.OrdinalIgnoreCase), null, set => set.Clear());
 
+	/// <summary>
+	///     Represents a type that can be subscribed to.
+	/// </summary>
+	/// <remarks>
+	///     This struct is used to hold information about a type that can be subscribed to,
+	///     including the type itself and the fields within the type that are relevant for subscription.
+	///     It implements the IEquatable interface to allow for easy comparison of SubscribeType instances.
+	/// </remarks>
 	private readonly struct SubscribeType : IEquatable<SubscribeType>
 	{
 		public readonly INamedTypeSymbol? type;
@@ -54,9 +62,7 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 				return false;
 			}
 
-			return string.Equals(type.ToDisplayString(NullableFlowState.NotNull, SymbolDisplayFormat.FullyQualifiedFormat),
-				       other.type.ToDisplayString(NullableFlowState.NotNull, SymbolDisplayFormat.FullyQualifiedFormat), StringComparison.Ordinal) &&
-			       fields.Length == other.fields.Length;
+			return type.StringEquals(other.type) && fields.Length == other.fields.Length;
 		}
 
 		public override bool Equals(object? obj)
@@ -126,6 +132,18 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 		return false;
 	}
 
+	/// <summary>
+	///     Gets the member declarations for source generation.
+	/// </summary>
+	/// <param name="context">The generator syntax context.</param>
+	/// <param name="cancellationToken">The cancellation token.</param>
+	/// <returns>A tuple containing the SubscribeType and a boolean indicating if the attribute was found.</returns>
+	/// <remarks>
+	///     This method is used to get the member declarations for source generation. It checks if the type declaration
+	///     is a named type symbol and if it has any attributes. If it does, it creates a SubscribeField for each member
+	///     with the attribute and adds it to the fields list. If the fields list has any items, it returns a tuple with
+	///     the SubscribeType and a boolean indicating that the attribute was found.
+	/// </remarks>
 	private static (SubscribeType, bool reportAttributeFound) GetMemberDeclarationsForSourceGen(GeneratorSyntaxContext context,
 		CancellationToken cancellationToken)
 	{
@@ -146,7 +164,6 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 
 			if (member is not IFieldSymbol && member is not IPropertySymbol)
 			{
-				Log.LogInfo($"Member {member.Name} is not a field or property. It's a {member.GetType()}");
 				continue;
 			}
 
@@ -198,6 +215,7 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 				fieldName = TextUtility.FormatAddressableName(fieldSymbol.Name);
 			}
 
+			// Make sure the field name is unique.
 			int counter = 0;
 			while (!fieldNames.Add(uniqueName))
 			{
@@ -205,7 +223,6 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 			}
 
 			fields.Add(new SubscribeField(fieldSymbol, fieldName, uniqueName));
-			Log.LogInfo("Added field: " + fieldName);
 		}
 
 		if (fields.Count > 0)
@@ -285,7 +302,7 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 		}
 	}
 
-	public static void GenerateSubscribeMethods(TypeScope type, in SubscribeField field)
+	private static void GenerateSubscribeMethods(TypeScope type, in SubscribeField field)
 	{
 		INamedTypeSymbol typeSymbol = (INamedTypeSymbol) field.FieldType;
 
@@ -295,7 +312,12 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 		}
 
 		string formattedValueName = TextUtility.FormatVariableLabel(field.UniqueName);
-		type.WithField($"hasSubscribedTo{formattedValueName}", "bool", "false").WithAccessor(FieldAccessor.Private).Dispose();
+		using (StringBuilderPool.Get(out StringBuilder fieldNameBuilder))
+		{
+			fieldNameBuilder.Append("hasSubscribedTo");
+			fieldNameBuilder.Append(formattedValueName);
+			type.WithField(fieldNameBuilder.ToString(), "bool", "false").WithAccessor(FieldAccessor.Private).Dispose();
+		}
 
 		using PoolHandle<StringBuilder> handle = StringBuilderPool.Get(out StringBuilder nameBuilder);
 

@@ -7,6 +7,8 @@ namespace Hertzole.UnityToolbox.Shared;
 
 public static class Log
 {
+	private static bool isInitialized;
+
 	[Conditional("DEBUG")]
 	public static void LogInfo(string message)
 	{
@@ -34,6 +36,12 @@ public static class Log
 #if DEBUG
 	private static void Write(string value)
 	{
+		if (!isInitialized)
+		{
+			isInitialized = true;
+			File.WriteAllText($"{Environment.GetFolderPath(Environment.SpecialFolder.Desktop)}/UnityToolboxGenerator.log", string.Empty);
+		}
+
 		using (FileStream? stream = File.Open($"{Environment.GetFolderPath(Environment.SpecialFolder.Desktop)}/UnityToolboxGenerator.log", FileMode.Append,
 			       FileAccess.Write, FileShare.Read))
 		{

@@ -82,7 +82,11 @@ public static class SymbolExtensions
 	
 	public static bool StringEquals(this ISymbol symbol, string value)
 	{
-		Log.LogInfo($"{symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} == {value} ({string.Equals(symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), value, StringComparison.Ordinal)})");
 		return string.Equals(symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), value, StringComparison.Ordinal);
+	}
+
+	public static bool StringEquals(this ISymbol symbol, ISymbol other)
+	{
+		return StringEquals(symbol, other.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
 	}
 }
