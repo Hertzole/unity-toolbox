@@ -52,7 +52,8 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 			}
 
 			return string.Equals(type.ToDisplayString(NullableFlowState.NotNull, SymbolDisplayFormat.FullyQualifiedFormat),
-				other.type.ToDisplayString(NullableFlowState.NotNull, SymbolDisplayFormat.FullyQualifiedFormat), StringComparison.Ordinal);
+				other.type.ToDisplayString(NullableFlowState.NotNull, SymbolDisplayFormat.FullyQualifiedFormat), StringComparison.Ordinal) &&
+			       fields.Length == other.fields.Length;
 		}
 
 		public override bool Equals(object? obj)
