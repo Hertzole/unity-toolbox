@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using Hertzole.UnityToolbox.Shared;
@@ -15,14 +14,14 @@ internal sealed class InputCallbacksGenerator : IIncrementalGenerator
 {
 	private readonly struct InputCallbacksType : IEquatable<InputCallbacksType>
 	{
-		public readonly INamedTypeSymbol type;
+		public readonly INamedTypeSymbol? type;
 		public readonly ImmutableArray<InputCallbackField> fields;
 
 		public static IEqualityComparer<InputCallbacksType> TypeComparer { get; } = new TypeEqualityComparer();
 
 		public InputCallbacksType(INamedTypeSymbol type, ImmutableArray<InputCallbackField> fields)
 		{
-			this.type = type;
+			this.type = type ?? throw new ArgumentNullException(nameof(type));
 			this.fields = fields;
 		}
 
@@ -41,7 +40,17 @@ internal sealed class InputCallbacksGenerator : IIncrementalGenerator
 
 		public bool Equals(InputCallbacksType other)
 		{
-			return SymbolEqualityComparer.Default.Equals(type, other.type);
+			if (type == null)
+			{
+				return false;
+			}
+
+			if (other.type == null)
+			{
+				return false;
+			}
+
+			return type.StringEquals(other.type) && fields == other.fields;
 		}
 
 		public override bool Equals(object? obj)
@@ -73,7 +82,8 @@ internal sealed class InputCallbacksGenerator : IIncrementalGenerator
 			                                                                IsTypeTargetForGeneration,
 			                                                                GetMemberDeclarationsForSourceGen)
 		                                                                .Where(t => t.reportAttributeFound)
-		                                                                .Select((t, _) => t.Item1);
+		                                                                .Select((t, _) => t.Item1)
+		                                                                .WithComparer(InputCallbacksType.TypeComparer);
 
 		context.RegisterSourceOutput(context.CompilationProvider.Combine(provider.Collect()), (ctx, t) => GenerateCode(ctx, t.Right));
 	}
@@ -222,11 +232,11 @@ internal sealed class InputCallbacksGenerator : IIncrementalGenerator
 			return;
 		}
 
-		foreach (InputCallbacksType callbackType in typesList.Distinct(InputCallbacksType.TypeComparer))
+		foreach (InputCallbacksType callbackType in typesList)
 		{
 			context.CancellationToken.ThrowIfCancellationRequested();
 
-			bool isStruct = callbackType.type.IsValueType;
+			bool isStruct = callbackType.type!.IsValueType;
 
 			if (callbackType.fields.IsDefaultOrEmpty)
 			{
