@@ -13,6 +13,9 @@ namespace Hertzole.UnityToolbox.Generator;
 [Generator(LanguageNames.CSharp)]
 public sealed class AddressableLoadGenerator : IIncrementalGenerator
 {
+	private static readonly ObjectPool<HashSet<string>> hashSetPool =
+		new ObjectPool<HashSet<string>>(() => new HashSet<string>(StringComparer.OrdinalIgnoreCase), null, set => set.Clear());
+
 	private readonly struct AddressableLoadType : IEquatable<AddressableLoadType>
 	{
 		public readonly INamedTypeSymbol? type;
@@ -51,8 +54,7 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 				return false;
 			}
 
-			return type.ToDisplayString(NullableFlowState.NotNull, SymbolDisplayFormat.FullyQualifiedFormat).Equals(
-				other.type.ToDisplayString(NullableFlowState.NotNull, SymbolDisplayFormat.FullyQualifiedFormat), StringComparison.Ordinal);
+			return type.StringEquals(other.type) && fields.Equals(other.fields);
 		}
 
 		public override bool Equals(object? obj)
@@ -145,18 +147,27 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 			return (default, false);
 		}
 
+		using PoolHandle<HashSet<string>> handle = hashSetPool.Get(out HashSet<string> fieldNames);
+
 		ImmutableArray<AddressableLoadField>.Builder fields = ImmutableArray.CreateBuilder<AddressableLoadField>();
 
 		foreach (ISymbol member in typeSymbol.GetMembers())
 		{
 			cancellationToken.ThrowIfCancellationRequested();
 
-			if (member is not IFieldSymbol fieldSymbol)
+			INamedTypeSymbol? memberType = member switch
+			{
+				IFieldSymbol field => field.Type as INamedTypeSymbol,
+				IPropertySymbol property => property.Type as INamedTypeSymbol,
+				_ => null
+			};
+
+			if (memberType == null)
 			{
 				continue;
 			}
 
-			if (!AddressablesHelper.TryGetAddressableType(fieldSymbol.Type, out INamedTypeSymbol? addressableType) || addressableType == null)
+			if (!AddressablesHelper.TryGetAddressableType(memberType, out INamedTypeSymbol? addressableType) || addressableType == null)
 			{
 				continue;
 			}
@@ -181,6 +192,7 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 			}
 
 			string valueName = TextUtility.FormatAddressableName(member.Name);
+			string uniqueName = valueName;
 			bool fieldExists = false;
 			foreach (ISymbol member2 in typeSymbol.GetMembers())
 			{
@@ -196,12 +208,20 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 				}
 			}
 
-			bool generateSubscribeMethods = fieldSymbol.TryGetAttribute(Attributes.GENERATE_SUBSCRIBE_METHODS, out _);
-			bool generateInputCallbacks = fieldSymbol.TryGetAttribute(Attributes.GENERATE_INPUT_CALLBACKS, out _);
+			bool generateSubscribeMethods = member.TryGetAttribute(Attributes.GENERATE_SUBSCRIBE_METHODS, out _);
+			bool generateInputCallbacks = member.TryGetAttribute(Attributes.GENERATE_INPUT_CALLBACKS, out _);
+
+			// Make sure the field name is unique.
+			int counter = 0;
+			while (!fieldNames.Add(uniqueName))
+			{
+				uniqueName = $"{valueName}_{++counter}";
+			}
 
 			if (hasGenerateLoadAttribute)
 			{
-				fields.Add(new AddressableLoadField(fieldSymbol, addressableType, valueName, generateSubscribeMethods, fieldExists, generateInputCallbacks));
+				AddressableNameFields names = new AddressableNameFields(member.Name, valueName, uniqueName);
+				fields.Add(new AddressableLoadField(memberType, addressableType, names, generateSubscribeMethods, fieldExists, generateInputCallbacks));
 			}
 		}
 
@@ -236,12 +256,12 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 				                              .WithAccessor(TypeAccessor.None)
 				                              .Partial())
 				{
-					foreach ((IFieldSymbol _, INamedTypeSymbol addressableType, string valueName, bool _, bool fieldExists, bool _) in
+					foreach ((INamedTypeSymbol _, INamedTypeSymbol addressableType, AddressableNameFields names, bool _, bool fieldExists, bool _) in
 					         typeSyntax.fields)
 					{
 						if (!fieldExists)
 						{
-							using (FieldScope field = type.WithField(valueName,
+							using (FieldScope field = type.WithField(names.UniqueName,
 								       addressableType.ToDisplayString(NullableFlowState.None, SymbolDisplayFormat.FullyQualifiedFormat), "null"))
 							{
 								field.AddAttribute("JetBrains.Annotations.CanBeNull");
@@ -249,7 +269,7 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 						}
 					}
 
-					foreach ((IFieldSymbol field, INamedTypeSymbol addressableType, string _, bool _, bool _, bool _) in typeSyntax.fields)
+					foreach ((INamedTypeSymbol _, INamedTypeSymbol addressableType, AddressableNameFields names, bool _, bool _, bool _) in typeSyntax.fields)
 					{
 						using (StringBuilderPool.Get(out StringBuilder typeBuilder))
 						{
@@ -259,7 +279,7 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 
 							using (StringBuilderPool.Get(out StringBuilder nameBuilder))
 							{
-								nameBuilder.Append(field.Name);
+								nameBuilder.Append(names.UniqueName);
 								nameBuilder.Append("Handle");
 
 								using (type.WithField(nameBuilder.ToString(), typeBuilder.ToString())) { }
@@ -270,17 +290,17 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 					using (MethodScope load = type.WithMethod("LoadAssets").WithAccessor(MethodAccessor.Private))
 					{
 						int i = 0;
-						foreach ((IFieldSymbol field, INamedTypeSymbol addressableType, string valueName, bool generateSubscribeMethods,
+						foreach ((INamedTypeSymbol _, INamedTypeSymbol addressableType, AddressableNameFields names, bool generateSubscribeMethods,
 						          bool _, bool generateInputCallbacks) in typeSyntax.fields)
 						{
-							load.Append(field.Name);
+							load.Append(names.UniqueName);
 							load.Append("Handle = global::UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<");
 							load.Append(addressableType.ToDisplayString(NullableFlowState.None, SymbolDisplayFormat.FullyQualifiedFormat));
 							load.Append(">(");
-							load.Append(field.Name);
+							load.Append(names.FieldName);
 							load.AppendLine(");");
 
-							load.Append(field.Name);
+							load.Append(names.UniqueName);
 							load.AppendLine("Handle.Completed += (op) =>");
 							using (BlockScope lambdaBlock = load.WithBlock().AsLambda())
 							{
@@ -289,25 +309,25 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 
 								using (BlockScope ifBlock = lambdaBlock.AddBlock())
 								{
-									ifBlock.Append(valueName);
+									ifBlock.Append(names.UniqueName);
 									ifBlock.AppendLine(" = op.Result;");
 
 									if (generateSubscribeMethods)
 									{
 										ifBlock.Append("SubscribeTo");
-										ifBlock.Append(TextUtility.FormatVariableLabel(valueName));
+										ifBlock.Append(TextUtility.FormatVariableLabel(names.UniqueName));
 										ifBlock.AppendLine("();");
 									}
 
 									if (generateInputCallbacks)
 									{
 										ifBlock.Append("SubscribeTo");
-										ifBlock.Append(TextUtility.FormatVariableLabel(valueName));
+										ifBlock.Append(TextUtility.FormatVariableLabel(names.UniqueName));
 										ifBlock.AppendLine("();");
 									}
 
 									ifBlock.Append("On");
-									ifBlock.Append(TextUtility.FormatVariableLabel(valueName));
+									ifBlock.Append(TextUtility.FormatVariableLabel(names.UniqueName));
 									ifBlock.Append("Loaded(op.Result);");
 								}
 
@@ -317,7 +337,7 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 								using (BlockScope elseBlock = lambdaBlock.AddBlock())
 								{
 									elseBlock.Append("global::UnityEngine.Debug.LogError($\"Failed to load reference ");
-									elseBlock.Append(field.Name);
+									elseBlock.Append(names.FieldName);
 									elseBlock.Append(" with error: {op.OperationException}\");");
 								}
 							}
@@ -334,15 +354,15 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 					using (MethodScope release = type.WithMethod("ReleaseAssets").WithAccessor(MethodAccessor.Private))
 					{
 						int i = 0;
-						foreach ((IFieldSymbol field, INamedTypeSymbol _, string _, bool _, bool _, bool _) in typeSyntax.fields)
+						foreach ((INamedTypeSymbol _, INamedTypeSymbol _, AddressableNameFields names, bool _, bool _, bool _) in typeSyntax.fields)
 						{
 							release.Append("if (");
-							release.Append(field.Name);
+							release.Append(names.UniqueName);
 							release.AppendLine("Handle.IsValid())");
 							using (BlockScope ifBlock = release.WithBlock())
 							{
 								ifBlock.Append("global::UnityEngine.AddressableAssets.Addressables.Release(");
-								ifBlock.Append(field.Name);
+								ifBlock.Append(names.UniqueName);
 								ifBlock.Append("Handle);");
 							}
 
@@ -355,12 +375,12 @@ public sealed class AddressableLoadGenerator : IIncrementalGenerator
 						}
 					}
 
-					foreach ((IFieldSymbol _, INamedTypeSymbol addressableType, string valueName, bool _, bool _, bool _) in typeSyntax.fields)
+					foreach ((INamedTypeSymbol _, INamedTypeSymbol addressableType, AddressableNameFields names, bool _, bool _, bool _) in typeSyntax.fields)
 					{
 						using (StringBuilderPool.Get(out StringBuilder? nameBuilder))
 						{
 							nameBuilder.Append("On");
-							nameBuilder.Append(TextUtility.FormatVariableLabel(valueName));
+							nameBuilder.Append(TextUtility.FormatVariableLabel(names.UniqueName));
 							nameBuilder.Append("Loaded");
 
 							using (MethodScope onLoadedMethod =
