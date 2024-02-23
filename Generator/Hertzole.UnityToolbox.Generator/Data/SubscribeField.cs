@@ -2,4 +2,4 @@
 
 namespace Hertzole.UnityToolbox.Generator.Data;
 
-public record struct SubscribeField(IFieldSymbol Field, string FieldName);
+public record struct SubscribeField(IFieldSymbol Field, string FieldName, string UniqueName);

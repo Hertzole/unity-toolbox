@@ -13,6 +13,9 @@ namespace Hertzole.UnityToolbox.Generator;
 [Generator(LanguageNames.CSharp)]
 public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 {
+	private static readonly ObjectPool<HashSet<string>> hashSetPool =
+		new ObjectPool<HashSet<string>>(() => new HashSet<string>(StringComparer.OrdinalIgnoreCase), null, set => set.Clear());
+
 	private readonly struct SubscribeType : IEquatable<SubscribeType>
 	{
 		public readonly INamedTypeSymbol? type;
@@ -52,7 +55,7 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 			}
 
 			return string.Equals(type.ToDisplayString(NullableFlowState.NotNull, SymbolDisplayFormat.FullyQualifiedFormat),
-				other.type.ToDisplayString(NullableFlowState.NotNull, SymbolDisplayFormat.FullyQualifiedFormat), StringComparison.Ordinal) &&
+				       other.type.ToDisplayString(NullableFlowState.NotNull, SymbolDisplayFormat.FullyQualifiedFormat), StringComparison.Ordinal) &&
 			       fields.Length == other.fields.Length;
 		}
 
@@ -135,6 +138,8 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 
 		ImmutableArray<SubscribeField>.Builder fields = ImmutableArray.CreateBuilder<SubscribeField>();
 
+		using PoolHandle<HashSet<string>> handle = hashSetPool.Get(out HashSet<string> fieldNames);
+
 		foreach (ISymbol member in typeSymbol.GetMembers())
 		{
 			cancellationToken.ThrowIfCancellationRequested();
@@ -179,12 +184,19 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 			}
 
 			string fieldName = fieldSymbol.Name;
+			string uniqueName = fieldSymbol.Name;
 			if (hasGenerateLoadAttribute && AddressablesHelper.TryGetAddressableType(fieldSymbol.Type, out _))
 			{
 				fieldName = TextUtility.FormatAddressableName(fieldSymbol.Name);
 			}
 
-			fields.Add(new SubscribeField(fieldSymbol, fieldName));
+			int counter = 0;
+			while (!fieldNames.Add(uniqueName))
+			{
+				uniqueName = $"{fieldName}_{++counter}";
+			}
+
+			fields.Add(new SubscribeField(fieldSymbol, fieldName, uniqueName));
 		}
 
 		if (fields.Count > 0)
@@ -226,7 +238,7 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 						for (int i = 0; i < subscribeType.fields.Length; i++)
 						{
 							subscribeALl.Append("SubscribeTo");
-							subscribeALl.Append(TextUtility.FormatVariableLabel(subscribeType.fields[i].FieldName));
+							subscribeALl.Append(TextUtility.FormatVariableLabel(subscribeType.fields[i].UniqueName));
 							if (i < subscribeType.fields.Length - 1)
 							{
 								subscribeALl.AppendLine("();");
@@ -243,7 +255,7 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 						for (int i = 0; i < subscribeType.fields.Length; i++)
 						{
 							unsubscribeAll.Append("UnsubscribeFrom");
-							unsubscribeAll.Append(TextUtility.FormatVariableLabel(subscribeType.fields[i].FieldName));
+							unsubscribeAll.Append(TextUtility.FormatVariableLabel(subscribeType.fields[i].UniqueName));
 							if (i < subscribeType.fields.Length - 1)
 							{
 								unsubscribeAll.AppendLine("();");
@@ -257,21 +269,23 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 
 					for (int i = 0; i < subscribeType.fields.Length; i++)
 					{
-						GenerateSubscribeMethods(type, subscribeType.fields[i].Field.Type as INamedTypeSymbol, subscribeType.fields[i].FieldName);
+						GenerateSubscribeMethods(type, subscribeType.fields[i]);
 					}
 				}
 			}
 		}
 	}
 
-	public static void GenerateSubscribeMethods(TypeScope type, INamedTypeSymbol? typeSymbol, string valueName)
+	public static void GenerateSubscribeMethods(TypeScope type, in SubscribeField field)
 	{
+		INamedTypeSymbol typeSymbol = (INamedTypeSymbol) field.Field.Type;
+
 		if (!ScriptableValueHelper.TryGetScriptableType(typeSymbol, out ScriptableType scriptableType, out ITypeSymbol? genericType))
 		{
 			return;
 		}
 
-		string formattedValueName = TextUtility.FormatVariableLabel(valueName);
+		string formattedValueName = TextUtility.FormatVariableLabel(field.UniqueName);
 		type.WithField($"hasSubscribedTo{formattedValueName}", "bool", "false").WithAccessor(FieldAccessor.Private).Dispose();
 
 		using PoolHandle<StringBuilder> handle = StringBuilderPool.Get(out StringBuilder nameBuilder);
@@ -282,7 +296,7 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 		using (MethodScope subscribe = type.WithMethod(nameBuilder.ToString()).WithAccessor(MethodAccessor.Private))
 		{
 			subscribe.Append("if (");
-			subscribe.Append(valueName);
+			subscribe.Append(field.FieldName);
 			subscribe.Append(" != null && !hasSubscribedTo");
 			subscribe.Append(formattedValueName);
 			subscribe.AppendLine(")");
@@ -295,13 +309,13 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 						break;
 					case ScriptableType.Event:
 					case ScriptableType.GenericEvent:
-						ifBlock.Append(valueName);
+						ifBlock.Append(field.FieldName);
 						ifBlock.Append(".OnInvoked += On");
 						ifBlock.Append(formattedValueName);
 						ifBlock.AppendLine("Invoked;");
 						break;
 					case ScriptableType.Value:
-						ifBlock.Append(valueName);
+						ifBlock.Append(field.FieldName);
 						ifBlock.Append(".OnValueChanged += On");
 						ifBlock.Append(formattedValueName);
 						ifBlock.AppendLine("Changed;");
@@ -324,7 +338,7 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 		using (MethodScope unsubscribe = type.WithMethod(nameBuilder.ToString()).WithAccessor(MethodAccessor.Private))
 		{
 			unsubscribe.Append("if (");
-			unsubscribe.Append(valueName);
+			unsubscribe.Append(field.FieldName);
 			unsubscribe.Append(" != null && hasSubscribedTo");
 			unsubscribe.Append(formattedValueName);
 			unsubscribe.AppendLine(")");
@@ -337,13 +351,13 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 						break;
 					case ScriptableType.Event:
 					case ScriptableType.GenericEvent:
-						ifBlock.Append(valueName);
+						ifBlock.Append(field.FieldName);
 						ifBlock.Append(".OnInvoked -= On");
 						ifBlock.Append(formattedValueName);
 						ifBlock.AppendLine("Invoked;");
 						break;
 					case ScriptableType.Value:
-						ifBlock.Append(valueName);
+						ifBlock.Append(field.FieldName);
 						ifBlock.Append(".OnValueChanged -= On");
 						ifBlock.Append(formattedValueName);
 						ifBlock.AppendLine("Changed;");
