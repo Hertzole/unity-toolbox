@@ -144,15 +144,16 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 		{
 			cancellationToken.ThrowIfCancellationRequested();
 
-			if (member is not IFieldSymbol fieldSymbol)
+			if (member is not IFieldSymbol && member is not IPropertySymbol)
 			{
+				Log.LogInfo($"Member {member.Name} is not a field or property. It's a {member.GetType()}");
 				continue;
 			}
 
 			bool hasAttribute = false;
 			bool hasGenerateLoadAttribute = false;
 
-			foreach (AttributeData attribute in fieldSymbol.GetAttributes())
+			foreach (AttributeData attribute in member.GetAttributes())
 			{
 				cancellationToken.ThrowIfCancellationRequested();
 
@@ -183,9 +184,16 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 				continue;
 			}
 
-			string fieldName = fieldSymbol.Name;
-			string uniqueName = fieldSymbol.Name;
-			if (hasGenerateLoadAttribute && AddressablesHelper.TryGetAddressableType(fieldSymbol.Type, out _))
+			ITypeSymbol fieldSymbol = member switch
+			{
+				IFieldSymbol field => field.Type,
+				IPropertySymbol property => property.Type,
+				_ => throw new ArgumentOutOfRangeException()
+			};
+
+			string fieldName = member.Name;
+			string uniqueName = member.Name;
+			if (hasGenerateLoadAttribute && AddressablesHelper.TryGetAddressableType(fieldSymbol, out _))
 			{
 				fieldName = TextUtility.FormatAddressableName(fieldSymbol.Name);
 			}
@@ -197,6 +205,7 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 			}
 
 			fields.Add(new SubscribeField(fieldSymbol, fieldName, uniqueName));
+			Log.LogInfo("Added field: " + fieldName);
 		}
 
 		if (fields.Count > 0)
@@ -278,7 +287,7 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 
 	public static void GenerateSubscribeMethods(TypeScope type, in SubscribeField field)
 	{
-		INamedTypeSymbol typeSymbol = (INamedTypeSymbol) field.Field.Type;
+		INamedTypeSymbol typeSymbol = (INamedTypeSymbol) field.FieldType;
 
 		if (!ScriptableValueHelper.TryGetScriptableType(typeSymbol, out ScriptableType scriptableType, out ITypeSymbol? genericType))
 		{
