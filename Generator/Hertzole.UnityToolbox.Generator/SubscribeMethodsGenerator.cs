@@ -62,7 +62,7 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 				return false;
 			}
 
-			return type.StringEquals(other.type) && fields.Length == other.fields.Length;
+			return type.StringEquals(other.type) && fields.Equals(other.fields);
 		}
 
 		public override bool Equals(object? obj)
