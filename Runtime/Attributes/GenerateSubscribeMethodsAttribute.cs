@@ -3,7 +3,7 @@ using System;
 
 namespace Hertzole.UnityToolbox
 {
-	[AttributeUsage(AttributeTargets.Field)]
+	[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
 	public sealed class GenerateSubscribeMethodsAttribute : Attribute { }
 }
 #endif
