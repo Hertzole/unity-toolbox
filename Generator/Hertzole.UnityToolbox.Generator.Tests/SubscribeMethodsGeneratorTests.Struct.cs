@@ -28,9 +28,14 @@ public partial struct TestStruct
  	[GenerateSubscribeMethods]
  	public ScriptableValue<bool> value;
 	[GenerateSubscribeMethods]
-	public ScriptablValue<bool> Value { get; set; }
+	public ScriptableValue<bool> Value { get; set; }
     
     private partial void OnValueChanged(bool previousValue, bool newValue)
+	{
+		throw new NotImplementedException();
+	}
+    
+    private partial void OnValue_1Changed(bool previousValue, bool newValue)
 	{
 		throw new NotImplementedException();
 	}
@@ -92,15 +97,18 @@ public partial struct TestStruct
 partial struct TestStruct
 {
 	private bool hasSubscribedToBoolValue = false;
+	private bool hasSubscribedToBoolValue_1 = false;
 
 	private void SubscribeToAllScriptableValues()
 	{
 		SubscribeToBoolValue();
+		SubscribeToBoolValue_1();
 	}
 
 	private void UnsubscribeFromAllScriptableValues()
 	{
 		UnsubscribeFromBoolValue();
+		UnsubscribeFromBoolValue_1();
 	}
 
 	private void SubscribeToBoolValue()
@@ -122,6 +130,26 @@ partial struct TestStruct
 	}
 
 	private partial void OnBoolValueChanged(bool previousValue, bool newValue);
+
+	private void SubscribeToBoolValue_1()
+	{
+		if (BoolValue != null && !hasSubscribedToBoolValue_1)
+		{
+			BoolValue.OnValueChanged += OnBoolValue_1Changed;
+			hasSubscribedToBoolValue_1 = true;
+		}
+	}
+
+	private void UnsubscribeFromBoolValue_1()
+	{
+		if (BoolValue != null && hasSubscribedToBoolValue_1)
+		{
+			BoolValue.OnValueChanged -= OnBoolValue_1Changed;
+			hasSubscribedToBoolValue_1 = false;
+		}
+	}
+
+	private partial void OnBoolValue_1Changed(bool previousValue, bool newValue);
 }
 ";
 
@@ -133,15 +161,18 @@ partial struct TestStruct
 partial struct TestStruct
 {
 	private bool hasSubscribedToValue = false;
+	private bool hasSubscribedToValue_1 = false;
 
 	private void SubscribeToAllScriptableValues()
 	{
 		SubscribeToValue();
+		SubscribeToValue_1();
 	}
 
 	private void UnsubscribeFromAllScriptableValues()
 	{
 		UnsubscribeFromValue();
+		UnsubscribeFromValue_1();
 	}
 
 	private void SubscribeToValue()
@@ -163,6 +194,26 @@ partial struct TestStruct
 	}
 
 	private partial void OnValueChanged(bool previousValue, bool newValue);
+
+	private void SubscribeToValue_1()
+	{
+		if (Value != null && !hasSubscribedToValue_1)
+		{
+			Value.OnValueChanged += OnValue_1Changed;
+			hasSubscribedToValue_1 = true;
+		}
+	}
+
+	private void UnsubscribeFromValue_1()
+	{
+		if (Value != null && hasSubscribedToValue_1)
+		{
+			Value.OnValueChanged -= OnValue_1Changed;
+			hasSubscribedToValue_1 = false;
+		}
+	}
+
+	private partial void OnValue_1Changed(bool previousValue, bool newValue);
 }
 ";
 
@@ -174,15 +225,18 @@ partial struct TestStruct
 partial struct TestStruct
 {
 	private bool hasSubscribedToEventValue = false;
+	private bool hasSubscribedToEventValue_1 = false;
 
 	private void SubscribeToAllScriptableValues()
 	{
 		SubscribeToEventValue();
+		SubscribeToEventValue_1();
 	}
 
 	private void UnsubscribeFromAllScriptableValues()
 	{
 		UnsubscribeFromEventValue();
+		UnsubscribeFromEventValue_1();
 	}
 
 	private void SubscribeToEventValue()
@@ -204,6 +258,26 @@ partial struct TestStruct
 	}
 
 	private partial void OnEventValueInvoked(object sender, global::System.EventArgs e);
+
+	private void SubscribeToEventValue_1()
+	{
+		if (EventValue != null && !hasSubscribedToEventValue_1)
+		{
+			EventValue.OnInvoked += OnEventValue_1Invoked;
+			hasSubscribedToEventValue_1 = true;
+		}
+	}
+
+	private void UnsubscribeFromEventValue_1()
+	{
+		if (EventValue != null && hasSubscribedToEventValue_1)
+		{
+			EventValue.OnInvoked -= OnEventValue_1Invoked;
+			hasSubscribedToEventValue_1 = false;
+		}
+	}
+
+	private partial void OnEventValue_1Invoked(object sender, global::System.EventArgs e);
 }
 ";
 
@@ -215,15 +289,18 @@ partial struct TestStruct
 partial struct TestStruct
 {
 	private bool hasSubscribedToBoolEvent = false;
+	private bool hasSubscribedToBoolEvent_1 = false;
 
 	private void SubscribeToAllScriptableValues()
 	{
 		SubscribeToBoolEvent();
+		SubscribeToBoolEvent_1();
 	}
 
 	private void UnsubscribeFromAllScriptableValues()
 	{
 		UnsubscribeFromBoolEvent();
+		UnsubscribeFromBoolEvent_1();
 	}
 
 	private void SubscribeToBoolEvent()
@@ -245,6 +322,26 @@ partial struct TestStruct
 	}
 
 	private partial void OnBoolEventInvoked(object sender, bool args);
+
+	private void SubscribeToBoolEvent_1()
+	{
+		if (BoolEvent != null && !hasSubscribedToBoolEvent_1)
+		{
+			BoolEvent.OnInvoked += OnBoolEvent_1Invoked;
+			hasSubscribedToBoolEvent_1 = true;
+		}
+	}
+
+	private void UnsubscribeFromBoolEvent_1()
+	{
+		if (BoolEvent != null && hasSubscribedToBoolEvent_1)
+		{
+			BoolEvent.OnInvoked -= OnBoolEvent_1Invoked;
+			hasSubscribedToBoolEvent_1 = false;
+		}
+	}
+
+	private partial void OnBoolEvent_1Invoked(object sender, bool args);
 }
 ";
 
@@ -256,15 +353,18 @@ partial struct TestStruct
 partial struct TestStruct
 {
 	private bool hasSubscribedToEventValue = false;
+	private bool hasSubscribedToEventValue_1 = false;
 
 	private void SubscribeToAllScriptableValues()
 	{
 		SubscribeToEventValue();
+		SubscribeToEventValue_1();
 	}
 
 	private void UnsubscribeFromAllScriptableValues()
 	{
 		UnsubscribeFromEventValue();
+		UnsubscribeFromEventValue_1();
 	}
 
 	private void SubscribeToEventValue()
@@ -286,6 +386,26 @@ partial struct TestStruct
 	}
 
 	private partial void OnEventValueInvoked(object sender, bool args);
+
+	private void SubscribeToEventValue_1()
+	{
+		if (EventValue != null && !hasSubscribedToEventValue_1)
+		{
+			EventValue.OnInvoked += OnEventValue_1Invoked;
+			hasSubscribedToEventValue_1 = true;
+		}
+	}
+
+	private void UnsubscribeFromEventValue_1()
+	{
+		if (EventValue != null && hasSubscribedToEventValue_1)
+		{
+			EventValue.OnInvoked -= OnEventValue_1Invoked;
+			hasSubscribedToEventValue_1 = false;
+		}
+	}
+
+	private partial void OnEventValue_1Invoked(object sender, bool args);
 }
 ";
 
