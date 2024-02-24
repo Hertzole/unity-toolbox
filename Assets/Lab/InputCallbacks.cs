@@ -6,6 +6,10 @@ namespace Hertzole.UnityToolbox.Lab
 	{
 		[GenerateInputCallbacks(nameof(playerInput), GenerateStarted = true, GeneratePerformed = true, GenerateCanceled = true, GenerateAll = true)]
 		public InputActionReference move;
+		[GenerateInputCallbacks(nameof(playerInput), GeneratePerformed = true)]
+		public InputActionReference look;
+		[GenerateInputCallbacks(nameof(playerInput), GenerateStarted = true)]
+		public InputActionReference Move { get; set; }
 
 		private PlayerInput playerInput;
 

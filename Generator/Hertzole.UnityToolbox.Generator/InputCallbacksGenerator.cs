@@ -12,6 +12,9 @@ namespace Hertzole.UnityToolbox.Generator;
 [Generator(LanguageNames.CSharp)]
 internal sealed class InputCallbacksGenerator : IIncrementalGenerator
 {
+	private static readonly ObjectPool<HashSet<string>> hashSetPool =
+		new ObjectPool<HashSet<string>>(() => new HashSet<string>(StringComparer.OrdinalIgnoreCase), null, set => set.Clear());
+
 	private readonly struct InputCallbacksType : IEquatable<InputCallbacksType>
 	{
 		public readonly INamedTypeSymbol? type;
@@ -126,6 +129,7 @@ internal sealed class InputCallbacksGenerator : IIncrementalGenerator
 		}
 
 		ImmutableArray<InputCallbackField>.Builder fields = ImmutableArray.CreateBuilder<InputCallbackField>();
+		using PoolHandle<HashSet<string>> handle = hashSetPool.Get(out HashSet<string> fieldNames);
 
 		foreach (ISymbol memberDeclaration in symbol.GetMembers())
 		{
@@ -204,6 +208,14 @@ internal sealed class InputCallbacksGenerator : IIncrementalGenerator
 						continue;
 					}
 
+					string uniqueName = fieldName!;
+					// Make sure the field name is unique.
+					int counter = 0;
+					while (!fieldNames.Add(uniqueName))
+					{
+						uniqueName = $"{fieldName}_{++counter}";
+					}
+
 					bool isAddressable = AddressablesHelper.TryGetAddressableType(typeSymbol, out _);
 					string name = fieldName!;
 
@@ -212,7 +224,7 @@ internal sealed class InputCallbacksGenerator : IIncrementalGenerator
 						name = TextUtility.FormatAddressableName(name);
 					}
 
-					fields.Add(new InputCallbackField(name, inputName, callbackType));
+					fields.Add(new InputCallbackField(name, inputName, uniqueName, callbackType));
 				}
 			}
 		}
