@@ -135,7 +135,7 @@ internal sealed class InputCallbacksGenerator : IIncrementalGenerator
 		{
 			cancellationToken.ThrowIfCancellationRequested();
 
-			if (memberDeclaration is not IFieldSymbol or IPropertySymbol)
+			if (memberDeclaration is not IFieldSymbol && memberDeclaration is not IPropertySymbol)
 			{
 				continue;
 			}
