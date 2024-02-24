@@ -2,7 +2,7 @@
 
 namespace Hertzole.UnityToolbox
 {
-	[AttributeUsage(AttributeTargets.Field)]
+	[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
 	public sealed class GenerateInputCallbacksAttribute : Attribute
 	{
 		public bool GenerateStarted { get; set; } = false;
