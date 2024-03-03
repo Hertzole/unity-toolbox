@@ -11,7 +11,9 @@ namespace Hertzole.UnityToolbox
 		public HitData(RaycastHit hit)
 		{
 			hit3D = hit;
+#if TOOLBOX_PHYSICS_2D
 			hit2D = null;
+#endif
 		}
 #endif
 #if TOOLBOX_PHYSICS_2D
@@ -19,7 +21,9 @@ namespace Hertzole.UnityToolbox
 
 		public HitData(RaycastHit2D hit)
 		{
+#if TOOLBOX_PHYSICS_3D
 			hit3D = null;
+#endif
 			hit2D = hit;
 		}
 #endif
