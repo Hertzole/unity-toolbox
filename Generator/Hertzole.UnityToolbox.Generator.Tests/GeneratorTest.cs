@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
@@ -11,18 +13,21 @@ public static class GeneratorTest
 	{
 		T generator = new T();
 
+		expected = expected.Replace("    ", "\t");
+
 		CSharpGeneratorDriver driver = CSharpGeneratorDriver.Create(generator);
 
+		List<PortableExecutableReference> refs = new List<PortableExecutableReference>();
+		refs.Add(MetadataReference.CreateFromFile(typeof(object).Assembly.Location));
+		var unityAssemblies = Directory.GetFiles("../../../../../Library/ScriptAssemblies", "*.dll");
+		foreach (var assembly in unityAssemblies)
+		{
+			refs.Add(MetadataReference.CreateFromFile(assembly));
+		}
+		
 		CSharpCompilation compilation =
 			CSharpCompilation.Create(nameof(AddressableLoadGeneratorTests), new[] { CSharpSyntaxTree.ParseText(text) },
-				new[]
-				{
-					MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-					MetadataReference.CreateFromFile("../../../../../Library/ScriptAssemblies/Hertzole.UnityToolbox.dll"),
-					MetadataReference.CreateFromFile("../../../../../Library/ScriptAssemblies/Hertzole.ScriptableValues.dll"),
-					MetadataReference.CreateFromFile("../../../../../Library/ScriptAssemblies/Unity.Addressables.dll"),
-					MetadataReference.CreateFromFile("../../../../../Library/ScriptAssemblies/Unity.ResourceManager.dll")
-				});
+				refs, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, true));
 
 		GeneratorDriverRunResult runResult = driver.RunGenerators(compilation).GetRunResult();
 

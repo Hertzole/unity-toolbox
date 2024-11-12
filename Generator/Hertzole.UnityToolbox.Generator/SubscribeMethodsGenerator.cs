@@ -168,6 +168,7 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 			}
 
 			bool hasAttribute = false;
+			bool hasSubscribeToChanging = false;
 			bool hasGenerateLoadAttribute = false;
 
 			foreach (AttributeData attribute in member.GetAttributes())
@@ -184,6 +185,12 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 				if (string.Equals(Attributes.GENERATE_SUBSCRIBE_METHODS, attributeName, StringComparison.Ordinal))
 				{
 					hasAttribute = true;
+
+					if (attribute.ConstructorArguments.Length > 0 && attribute.ConstructorArguments[0].Value is bool subscribeToChanging)
+					{
+						hasSubscribeToChanging = true;
+					}
+					
 				}
 				else if (string.Equals(Attributes.GENERATE_LOAD, attributeName, StringComparison.Ordinal))
 				{
@@ -222,7 +229,7 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 				uniqueName = $"{fieldName}_{++counter}";
 			}
 
-			fields.Add(new SubscribeField(fieldSymbol, fieldName, uniqueName));
+			fields.Add(new SubscribeField(fieldSymbol, fieldName, uniqueName, hasSubscribeToChanging));
 		}
 
 		if (fields.Count > 0)
@@ -239,6 +246,8 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 		{
 			return;
 		}
+
+		using PoolHandle<StringBuilder> stringBuilderScope = StringBuilderPool.Get(out StringBuilder sb);
 
 		foreach (SubscribeType subscribeType in typeList)
 		{
@@ -259,6 +268,120 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 				using (TypeScope type = source.WithType(subscribeType.type.GetGenericFriendlyName(), isStruct ? TypeType.Struct : TypeType.Class)
 				                              .WithAccessor(TypeAccessor.None).Partial())
 				{
+					foreach (SubscribeField field in subscribeType.fields)
+					{
+						if (field.FieldType is not INamedTypeSymbol fieldTypeSymbol ||
+						    !ScriptableValueHelper.TryGetScriptableType(fieldTypeSymbol, out ScriptableType scriptableType, out ITypeSymbol? genericType))
+						{
+							continue;
+						}
+
+						sb.Clear();
+						sb.Append(field.UniqueName);
+
+						switch (scriptableType)
+						{
+							case ScriptableType.None:
+								break;
+							case ScriptableType.Event:
+							case ScriptableType.GenericEvent:
+								sb.Append("_OnInvoked");
+								break;
+							case ScriptableType.Value:
+								sb.Append(field.SubscribeToChanging ? "_OnChanging" : "_OnChanged");
+								break;
+							default:
+								throw new ArgumentOutOfRangeException();
+						}
+
+						string fieldName = sb.ToString();
+
+						sb.Clear();
+
+						string? fullTypeString = genericType?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+
+						switch (scriptableType)
+						{
+							case ScriptableType.None:
+								break;
+							case ScriptableType.Event:
+								sb.Append("global::System.EventHandler");
+								break;
+							case ScriptableType.GenericEvent:
+								sb.Append("global::System.EventHandler<");
+								sb.Append(fullTypeString);
+								sb.Append(">");
+								break;
+							case ScriptableType.Value:
+								sb.Append("global::Hertzole.ScriptableValues.ScriptableValue<");
+								sb.Append(fullTypeString);
+								sb.Append(">.OldNewValue<");
+								sb.Append(fullTypeString);
+								sb.Append(">");
+								break;
+							default:
+								throw new ArgumentOutOfRangeException();
+						}
+
+						string fieldType = sb.ToString();
+
+						type.WithField(fieldName, fieldType, "").WithAccessor(FieldAccessor.Private).Dispose();
+					}
+
+					using (MethodScope createCallbacks = type.WithMethod("CreateScriptableValueCallbacks").WithAccessor(MethodAccessor.Private))
+					{
+						int writeCount = 0;
+
+						foreach (SubscribeField field in subscribeType.fields)
+						{
+							if (field.FieldType is not INamedTypeSymbol fieldTypeSymbol ||
+							    !ScriptableValueHelper.TryGetScriptableType(fieldTypeSymbol, out ScriptableType scriptableType, out ITypeSymbol? genericType))
+							{
+								continue;
+							}
+
+							if (writeCount > 0)
+							{
+								createCallbacks.AppendLine();
+							}
+
+							createCallbacks.Append(field.UniqueName);
+
+							switch (scriptableType)
+							{
+								case ScriptableType.None:
+									break;
+								case ScriptableType.Event:
+								case ScriptableType.GenericEvent:
+									createCallbacks.Append("_OnInvoked");
+									break;
+								case ScriptableType.Value:
+									createCallbacks.Append(field.SubscribeToChanging ? "_OnChanging" : "_OnChanged");
+									break;
+								default:
+									throw new ArgumentOutOfRangeException();
+							}
+
+							string formattedValueName = TextUtility.FormatVariableLabel(field.UniqueName);
+
+							createCallbacks.Append(" = On");
+							createCallbacks.Append(formattedValueName);
+
+							switch (scriptableType)
+							{
+								case ScriptableType.Event:
+								case ScriptableType.GenericEvent:
+									createCallbacks.Append("Invoked;");
+									break;
+								case ScriptableType.Value:
+									createCallbacks.Append(field.SubscribeToChanging ? "Changing;" : "Changed;");
+									break;
+							}
+
+							writeCount++;
+						}
+					}
+
 					using (MethodScope subscribeALl = type.WithMethod("SubscribeToAllScriptableValues").WithAccessor(MethodAccessor.Private))
 					{
 						for (int i = 0; i < subscribeType.fields.Length; i++)
@@ -341,15 +464,17 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 					case ScriptableType.Event:
 					case ScriptableType.GenericEvent:
 						ifBlock.Append(field.FieldName);
-						ifBlock.Append(".OnInvoked += On");
-						ifBlock.Append(formattedValueName);
-						ifBlock.AppendLine("Invoked;");
+						ifBlock.Append(".OnInvoked += ");
+						ifBlock.Append(field.UniqueName);
+						ifBlock.AppendLine("_OnInvoked;");
 						break;
 					case ScriptableType.Value:
 						ifBlock.Append(field.FieldName);
-						ifBlock.Append(".OnValueChanged += On");
-						ifBlock.Append(formattedValueName);
-						ifBlock.AppendLine("Changed;");
+						ifBlock.Append(".OnValue");
+						ifBlock.Append(field.SubscribeToChanging ? "Changing" : "Changed");
+						ifBlock.Append(" += ");
+						ifBlock.Append(field.UniqueName);
+						ifBlock.AppendLine(field.SubscribeToChanging ? "_OnChanging;" : "_OnChanged;");
 						break;
 					default:
 						throw new ArgumentOutOfRangeException();
@@ -383,15 +508,17 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 					case ScriptableType.Event:
 					case ScriptableType.GenericEvent:
 						ifBlock.Append(field.FieldName);
-						ifBlock.Append(".OnInvoked -= On");
-						ifBlock.Append(formattedValueName);
-						ifBlock.AppendLine("Invoked;");
+						ifBlock.Append(".OnInvoked -= ");
+						ifBlock.Append(field.UniqueName);
+						ifBlock.AppendLine("_OnInvoked;");
 						break;
 					case ScriptableType.Value:
 						ifBlock.Append(field.FieldName);
-						ifBlock.Append(".OnValueChanged -= On");
-						ifBlock.Append(formattedValueName);
-						ifBlock.AppendLine("Changed;");
+						ifBlock.Append(".OnValue");
+						ifBlock.Append(field.SubscribeToChanging ? "Changing" : "Changed");
+						ifBlock.Append(" -= ");
+						ifBlock.Append(field.UniqueName);
+						ifBlock.AppendLine(field.SubscribeToChanging ? "_OnChanging;" : "_OnChanged;");
 						break;
 					default:
 						throw new ArgumentOutOfRangeException();
@@ -436,7 +563,7 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 			case ScriptableType.Value:
 				nameBuilder.Append("On");
 				nameBuilder.Append(formattedValueName);
-				nameBuilder.Append("Changed");
+				nameBuilder.Append(field.SubscribeToChanging ? "Changing" : "Changed");
 
 				string genericTypeString = genericType!.ToDisplayString();
 

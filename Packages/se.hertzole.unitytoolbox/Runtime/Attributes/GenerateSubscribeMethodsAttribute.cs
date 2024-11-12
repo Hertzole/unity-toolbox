@@ -4,6 +4,11 @@ using System;
 namespace Hertzole.UnityToolbox
 {
 	[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-	public sealed class GenerateSubscribeMethodsAttribute : Attribute { }
+	public sealed class GenerateSubscribeMethodsAttribute : Attribute
+	{
+		public GenerateSubscribeMethodsAttribute() { }
+
+		public GenerateSubscribeMethodsAttribute(bool subscribeToChanging) { }
+	}
 }
 #endif

@@ -96,8 +96,16 @@ public partial struct TestStruct
 
 partial struct TestStruct
 {
+    private global::Hertzole.ScriptableValues.ScriptableValue<bool>.OldNewValue<bool> boolValue_OnChanged;
+    private global::Hertzole.ScriptableValues.ScriptableValue<bool>.OldNewValue<bool> BoolValue_1_OnChanged;
 	private bool hasSubscribedToBoolValue = false;
 	private bool hasSubscribedToBoolValue_1 = false;
+
+    private void CreateScriptableValueCallbacks()
+	{
+		boolValue_OnChanged = OnBoolValueChanged;
+		BoolValue_1_OnChanged = OnBoolValue_1Changed;
+	}
 
 	private void SubscribeToAllScriptableValues()
 	{
@@ -115,7 +123,7 @@ partial struct TestStruct
 	{
 		if (boolValue != null && !hasSubscribedToBoolValue)
 		{
-			boolValue.OnValueChanged += OnBoolValueChanged;
+			boolValue.OnValueChanged += boolValue_OnChanged;
 			hasSubscribedToBoolValue = true;
 		}
 	}
@@ -124,7 +132,7 @@ partial struct TestStruct
 	{
 		if (boolValue != null && hasSubscribedToBoolValue)
 		{
-			boolValue.OnValueChanged -= OnBoolValueChanged;
+			boolValue.OnValueChanged -= boolValue_OnChanged;
 			hasSubscribedToBoolValue = false;
 		}
 	}
@@ -135,7 +143,7 @@ partial struct TestStruct
 	{
 		if (BoolValue != null && !hasSubscribedToBoolValue_1)
 		{
-			BoolValue.OnValueChanged += OnBoolValue_1Changed;
+			BoolValue.OnValueChanged += BoolValue_1_OnChanged;
 			hasSubscribedToBoolValue_1 = true;
 		}
 	}
@@ -144,7 +152,7 @@ partial struct TestStruct
 	{
 		if (BoolValue != null && hasSubscribedToBoolValue_1)
 		{
-			BoolValue.OnValueChanged -= OnBoolValue_1Changed;
+			BoolValue.OnValueChanged -= BoolValue_1_OnChanged;
 			hasSubscribedToBoolValue_1 = false;
 		}
 	}
@@ -160,8 +168,16 @@ partial struct TestStruct
 
 partial struct TestStruct
 {
+    private global::Hertzole.ScriptableValues.ScriptableValue<bool>.OldNewValue<bool> value_OnChanged;
+    private global::Hertzole.ScriptableValues.ScriptableValue<bool>.OldNewValue<bool> Value_1_OnChanged;
 	private bool hasSubscribedToValue = false;
 	private bool hasSubscribedToValue_1 = false;
+
+    private void CreateScriptableValueCallbacks()
+	{
+		value_OnChanged = OnValueChanged;
+		Value_1_OnChanged = OnValue_1Changed;
+	}
 
 	private void SubscribeToAllScriptableValues()
 	{
@@ -179,7 +195,7 @@ partial struct TestStruct
 	{
 		if (value != null && !hasSubscribedToValue)
 		{
-			value.OnValueChanged += OnValueChanged;
+			value.OnValueChanged += value_OnChanged;
 			hasSubscribedToValue = true;
 		}
 	}
@@ -188,7 +204,7 @@ partial struct TestStruct
 	{
 		if (value != null && hasSubscribedToValue)
 		{
-			value.OnValueChanged -= OnValueChanged;
+			value.OnValueChanged -= value_OnChanged;
 			hasSubscribedToValue = false;
 		}
 	}
@@ -199,7 +215,7 @@ partial struct TestStruct
 	{
 		if (Value != null && !hasSubscribedToValue_1)
 		{
-			Value.OnValueChanged += OnValue_1Changed;
+			Value.OnValueChanged += Value_1_OnChanged;
 			hasSubscribedToValue_1 = true;
 		}
 	}
@@ -208,7 +224,7 @@ partial struct TestStruct
 	{
 		if (Value != null && hasSubscribedToValue_1)
 		{
-			Value.OnValueChanged -= OnValue_1Changed;
+			Value.OnValueChanged -= Value_1_OnChanged;
 			hasSubscribedToValue_1 = false;
 		}
 	}
@@ -224,8 +240,16 @@ partial struct TestStruct
 
 partial struct TestStruct
 {
+    private global::System.EventHandler eventValue_OnInvoked;
+    private global::System.EventHandler EventValue_1_OnInvoked;
 	private bool hasSubscribedToEventValue = false;
 	private bool hasSubscribedToEventValue_1 = false;
+
+    private void CreateScriptableValueCallbacks()
+    {
+    	eventValue_OnInvoked = OnEventValueInvoked;
+		EventValue_1_OnInvoked = OnEventValue_1Invoked;
+	}
 
 	private void SubscribeToAllScriptableValues()
 	{
@@ -243,7 +267,7 @@ partial struct TestStruct
 	{
 		if (eventValue != null && !hasSubscribedToEventValue)
 		{
-			eventValue.OnInvoked += OnEventValueInvoked;
+			eventValue.OnInvoked += eventValue_OnInvoked;
 			hasSubscribedToEventValue = true;
 		}
 	}
@@ -252,7 +276,7 @@ partial struct TestStruct
 	{
 		if (eventValue != null && hasSubscribedToEventValue)
 		{
-			eventValue.OnInvoked -= OnEventValueInvoked;
+			eventValue.OnInvoked -= eventValue_OnInvoked;
 			hasSubscribedToEventValue = false;
 		}
 	}
@@ -263,7 +287,7 @@ partial struct TestStruct
 	{
 		if (EventValue != null && !hasSubscribedToEventValue_1)
 		{
-			EventValue.OnInvoked += OnEventValue_1Invoked;
+			EventValue.OnInvoked += EventValue_1_OnInvoked;
 			hasSubscribedToEventValue_1 = true;
 		}
 	}
@@ -272,7 +296,7 @@ partial struct TestStruct
 	{
 		if (EventValue != null && hasSubscribedToEventValue_1)
 		{
-			EventValue.OnInvoked -= OnEventValue_1Invoked;
+			EventValue.OnInvoked -= EventValue_1_OnInvoked;
 			hasSubscribedToEventValue_1 = false;
 		}
 	}
@@ -288,8 +312,16 @@ partial struct TestStruct
 
 partial struct TestStruct
 {
+    private global::System.EventHandler<bool> boolEvent_OnInvoked;
+    private global::System.EventHandler<bool> BoolEvent_1_OnInvoked;
 	private bool hasSubscribedToBoolEvent = false;
 	private bool hasSubscribedToBoolEvent_1 = false;
+
+    private void CreateScriptableValueCallbacks()
+	{
+		boolEvent_OnInvoked = OnBoolEventInvoked;
+    	BoolEvent_1_OnInvoked = OnBoolEvent_1Invoked;
+	}
 
 	private void SubscribeToAllScriptableValues()
 	{
@@ -307,7 +339,7 @@ partial struct TestStruct
 	{
 		if (boolEvent != null && !hasSubscribedToBoolEvent)
 		{
-			boolEvent.OnInvoked += OnBoolEventInvoked;
+			boolEvent.OnInvoked += boolEvent_OnInvoked;
 			hasSubscribedToBoolEvent = true;
 		}
 	}
@@ -316,7 +348,7 @@ partial struct TestStruct
 	{
 		if (boolEvent != null && hasSubscribedToBoolEvent)
 		{
-			boolEvent.OnInvoked -= OnBoolEventInvoked;
+			boolEvent.OnInvoked -= boolEvent_OnInvoked;
 			hasSubscribedToBoolEvent = false;
 		}
 	}
@@ -327,7 +359,7 @@ partial struct TestStruct
 	{
 		if (BoolEvent != null && !hasSubscribedToBoolEvent_1)
 		{
-			BoolEvent.OnInvoked += OnBoolEvent_1Invoked;
+			BoolEvent.OnInvoked += BoolEvent_1_OnInvoked;
 			hasSubscribedToBoolEvent_1 = true;
 		}
 	}
@@ -336,7 +368,7 @@ partial struct TestStruct
 	{
 		if (BoolEvent != null && hasSubscribedToBoolEvent_1)
 		{
-			BoolEvent.OnInvoked -= OnBoolEvent_1Invoked;
+			BoolEvent.OnInvoked -= BoolEvent_1_OnInvoked;
 			hasSubscribedToBoolEvent_1 = false;
 		}
 	}
@@ -352,8 +384,16 @@ partial struct TestStruct
 
 partial struct TestStruct
 {
+    private global::System.EventHandler<bool> eventValue_OnInvoked;
+    private global::System.EventHandler<bool> EventValue_1_OnInvoked;
 	private bool hasSubscribedToEventValue = false;
 	private bool hasSubscribedToEventValue_1 = false;
+
+    private void CreateScriptableValueCallbacks()
+	{
+		eventValue_OnInvoked = OnEventValueInvoked;
+		EventValue_1_OnInvoked = OnEventValue_1Invoked;
+	}
 
 	private void SubscribeToAllScriptableValues()
 	{
@@ -371,7 +411,7 @@ partial struct TestStruct
 	{
 		if (eventValue != null && !hasSubscribedToEventValue)
 		{
-			eventValue.OnInvoked += OnEventValueInvoked;
+			eventValue.OnInvoked += eventValue_OnInvoked;
 			hasSubscribedToEventValue = true;
 		}
 	}
@@ -380,7 +420,7 @@ partial struct TestStruct
 	{
 		if (eventValue != null && hasSubscribedToEventValue)
 		{
-			eventValue.OnInvoked -= OnEventValueInvoked;
+			eventValue.OnInvoked -= eventValue_OnInvoked;
 			hasSubscribedToEventValue = false;
 		}
 	}
@@ -391,7 +431,7 @@ partial struct TestStruct
 	{
 		if (EventValue != null && !hasSubscribedToEventValue_1)
 		{
-			EventValue.OnInvoked += OnEventValue_1Invoked;
+			EventValue.OnInvoked += EventValue_1_OnInvoked;
 			hasSubscribedToEventValue_1 = true;
 		}
 	}
@@ -400,7 +440,7 @@ partial struct TestStruct
 	{
 		if (EventValue != null && hasSubscribedToEventValue_1)
 		{
-			EventValue.OnInvoked -= OnEventValue_1Invoked;
+			EventValue.OnInvoked -= EventValue_1_OnInvoked;
 			hasSubscribedToEventValue_1 = false;
 		}
 	}
