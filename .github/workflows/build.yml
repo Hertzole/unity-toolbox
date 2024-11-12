@@ -94,6 +94,9 @@ jobs:
         with:
           dotnet-version: |
             8.x
+      
+      - name: Set executable permissions for prepare.sh
+        run: chmod +x ./ci/prepare.sh
 
       - name: Build Generator
         run: |
@@ -124,9 +127,6 @@ jobs:
           branch: master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set executable permissions for prepare.sh
-        run: chmod +x ./ci/prepare.sh
 
       - name: Commit generator files
         run: |
