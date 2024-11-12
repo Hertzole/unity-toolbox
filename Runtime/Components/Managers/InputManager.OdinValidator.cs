@@ -1,7 +1,9 @@
 ﻿#if ODIN_VALIDATOR && UNITY_EDITOR
 using Sirenix.OdinInspector;
-using UnityEngine.AddressableAssets;
 using UnityEngine.InputSystem;
+#if TOOLBOX_ADDRESSABLES
+using UnityEngine.AddressableAssets;
+#endif
 
 namespace Hertzole.UnityToolbox
 {
@@ -37,6 +39,7 @@ namespace Hertzole.UnityToolbox
 #endif
 		}
 
+#if !TOOLBOX_ADDRESSABLES
 		private class InputActionArgs
 		{
 			public InputActionAsset newValue;
@@ -46,7 +49,7 @@ namespace Hertzole.UnityToolbox
 		{
 			public ScriptablePlayerInputsList newValue;
 		}
-
+#else
 		private class InputActionsReferenceArgs
 		{
 			public AssetReferenceT<InputActionAsset> newValue;
@@ -56,6 +59,7 @@ namespace Hertzole.UnityToolbox
 		{
 			public AssetReferenceT<ScriptablePlayerInputsList> newValue;
 		}
+#endif
 	}
 }
 #endif
