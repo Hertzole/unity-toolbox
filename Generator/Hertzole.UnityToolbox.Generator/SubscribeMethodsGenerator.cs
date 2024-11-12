@@ -457,19 +457,48 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 
 			using (BlockScope ifBlock = subscribe.WithBlock())
 			{
+				ifBlock.AppendLine("#if DEBUG || UNITY_EDITOR");
+				ifBlock.Append("if (");
+				ifBlock.Append(field.UniqueName);
+				
+				switch (scriptableType)
+				{
+					case ScriptableType.Event:
+					case ScriptableType.GenericEvent:
+						ifBlock.Append("_OnInvoked");
+						break;
+					case ScriptableType.Value:
+						ifBlock.Append(field.SubscribeToChanging ? "_OnChanging" : "_OnChanged");
+						break;
+				}
+				
+				ifBlock.AppendLine(" == null)");
+				ifBlock.AppendLine("{");
+				type.source.Indent++;
+				
+				ifBlock.Append("throw new global::System.NullReferenceException(\"");
+				ifBlock.Append("Missing callback for ");
+				ifBlock.Append(field.UniqueName);
+				ifBlock.AppendLine(". Did you call 'CreateScriptableValueCallbacks()' before subscribing to values?\");");
+				
+				type.source.Indent--;
+				ifBlock.AppendLine("}");
+				
+				ifBlock.AppendLine("#endif");
+				
+				ifBlock.Append(field.FieldName);
+				
 				switch (scriptableType)
 				{
 					case ScriptableType.None:
 						break;
 					case ScriptableType.Event:
 					case ScriptableType.GenericEvent:
-						ifBlock.Append(field.FieldName);
 						ifBlock.Append(".OnInvoked += ");
 						ifBlock.Append(field.UniqueName);
 						ifBlock.AppendLine("_OnInvoked;");
 						break;
 					case ScriptableType.Value:
-						ifBlock.Append(field.FieldName);
 						ifBlock.Append(".OnValue");
 						ifBlock.Append(field.SubscribeToChanging ? "Changing" : "Changed");
 						ifBlock.Append(" += ");
@@ -501,6 +530,35 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 
 			using (BlockScope ifBlock = unsubscribe.WithBlock())
 			{
+				ifBlock.AppendLine("#if DEBUG || UNITY_EDITOR");
+				ifBlock.Append("if (");
+				ifBlock.Append(field.UniqueName);
+				
+				switch (scriptableType)
+				{
+					case ScriptableType.Event:
+					case ScriptableType.GenericEvent:
+						ifBlock.Append("_OnInvoked");
+						break;
+					case ScriptableType.Value:
+						ifBlock.Append(field.SubscribeToChanging ? "_OnChanging" : "_OnChanged");
+						break;
+				}
+				
+				ifBlock.AppendLine(" == null)");
+				ifBlock.AppendLine("{");
+				type.source.Indent++;
+				
+				ifBlock.Append("throw new global::System.NullReferenceException(\"");
+				ifBlock.Append("Missing callback for ");
+				ifBlock.Append(field.UniqueName);
+				ifBlock.AppendLine(". Did you call 'CreateScriptableValueCallbacks()' before subscribing to values?\");");
+				
+				type.source.Indent--;
+				ifBlock.AppendLine("}");
+				
+				ifBlock.AppendLine("#endif");
+				
 				switch (scriptableType)
 				{
 					case ScriptableType.None:
