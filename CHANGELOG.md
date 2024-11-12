@@ -1,3 +1,15 @@
+## [1.12.2](https://github.com/Hertzole/unity-toolbox/compare/v1.12.1...v1.12.2) (2024-11-12)
+
+
+### Bug Fixes
+
+* everything that shouldn't be included being included ([17e12e2](https://github.com/Hertzole/unity-toolbox/commit/17e12e2f7b8f889e55043948047137dce5600ad7))
+
+
+### Reverts
+
+* Revert "chore(release): 1.12.1 [skip ci]" ([e489d68](https://github.com/Hertzole/unity-toolbox/commit/e489d6813c16e29b55f87530a889790ce3d81004))
+
 # [1.12.0](https://github.com/Hertzole/unity-toolbox/compare/v1.11.0...v1.12.0) (2024-11-12)
 
 
