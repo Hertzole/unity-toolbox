@@ -144,26 +144,21 @@ jobs:
           cd Generator
           dotnet publish -c Release -o ../GeneratorBuild
           cd ..
-          git config --global user.name 'github-bot'
-          git config --global user.email 'github-bot@users.noreply.github.com'
-          git add Packages/se.hertzole.unitytoolbox/Plugins/Hertzole.UnityToolbox.Generator.dll
-          git add Packages/se.hertzole.unitytoolbox/Plugins/Hertzole.UnityToolbox.Analyzers.dll
-          git add Packages/se.hertzole.unitytoolbox/Plugins/Hertzole.UnityToolbox.Shared.dll
 
       - name: Run Play Mode Tests
         run: unity-editor -nographics -logFile /dev/stdout -runTests -testPlatform playmode -testResults Tests/playmode.xml -enableCodeCoverage -coverageResultsPath TestCoverage -debugCodeOptimization -coverageOptions "generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+Hertzole.UnityToolbox"
 
-      - name: Release
-        id: semantic
-        uses: cycjimmy/semantic-release-action@v3
-        with:
-          extra_plugins: |
-            @semantic-release/exec
-            @semantic-release/changelog
-            @semantic-release/git
-          branch: master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Release
+      #   id: semantic
+      #   uses: cycjimmy/semantic-release-action@v3
+      #   with:
+      #     extra_plugins: |
+      #       @semantic-release/exec
+      #       @semantic-release/changelog
+      #       @semantic-release/git
+      #     branch: master
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create Package Branch
         run: |
@@ -195,6 +190,9 @@ jobs:
           mv /tmp/Generator.dll Plugins/Hertzole.UnityToolbox.Generator.dll 
           mv /tmp/Analyzers.dll Plugins/Hertzole.UnityToolbox.Analyzers.dll 
           mv /tmp/Shared.dll Plugins/Hertzole.UnityToolbox.Shared.dll 
+          git add Packages/se.hertzole.unitytoolbox/Plugins/Hertzole.UnityToolbox.Generator.dll
+          git add Packages/se.hertzole.unitytoolbox/Plugins/Hertzole.UnityToolbox.Analyzers.dll
+          git add Packages/se.hertzole.unitytoolbox/Plugins/Hertzole.UnityToolbox.Shared.dll
           git config --global user.name 'github-bot'
           git config --global user.email 'github-bot@users.noreply.github.com'
           git commit -am "Packaged project"
@@ -203,10 +201,10 @@ jobs:
           PKG_ROOT: "Packages/se.hertzole.unitytoolbox"
         shell: bash
 
-      - name: Create Release Tag
-        if: steps.semantic.outputs.new_release_published == 'true'
-        run: |
-          git tag $TAG package
-          git push origin --tags
-        env:
-          TAG: package/v${{ steps.semantic.outputs.new_release_version }}
+      # - name: Create Release Tag
+      #   if: steps.semantic.outputs.new_release_published == 'true'
+      #   run: |
+      #     git tag $TAG package
+      #     git push origin --tags
+      #   env:
+      #     TAG: package/v${{ steps.semantic.outputs.new_release_version }}
