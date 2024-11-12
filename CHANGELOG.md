@@ -1,3 +1,10 @@
+## [1.12.4](https://github.com/Hertzole/unity-toolbox/compare/v1.12.3...v1.12.4) (2024-11-12)
+
+
+### Bug Fixes
+
+* unity package not being updated along the release ([c324c49](https://github.com/Hertzole/unity-toolbox/commit/c324c4974b6cc65c3889e1c7c9f131ca3bb475bd))
+
 ## [1.12.3](https://github.com/Hertzole/unity-toolbox/compare/v1.12.2...v1.12.3) (2024-11-12)
 
 
