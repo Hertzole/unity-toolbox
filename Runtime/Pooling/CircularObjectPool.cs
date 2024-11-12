@@ -74,6 +74,7 @@ namespace Hertzole.UnityToolbox
 		public void Dispose()
 		{
 			Clear();
+			pool.Dispose();
 		}
 
 		/// <summary>
