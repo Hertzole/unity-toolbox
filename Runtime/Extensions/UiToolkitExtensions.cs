@@ -2,7 +2,7 @@
 
 namespace Hertzole.UnityToolbox
 {
-	public static class UiToolkitExtensions
+	public static partial class UiToolkitExtensions
 	{
 		public static T QueryParent<T>(this VisualElement element, string name = null, params string[] classes) where T : VisualElement
 		{
