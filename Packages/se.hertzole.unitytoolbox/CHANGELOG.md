@@ -1,3 +1,42 @@
+# [1.12.0](https://github.com/Hertzole/unity-toolbox/compare/v1.11.0...v1.12.0) (2024-11-12)
+
+
+### Bug Fixes
+
+* AddressableLoadGenerator duplicate names and property support ([f92b40a](https://github.com/Hertzole/unity-toolbox/commit/f92b40a0966157ec47fb131d6b52241c7b15a446))
+* AddressableLoadGenerator not naming files properly ([fb74656](https://github.com/Hertzole/unity-toolbox/commit/fb7465648f1e857b9c151440b0e91864df7291a6))
+* CircularObjectPool not disposing its internal pool ([e27e92f](https://github.com/Hertzole/unity-toolbox/commit/e27e92fdc472af04e4fae4f97d13c0643276a704))
+* compilation error without physics module ([43c9091](https://github.com/Hertzole/unity-toolbox/commit/43c90913ac71430123849c3e0bdee684ad17937c)), closes [#1](https://github.com/Hertzole/unity-toolbox/issues/1)
+* GenerateSubscribeMethods generator not generating properly ([18d574c](https://github.com/Hertzole/unity-toolbox/commit/18d574c6f451417dbe24cc10e6bc7b492fa5155c))
+* GenerateSubscribeMethods not being available on properties ([2ebc4fd](https://github.com/Hertzole/unity-toolbox/commit/2ebc4fd529602ea7f399ae8ba7ef1db26acad370))
+* generators and analyzers breaking after editing anything ([6c94af4](https://github.com/Hertzole/unity-toolbox/commit/6c94af4d6267d4a79ab45534fd4a2397966b63e0))
+* InputCallbackGenerator not generating (un)subscribe all methods ([c494d85](https://github.com/Hertzole/unity-toolbox/commit/c494d85f927b982ec5d36dfdb3508333d9462bb1))
+* InputCallbacksGenerator duplicate names ([918bfc3](https://github.com/Hertzole/unity-toolbox/commit/918bfc3ad7a26ae8489c5ed6802eac07e38ba03d))
+* InputCallbacksGenerator not working properly ([fe08084](https://github.com/Hertzole/unity-toolbox/commit/fe080847804583a2d73347781e421dc6bba3859c))
+* InputManager compiler error without addressables ([05eb7ce](https://github.com/Hertzole/unity-toolbox/commit/05eb7ce8bd0ed10d4722ddc275f3c3179c836255))
+* not being able to have multiple partial types when using source generator ([893f6e9](https://github.com/Hertzole/unity-toolbox/commit/893f6e953c696329ec0f44f5fa3d3e1a5421003e))
+* SubscribeField field equals ([f03d6c1](https://github.com/Hertzole/unity-toolbox/commit/f03d6c1f292b6efde1f222c2f5b7e967564024e5))
+* SubscribeMethodsAnalyzer giving wrong error ([290c95f](https://github.com/Hertzole/unity-toolbox/commit/290c95f1adb5056d8716bb8e78fcff416aeb28b3))
+* SubscribeMethodsGenerator exiting too early ([1ad91f2](https://github.com/Hertzole/unity-toolbox/commit/1ad91f2e9c87ff5c66faace4ce591420ab5cd4e3))
+* SubscribeMethodsGenerator now avoids duplicate field names ([9f9eeac](https://github.com/Hertzole/unity-toolbox/commit/9f9eeace7a9d1d011ed630dc64e78a428fe7a3d2))
+* wrong indent when no namespace in AddressableLoadGenerator ([3295b26](https://github.com/Hertzole/unity-toolbox/commit/3295b26a4cd69e067d8876517685ab7ed5c63d6e))
+
+
+### Features
+
+* InputCallbacksGenerator now supports properties ([b0ca105](https://github.com/Hertzole/unity-toolbox/commit/b0ca1058c7590dc65b8490d2d1b7c2fcf5eed923))
+* odin validator support for input manager ([53d4c23](https://github.com/Hertzole/unity-toolbox/commit/53d4c236d5011aef643be421d43a6307a8dcb8fa))
+* support for InputManager to set input actions ([36a9687](https://github.com/Hertzole/unity-toolbox/commit/36a968778700825073774c637cd47585eb2c2f44))
+* support GenerateLoadAttribute in structs ([3123416](https://github.com/Hertzole/unity-toolbox/commit/312341696d787c7f1d44a230fb9e4cbb555309da))
+* VisualElement.SetUniformBorder extension ([2f62e3b](https://github.com/Hertzole/unity-toolbox/commit/2f62e3b020c6bbe1906ed4f836db96d07b95bfe1))
+
+
+### Performance Improvements
+
+* AddressableLoadGenerator now uses new pooled scopes ([d3b8b7b](https://github.com/Hertzole/unity-toolbox/commit/d3b8b7b44bd3b8ddb1fe0a8b42c8e7acf2da4b6c))
+* SubscribeMethodsGenerator now caches scriptable value callbacks ([01d1f85](https://github.com/Hertzole/unity-toolbox/commit/01d1f85926d8cb71742880b547a0e40994eff527))
+* SubscribeMethodsGenerator now uses pooled scopes ([955cb65](https://github.com/Hertzole/unity-toolbox/commit/955cb65938996b857b54fef33f61dfd7ab9083d0))
+
 # [1.11.0](https://github.com/Hertzole/unity-toolbox/compare/v1.10.1...v1.11.0) (2023-12-07)
 
 
