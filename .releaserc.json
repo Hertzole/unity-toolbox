@@ -1,0 +1,29 @@
+{
+  "plugins": [
+      "@semantic-release/github",
+      "@semantic-release/release-notes-generator",
+      "@semantic-release/commit-analyzer",
+      [
+          "@semantic-release/exec",
+          {
+              "prepareCmd": "./ci/prepare.sh ${nextRelease.version}"
+          }
+      ],
+      [
+          "@semantic-release/changelog",
+          {
+              "changelogFile": "Packages/se.hertzole.unitytoolbox/CHANGELOG.md"
+          }
+      ],
+      [
+          "@semantic-release/git",
+          {
+              "assets": [
+                  "**/*.csproj",
+                  "**/*.cs",
+                  "Packages/se.hertzole.unitytoolbox/CHANGELOG.md"
+              ]
+          }
+      ]
+  ]
+}
