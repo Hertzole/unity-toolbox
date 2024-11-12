@@ -60,11 +60,13 @@ jobs:
             LibraryFolder
 
       - name: Install .NET
-        uses: actions/setup-dotnet@v2.1.0
+        uses: actions/setup-dotnet@v4
         if: steps.filter.outputs.workflows == 'true'
         with:
           dotnet-version: |
+            6.x
             7.x
+            8.x
 
       - name: Build Generator
         if: steps.filter.outputs.workflows == 'true'
