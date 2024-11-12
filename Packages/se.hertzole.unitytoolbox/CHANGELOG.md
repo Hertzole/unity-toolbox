@@ -1,11 +1,3 @@
-## [1.12.1](https://github.com/Hertzole/unity-toolbox/compare/v1.12.0...v1.12.1) (2024-11-12)
-
-
-### Bug Fixes
-
-* assembly version not being applied to generators ([39d0dc4](https://github.com/Hertzole/unity-toolbox/commit/39d0dc478ca34c0c47cc2fa37d4f87566ccbc8da))
-* plugins not being included in release ([c8df6c3](https://github.com/Hertzole/unity-toolbox/commit/c8df6c3ebf2acd1155a70d3e7cb4bf65943e984b))
-
 # [1.12.0](https://github.com/Hertzole/unity-toolbox/compare/v1.11.0...v1.12.0) (2024-11-12)
 
 
