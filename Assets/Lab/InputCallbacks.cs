@@ -32,5 +32,15 @@ namespace Hertzole.UnityToolbox.Lab
 		{
 			throw new System.NotImplementedException();
 		}
-	}
+
+		private partial void OnInputMove_1Started(InputAction.CallbackContext context)
+		{
+			throw new System.NotImplementedException();
+		}
+
+		private partial void OnInputLookPerformed(InputAction.CallbackContext context)
+        {
+            throw new System.NotImplementedException();
+        }
+    }
 }

@@ -11,30 +11,16 @@ on:
       - '.releaserc.yml'
 
 env:
-      UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+  UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
 
 jobs:
   generator:
     name: Test and Build Generator
     runs-on: ubuntu-latest
-    container: unityci/editor:ubuntu-2023.2.0f1-base-3.0.0
-    outputs:
-      has_changes: ${{ steps.filter.outputs.workflows }}
+    container: unityci/editor:ubuntu-6000.0.25f1-base-3.1.0
     steps:
-      - name: Install Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
 
-      - name: Update Git
-        run: |
-            apt-get update -y
-            apt-get install software-properties-common -y
-            add-apt-repository ppa:git-core/ppa
-            apt-get update -y
-            apt-get install -y git
-
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           lfs: true
@@ -42,17 +28,8 @@ jobs:
       - name: Safe repo
         run: git config --global --add safe.directory /__w/unity-toolbox/unity-toolbox
 
-      - uses: dorny/paths-filter@v2
-        id: filter
-        with:
-          filters: |
-            workflows:
-              - 'Generator/**'
-              - '.github/workflows/**'
-
       - name: Cache Library
-        uses: actions/cache@v3.0.11
-        if: steps.filter.outputs.workflows == 'true'
+        uses: actions/cache@v4
         with:
           path: Library
           key: LibraryFolder
@@ -61,22 +38,17 @@ jobs:
 
       - name: Install .NET
         uses: actions/setup-dotnet@v4
-        if: steps.filter.outputs.workflows == 'true'
         with:
           dotnet-version: |
-            6.x
-            7.x
             8.x
 
       - name: Build Generator
-        if: steps.filter.outputs.workflows == 'true'
         run: |
           cd Generator
           dotnet publish -c Release -o ../GeneratorBuild
           cd ..
 
       - name: Setup Unity
-        if: steps.filter.outputs.workflows == 'true'
         continue-on-error: true
         env: 
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
@@ -86,7 +58,6 @@ jobs:
           unity-editor -nographics -logFile /dev/stdout -customBuildName unity-toolbox -projectPath . -executeMethod GitTools.Solution.Sync -quit
 
       - name: Test Generator
-        if: steps.filter.outputs.workflows == 'true'
         run: |
           cd Generator
           dotnet test
@@ -95,22 +66,10 @@ jobs:
     name: Test and Build Unity Package
     runs-on: ubuntu-latest
     needs: generator
-    container: unityci/editor:ubuntu-2023.2.0f1-base-3.0.0
+    container: unityci/editor:ubuntu-6000.0.25f1-base-3.1.0
     steps:
-      - name: Install Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
 
-      - name: Update Git
-        run: |
-            apt-get update -y
-            apt-get install software-properties-common -y
-            add-apt-repository ppa:git-core/ppa
-            apt-get update -y
-            apt-get install -y git
-
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           lfs: true
@@ -119,27 +78,12 @@ jobs:
         run: git config --global --add safe.directory /__w/unity-toolbox/unity-toolbox
 
       - name: Cache Library
-        uses: actions/cache@v3.0.11
+        uses: actions/cache@v4
         with:
           path: Library
           key: LibraryFolder
           restore-keys: |
             LibraryFolder
-
-      - name: Setup Unity
-        continue-on-error: true
-        env: 
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-        run: |
-          echo "$UNITY_LICENSE" | tr -d '\r' > License.ulf
-          unity-editor -nographics -logFile /dev/stdout -manualLicenseFile License.ulf -quit 
-          unity-editor -nographics -logFile /dev/stdout -customBuildName unity-toolbox -projectPath . -executeMethod GitTools.Solution.Sync -quit
-
-      - name: Install .NET
-        uses: actions/setup-dotnet@v2.1.0
-        with:
-          dotnet-version: |
-            7.x
 
       - name: Build Generator
         run: |
@@ -151,6 +95,21 @@ jobs:
           git add Packages/se.hertzole.unitytoolbox/Plugins/Hertzole.UnityToolbox.Generator.dll
           git add Packages/se.hertzole.unitytoolbox/Plugins/Hertzole.UnityToolbox.Analyzers.dll
           git add Packages/se.hertzole.unitytoolbox/Plugins/Hertzole.UnityToolbox.Shared.dll
+
+      - name: Setup Unity
+        continue-on-error: true
+        env: 
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        run: |
+          echo "$UNITY_LICENSE" | tr -d '\r' > License.ulf
+          unity-editor -nographics -logFile /dev/stdout -manualLicenseFile License.ulf -quit 
+          unity-editor -nographics -logFile /dev/stdout -customBuildName unity-toolbox -projectPath . -executeMethod GitTools.Solution.Sync -quit
+
+      - name: Install .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.x
 
       - name: Run Play Mode Tests
         run: unity-editor -nographics -logFile /dev/stdout -runTests -testPlatform playmode -testResults Tests/playmode.xml -enableCodeCoverage -coverageResultsPath TestCoverage -debugCodeOptimization -coverageOptions "generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+Hertzole.UnityToolbox"
