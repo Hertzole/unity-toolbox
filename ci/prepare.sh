@@ -10,6 +10,9 @@ nextVersion=$1
 
 echo "Updating version to $nextVersion"
 
+# Update package.json in Packages/se.hertzole.unitytoolbox 
+sed -i -e "s/\"version\": \".*\"/\"version\": \"$nextVersion\"/" Packages/se.hertzole.unitytoolbox/package.json
+
 # Echo all found files
 echo "Found .csproj files:"
 find . -type f -name "*.csproj"
