@@ -1,3 +1,10 @@
+## [1.12.3](https://github.com/Hertzole/unity-toolbox/compare/v1.12.2...v1.12.3) (2024-11-12)
+
+
+### Bug Fixes
+
+* release not working ([b7e0392](https://github.com/Hertzole/unity-toolbox/commit/b7e0392bcfe184adbbd64751e704bbbf30f5c86f))
+
 ## [1.12.2](https://github.com/Hertzole/unity-toolbox/compare/v1.12.1...v1.12.2) (2024-11-12)
 
 
