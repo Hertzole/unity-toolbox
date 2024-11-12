@@ -76,7 +76,7 @@ jobs:
       - name: Install node
         uses: actions/setup-node@v4
         with:
-          node-version: 'latest'
+          node-version: '20'
 
       - name: Safe repo
         run: git config --global --add safe.directory /__w/unity-toolbox/unity-toolbox
@@ -115,7 +115,7 @@ jobs:
 
       - name: Release
         id: semantic
-        uses: cycjimmy/semantic-release-action@v3
+        uses: cycjimmy/semantic-release-action@v4.1.1
         with:
           extra_plugins: |
             @semantic-release/exec
