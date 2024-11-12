@@ -93,7 +93,7 @@ jobs:
       - name: Build Generator
         run: |
           cd Generator
-          dotnet publish -c Release -o ../GeneratorBuild
+          dotnet publish -c Release
           cd ..
 
       - name: Setup Unity

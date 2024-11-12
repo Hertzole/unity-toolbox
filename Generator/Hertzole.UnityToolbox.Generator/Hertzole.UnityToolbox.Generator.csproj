@@ -32,6 +32,6 @@
 
         <Copy SourceFiles="$(TargetDir)Hertzole.UnityToolbox.Generator.dll" DestinationFolder="..\..\Packages\se.hertzole.unitytoolbox\Plugins\"/>
 
-        <Message Text="Copied build files" Importance="High"/>
+        <Message Text="Copied build files from $(TargetDir)" Importance="High"/>
     </Target>
 </Project>

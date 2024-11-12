@@ -2,6 +2,7 @@
 
 using Microsoft.Unity.VisualStudio.Editor;
 using UnityEditor;
+using UnityEngine;
 
 namespace GitTools
 {
@@ -12,6 +13,7 @@ namespace GitTools
 			ProjectGeneration projectGeneration = new ProjectGeneration();
 			AssetDatabase.Refresh();
 			projectGeneration.GenerateAndWriteSolutionAndProjects();
+			Debug.Log("!!!!!!!!!!!!!!!!!!!!!!! SOLUTION SYNCED !!!!!!!!!!!!!!!!!!!!!!!");
 		}
 	}
 }
