@@ -138,18 +138,10 @@ jobs:
           if [[ -f "README.md" ]]; then
             mv README.md /tmp/README.md
           fi
-          echo "ROOT!"
-          ls
-          echo "PACKAGES!"
-          ls Packages
-          echo "PACKAGE!"
-          ls Packages/se.hertzole.unitytoolbox
-          echo "PLUGINS!"
-          git branch
-          ls -l Packages/se.hertzole.unitytoolbox/Plugins
           mv ./Packages/se.hertzole.unitytoolbox/Plugins/Hertzole.UnityToolbox.Generator.dll /tmp/Generator.dll
           mv ./Packages/se.hertzole.unitytoolbox/Plugins/Hertzole.UnityToolbox.Analyzers.dll /tmp/Analyzers.dll
           mv ./Packages/se.hertzole.unitytoolbox/Plugins/Hertzole.UnityToolbox.Shared.dll /tmp/Shared.dll
+          git restore .
           git checkout package
           if [[ -d "/tmp/example" ]]; then
             mkdir "Samples~"
