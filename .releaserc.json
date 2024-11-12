@@ -19,8 +19,8 @@
           "@semantic-release/git",
           {
               "assets": [
-                  "**/*.csproj",
-                  "**/*.cs",
+                  "Generator/**/*.csproj",
+                  "Packages/se.hertzole.unitytoolbox/**/*.cs",
                   "Packages/se.hertzole.unitytoolbox/CHANGELOG.md",
                   "Packages/se.hertzole.unitytoolbox/Plugins/*.dll",
                   "Packages/se.hertzole.unitytoolbox/Plugins/*.dll.meta"
