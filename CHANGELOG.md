@@ -1,3 +1,10 @@
+## [1.12.5](https://github.com/Hertzole/unity-toolbox/compare/v1.12.4...v1.12.5) (2024-11-12)
+
+
+### Bug Fixes
+
+* subscribing to changing method throws error even if changing method is implemented ([fd15c06](https://github.com/Hertzole/unity-toolbox/commit/fd15c0672b17305d7a599f32f110ab8757e0ec9b))
+
 ## [1.12.4](https://github.com/Hertzole/unity-toolbox/compare/v1.12.3...v1.12.4) (2024-11-12)
 
 
