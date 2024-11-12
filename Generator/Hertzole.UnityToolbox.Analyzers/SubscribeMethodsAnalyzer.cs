@@ -66,6 +66,7 @@ public sealed class SubscribeMethodsAnalyzer : DiagnosticAnalyzer
 				string fieldName = fieldSymbol.Name;
 
 				bool gotGenerateLoadAttribute = false;
+				bool subscribeToChanging = false;
 
 				foreach (AttributeData attribute in context.Symbol.GetAttributes())
 				{
@@ -95,6 +96,11 @@ public sealed class SubscribeMethodsAnalyzer : DiagnosticAnalyzer
 					return;
 				}
 
+				if (attributeData.ConstructorArguments.Length > 0 && attributeData.ConstructorArguments[0].Value is bool value)
+				{
+					subscribeToChanging = value;
+				}
+
 				string methodName;
 
 				switch (scriptableType)
@@ -106,7 +112,7 @@ public sealed class SubscribeMethodsAnalyzer : DiagnosticAnalyzer
 						methodName = $"On{TextUtility.FormatVariableLabel(fieldName)}Invoked";
 						break;
 					case ScriptableType.Value:
-						methodName = $"On{TextUtility.FormatVariableLabel(fieldName)}Changed";
+						methodName = $"On{TextUtility.FormatVariableLabel(fieldName)}{(subscribeToChanging ? "Changing" : "Changed")}";
 						break;
 					default:
 						throw new ArgumentOutOfRangeException();

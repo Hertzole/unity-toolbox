@@ -188,7 +188,7 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 
 					if (attribute.ConstructorArguments.Length > 0 && attribute.ConstructorArguments[0].Value is bool subscribeToChanging)
 					{
-						hasSubscribeToChanging = true;
+						hasSubscribeToChanging = subscribeToChanging;
 					}
 					
 				}
