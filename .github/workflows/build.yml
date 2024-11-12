@@ -73,6 +73,11 @@ jobs:
           fetch-depth: 0
           lfs: true
 
+      - name: Install node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'latest'
+
       - name: Safe repo
         run: git config --global --add safe.directory /__w/unity-toolbox/unity-toolbox
 
