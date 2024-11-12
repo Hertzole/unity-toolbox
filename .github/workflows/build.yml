@@ -122,14 +122,17 @@ jobs:
 
       - name: Create Package Branch
         run: |
+          ls
           git branch -d package &> /dev/null || echo package branch not found
           git subtree split -P "$PKG_ROOT" -b package
+          ls
           if [[ -d "Assets/Samples" ]]; then
             mv "Assets/Samples" /tmp/example
           fi
           if [[ -f "README.md" ]]; then
             mv README.md /tmp/README.md
           fi
+          ls
           mv Packages/se.hertzole.unitytoolbox/Plugins/Hertzole.UnityToolbox.Generator.dll /tmp/Generator.dll
           mv Packages/se.hertzole.unitytoolbox/Plugins/Hertzole.UnityToolbox.Analyzers.dll /tmp/Analyzers.dll
           mv Packages/se.hertzole.unitytoolbox/Plugins/Hertzole.UnityToolbox.Shared.dll /tmp/Shared.dll
