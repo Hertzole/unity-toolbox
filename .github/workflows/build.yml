@@ -128,13 +128,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Commit generator files
-        run: |
-          git add Packages/se.hertzole.unitytoolbox/Plugins/Hertzole.UnityToolbox.Generator.dll
-          git add Packages/se.hertzole.unitytoolbox/Plugins/Hertzole.UnityToolbox.Analyzers.dll
-          git add Packages/se.hertzole.unitytoolbox/Plugins/Hertzole.UnityToolbox.Shared.dll
-          git commit -m "chore: update generator and analyzers"
-
       - name: Create Package Branch
         run: |
           git branch -d package &> /dev/null || echo package branch not found
