@@ -84,6 +84,12 @@ jobs:
           key: LibraryFolder
           restore-keys: |
             LibraryFolder
+      
+      - name: Install .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.x
 
       - name: Build Generator
         run: |
@@ -104,12 +110,6 @@ jobs:
           echo "$UNITY_LICENSE" | tr -d '\r' > License.ulf
           unity-editor -nographics -logFile /dev/stdout -manualLicenseFile License.ulf -quit 
           unity-editor -nographics -logFile /dev/stdout -customBuildName unity-toolbox -projectPath . -executeMethod GitTools.Solution.Sync -quit
-
-      - name: Install .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: |
-            8.x
 
       - name: Run Play Mode Tests
         run: unity-editor -nographics -logFile /dev/stdout -runTests -testPlatform playmode -testResults Tests/playmode.xml -enableCodeCoverage -coverageResultsPath TestCoverage -debugCodeOptimization -coverageOptions "generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+Hertzole.UnityToolbox"
