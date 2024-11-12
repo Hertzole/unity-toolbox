@@ -10,7 +10,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace Hertzole.UnityToolbox.Generator;
 
 [Generator(LanguageNames.CSharp)]
-internal sealed class InputCallbacksGenerator : IIncrementalGenerator
+public sealed class InputCallbacksGenerator : IIncrementalGenerator
 {
 	private static readonly ObjectPool<HashSet<string>> hashSetPool =
 		new ObjectPool<HashSet<string>>(() => new HashSet<string>(StringComparer.OrdinalIgnoreCase), null, set => set.Clear());
@@ -417,6 +417,24 @@ internal sealed class InputCallbacksGenerator : IIncrementalGenerator
 							{
 								allMethod.AddParameter("global::UnityEngine.InputSystem.InputAction.CallbackContext", "context");
 							}
+						}
+					}
+					
+					using (MethodScope subscribe = type.WithMethod("SubscribeToAllInputCallbacks").WithAccessor(MethodAccessor.Private))
+					{
+						foreach (InputCallbackField field in callbackType.fields)
+						{
+							subscribe.Append(field.subscribeToField);
+							subscribe.AppendLine("();");
+						}
+					}
+
+					using (MethodScope unsubscribe = type.WithMethod("UnsubscribeFromAllInputCallbacks").WithAccessor(MethodAccessor.Private))
+					{
+						foreach (InputCallbackField field in callbackType.fields)
+						{
+							unsubscribe.Append(field.unsubscribeFromField);
+							unsubscribe.AppendLine("();");
 						}
 					}
 				}
