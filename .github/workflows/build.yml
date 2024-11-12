@@ -105,20 +105,20 @@ jobs:
           unity-editor -nographics -logFile /dev/stdout -manualLicenseFile License.ulf -quit 
           unity-editor -nographics -logFile /dev/stdout -customBuildName unity-toolbox -projectPath . -executeMethod GitTools.Solution.Sync -quit
 
-      # - name: Run Play Mode Tests
-      #   run: unity-editor -nographics -logFile /dev/stdout -runTests -testPlatform playmode -testResults Tests/playmode.xml -enableCodeCoverage -coverageResultsPath TestCoverage -debugCodeOptimization -coverageOptions "generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+Hertzole.UnityToolbox"
+      - name: Run Play Mode Tests
+        run: unity-editor -nographics -logFile /dev/stdout -runTests -testPlatform playmode -testResults Tests/playmode.xml -enableCodeCoverage -coverageResultsPath TestCoverage -debugCodeOptimization -coverageOptions "generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+Hertzole.UnityToolbox"
 
-      # - name: Release
-      #   id: semantic
-      #   uses: cycjimmy/semantic-release-action@v3
-      #   with:
-      #     extra_plugins: |
-      #       @semantic-release/exec
-      #       @semantic-release/changelog
-      #       @semantic-release/git
-      #     branch: master
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Release
+        id: semantic
+        uses: cycjimmy/semantic-release-action@v3
+        with:
+          extra_plugins: |
+            @semantic-release/exec
+            @semantic-release/changelog
+            @semantic-release/git
+          branch: master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create Package Branch
         run: |
@@ -170,10 +170,10 @@ jobs:
           PKG_ROOT: "Packages/se.hertzole.unitytoolbox"
         shell: bash
 
-      # - name: Create Release Tag
-      #   if: steps.semantic.outputs.new_release_published == 'true'
-      #   run: |
-      #     git tag $TAG package
-      #     git push origin --tags
-      #   env:
-      #     TAG: package/v${{ steps.semantic.outputs.new_release_version }}
+      - name: Create Release Tag
+        if: steps.semantic.outputs.new_release_published == 'true'
+        run: |
+          git tag $TAG package
+          git push origin --tags
+        env:
+          TAG: package/v${{ steps.semantic.outputs.new_release_version }}
