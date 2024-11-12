@@ -125,6 +125,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set executable permissions for prepare.sh
+        run: chmod +x ./ci/prepare.sh
+
       - name: Commit generator files
         run: |
           git add Packages/se.hertzole.unitytoolbox/Plugins/Hertzole.UnityToolbox.Generator.dll
