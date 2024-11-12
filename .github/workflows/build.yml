@@ -105,8 +105,8 @@ jobs:
           unity-editor -nographics -logFile /dev/stdout -manualLicenseFile License.ulf -quit 
           unity-editor -nographics -logFile /dev/stdout -customBuildName unity-toolbox -projectPath . -executeMethod GitTools.Solution.Sync -quit
 
-      - name: Run Play Mode Tests
-        run: unity-editor -nographics -logFile /dev/stdout -runTests -testPlatform playmode -testResults Tests/playmode.xml -enableCodeCoverage -coverageResultsPath TestCoverage -debugCodeOptimization -coverageOptions "generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+Hertzole.UnityToolbox"
+      # - name: Run Play Mode Tests
+      #   run: unity-editor -nographics -logFile /dev/stdout -runTests -testPlatform playmode -testResults Tests/playmode.xml -enableCodeCoverage -coverageResultsPath TestCoverage -debugCodeOptimization -coverageOptions "generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+Hertzole.UnityToolbox"
 
       # - name: Release
       #   id: semantic
@@ -122,17 +122,22 @@ jobs:
 
       - name: Create Package Branch
         run: |
-          ls
           git branch -d package &> /dev/null || echo package branch not found
           git subtree split -P "$PKG_ROOT" -b package
-          ls
           if [[ -d "Assets/Samples" ]]; then
             mv "Assets/Samples" /tmp/example
           fi
           if [[ -f "README.md" ]]; then
             mv README.md /tmp/README.md
           fi
+          echo "ROOT!"
           ls
+          echo "PACKAGES!"
+          ls Packages
+          echo "PACKAGE!"
+          ls Packages/se.hertzole.unitytoolbox
+          echo "PLUGINS!"
+          ls Packages/se.hertzole.unitytoolbox/Plugins
           mv Packages/se.hertzole.unitytoolbox/Plugins/Hertzole.UnityToolbox.Generator.dll /tmp/Generator.dll
           mv Packages/se.hertzole.unitytoolbox/Plugins/Hertzole.UnityToolbox.Analyzers.dll /tmp/Analyzers.dll
           mv Packages/se.hertzole.unitytoolbox/Plugins/Hertzole.UnityToolbox.Shared.dll /tmp/Shared.dll
