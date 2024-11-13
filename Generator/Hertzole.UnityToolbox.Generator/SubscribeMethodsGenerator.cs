@@ -478,7 +478,7 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 				
 				ifBlock.Append("throw new global::System.NullReferenceException(\"");
 				ifBlock.Append("Missing callback for ");
-				ifBlock.Append(field.UniqueName);
+				ifBlock.Append(field.FieldName);
 				ifBlock.AppendLine(". Did you call 'CreateScriptableValueCallbacks()' before subscribing to values?\");");
 				
 				type.source.Indent--;
@@ -551,7 +551,7 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 				
 				ifBlock.Append("throw new global::System.NullReferenceException(\"");
 				ifBlock.Append("Missing callback for ");
-				ifBlock.Append(field.UniqueName);
+				ifBlock.Append(field.FieldName);
 				ifBlock.AppendLine(". Did you call 'CreateScriptableValueCallbacks()' before subscribing to values?\");");
 				
 				type.source.Indent--;
