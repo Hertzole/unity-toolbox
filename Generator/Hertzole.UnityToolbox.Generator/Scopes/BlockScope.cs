@@ -61,10 +61,13 @@ public sealed class BlockScope : IDisposable
 		sb.Append(value);
 	}
 
-	public void AppendLine(string value)
+	public void AppendLine(string value, bool indent = true)
 	{
-		IndentBodyIfNeeded();
-		WriteIndentIfNeeded();
+		if (indent)
+		{
+			IndentBodyIfNeeded();
+			WriteIndentIfNeeded();
+		}
         
 		sb.AppendLine(value);
 

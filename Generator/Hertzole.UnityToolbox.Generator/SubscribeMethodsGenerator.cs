@@ -457,7 +457,7 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 
 			using (BlockScope ifBlock = subscribe.WithBlock())
 			{
-				ifBlock.AppendLine("#if DEBUG || UNITY_EDITOR");
+				ifBlock.AppendLine("#if DEBUG || UNITY_EDITOR", false);
 				ifBlock.Append("if (");
 				ifBlock.Append(field.UniqueName);
 				
@@ -484,7 +484,7 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 				type.source.Indent--;
 				ifBlock.AppendLine("}");
 				
-				ifBlock.AppendLine("#endif");
+				ifBlock.AppendLine("#endif", false);
 				
 				ifBlock.Append(field.FieldName);
 				
@@ -530,7 +530,7 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 
 			using (BlockScope ifBlock = unsubscribe.WithBlock())
 			{
-				ifBlock.AppendLine("#if DEBUG || UNITY_EDITOR");
+				ifBlock.AppendLine("#if DEBUG || UNITY_EDITOR", false);
 				ifBlock.Append("if (");
 				ifBlock.Append(field.UniqueName);
 				
@@ -557,7 +557,7 @@ public sealed class SubscribeMethodsGenerator : IIncrementalGenerator
 				type.source.Indent--;
 				ifBlock.AppendLine("}");
 				
-				ifBlock.AppendLine("#endif");
+				ifBlock.AppendLine("#endif", false);
 				
 				switch (scriptableType)
 				{
