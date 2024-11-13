@@ -1,4 +1,5 @@
-﻿using Hertzole.UnityToolbox.Matches;
+﻿#if TOOLBOX_SCRIPTABLE_VALUES
+using Hertzole.UnityToolbox.Matches;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -97,3 +98,4 @@ namespace Hertzole.UnityToolbox.Editor
 		}
 	}
 }
+#endif
