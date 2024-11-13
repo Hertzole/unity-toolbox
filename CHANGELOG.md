@@ -1,3 +1,12 @@
+## [1.12.6](https://github.com/Hertzole/unity-toolbox/compare/v1.12.5...v1.12.6) (2024-11-13)
+
+
+### Bug Fixes
+
+* compiler errors when ScriptableValues Package is missing ([4cf50b5](https://github.com/Hertzole/unity-toolbox/commit/4cf50b5d5111df82f7aea7dd34fb59ab4ccff158)), closes [#2](https://github.com/Hertzole/unity-toolbox/issues/2)
+* generated subscribe code referencing the wrong field ([91a5b8d](https://github.com/Hertzole/unity-toolbox/commit/91a5b8d1f307bb18408450643477209ca7a6d4fe))
+* throw an error if value callbacks haven't been initialized ([6b1337e](https://github.com/Hertzole/unity-toolbox/commit/6b1337e5245df6955c240e0d2da0f2ecac6c0f8c))
+
 ## [1.12.5](https://github.com/Hertzole/unity-toolbox/compare/v1.12.4...v1.12.5) (2024-11-12)
 
 
