@@ -123,6 +123,12 @@ partial struct TestStruct
 	{
 		if (boolValue != null && !hasSubscribedToBoolValue)
 		{
+#if DEBUG || UNITY_EDITOR
+			if (boolValue_OnChanged == null)
+			{
+				throw new global::System.NullReferenceException(""Missing callback for boolValue. Did you call 'CreateScriptableValueCallbacks()' before subscribing to values?"");
+			}
+#endif
 			boolValue.OnValueChanged += boolValue_OnChanged;
 			hasSubscribedToBoolValue = true;
 		}
@@ -132,6 +138,12 @@ partial struct TestStruct
 	{
 		if (boolValue != null && hasSubscribedToBoolValue)
 		{
+#if DEBUG || UNITY_EDITOR
+			if (boolValue_OnChanged == null)
+			{
+				throw new global::System.NullReferenceException(""Missing callback for boolValue. Did you call 'CreateScriptableValueCallbacks()' before subscribing to values?"");
+			}
+#endif
 			boolValue.OnValueChanged -= boolValue_OnChanged;
 			hasSubscribedToBoolValue = false;
 		}
@@ -143,6 +155,12 @@ partial struct TestStruct
 	{
 		if (BoolValue != null && !hasSubscribedToBoolValue_1)
 		{
+#if DEBUG || UNITY_EDITOR
+			if (BoolValue_1_OnChanged == null)
+			{
+				throw new global::System.NullReferenceException(""Missing callback for BoolValue. Did you call 'CreateScriptableValueCallbacks()' before subscribing to values?"");
+			}
+#endif
 			BoolValue.OnValueChanged += BoolValue_1_OnChanged;
 			hasSubscribedToBoolValue_1 = true;
 		}
@@ -152,6 +170,12 @@ partial struct TestStruct
 	{
 		if (BoolValue != null && hasSubscribedToBoolValue_1)
 		{
+#if DEBUG || UNITY_EDITOR
+			if (BoolValue_1_OnChanged == null)
+			{
+				throw new global::System.NullReferenceException(""Missing callback for BoolValue. Did you call 'CreateScriptableValueCallbacks()' before subscribing to values?"");
+			}
+#endif
 			BoolValue.OnValueChanged -= BoolValue_1_OnChanged;
 			hasSubscribedToBoolValue_1 = false;
 		}
@@ -195,6 +219,12 @@ partial struct TestStruct
 	{
 		if (value != null && !hasSubscribedToValue)
 		{
+#if DEBUG || UNITY_EDITOR
+			if (value_OnChanged == null)
+			{
+				throw new global::System.NullReferenceException(""Missing callback for value. Did you call 'CreateScriptableValueCallbacks()' before subscribing to values?"");
+			}
+#endif
 			value.OnValueChanged += value_OnChanged;
 			hasSubscribedToValue = true;
 		}
@@ -204,6 +234,12 @@ partial struct TestStruct
 	{
 		if (value != null && hasSubscribedToValue)
 		{
+#if DEBUG || UNITY_EDITOR
+			if (value_OnChanged == null)
+			{
+				throw new global::System.NullReferenceException(""Missing callback for value. Did you call 'CreateScriptableValueCallbacks()' before subscribing to values?"");
+			}
+#endif
 			value.OnValueChanged -= value_OnChanged;
 			hasSubscribedToValue = false;
 		}
@@ -215,6 +251,12 @@ partial struct TestStruct
 	{
 		if (Value != null && !hasSubscribedToValue_1)
 		{
+#if DEBUG || UNITY_EDITOR
+			if (Value_1_OnChanged == null)
+			{
+				throw new global::System.NullReferenceException(""Missing callback for Value. Did you call 'CreateScriptableValueCallbacks()' before subscribing to values?"");
+			}
+#endif
 			Value.OnValueChanged += Value_1_OnChanged;
 			hasSubscribedToValue_1 = true;
 		}
@@ -224,6 +266,12 @@ partial struct TestStruct
 	{
 		if (Value != null && hasSubscribedToValue_1)
 		{
+#if DEBUG || UNITY_EDITOR
+			if (Value_1_OnChanged == null)
+			{
+				throw new global::System.NullReferenceException(""Missing callback for Value. Did you call 'CreateScriptableValueCallbacks()' before subscribing to values?"");
+			}
+#endif
 			Value.OnValueChanged -= Value_1_OnChanged;
 			hasSubscribedToValue_1 = false;
 		}
@@ -246,8 +294,8 @@ partial struct TestStruct
 	private bool hasSubscribedToEventValue_1 = false;
 
     private void CreateScriptableValueCallbacks()
-    {
-    	eventValue_OnInvoked = OnEventValueInvoked;
+	{
+		eventValue_OnInvoked = OnEventValueInvoked;
 		EventValue_1_OnInvoked = OnEventValue_1Invoked;
 	}
 
@@ -267,6 +315,12 @@ partial struct TestStruct
 	{
 		if (eventValue != null && !hasSubscribedToEventValue)
 		{
+#if DEBUG || UNITY_EDITOR
+			if (eventValue_OnInvoked == null)
+			{
+				throw new global::System.NullReferenceException(""Missing callback for eventValue. Did you call 'CreateScriptableValueCallbacks()' before subscribing to values?"");
+			}
+#endif
 			eventValue.OnInvoked += eventValue_OnInvoked;
 			hasSubscribedToEventValue = true;
 		}
@@ -276,6 +330,12 @@ partial struct TestStruct
 	{
 		if (eventValue != null && hasSubscribedToEventValue)
 		{
+#if DEBUG || UNITY_EDITOR
+			if (eventValue_OnInvoked == null)
+			{
+				throw new global::System.NullReferenceException(""Missing callback for eventValue. Did you call 'CreateScriptableValueCallbacks()' before subscribing to values?"");
+			}
+#endif
 			eventValue.OnInvoked -= eventValue_OnInvoked;
 			hasSubscribedToEventValue = false;
 		}
@@ -287,6 +347,12 @@ partial struct TestStruct
 	{
 		if (EventValue != null && !hasSubscribedToEventValue_1)
 		{
+#if DEBUG || UNITY_EDITOR
+			if (EventValue_1_OnInvoked == null)
+			{
+				throw new global::System.NullReferenceException(""Missing callback for EventValue. Did you call 'CreateScriptableValueCallbacks()' before subscribing to values?"");
+			}
+#endif
 			EventValue.OnInvoked += EventValue_1_OnInvoked;
 			hasSubscribedToEventValue_1 = true;
 		}
@@ -296,6 +362,12 @@ partial struct TestStruct
 	{
 		if (EventValue != null && hasSubscribedToEventValue_1)
 		{
+#if DEBUG || UNITY_EDITOR
+			if (EventValue_1_OnInvoked == null)
+			{
+				throw new global::System.NullReferenceException(""Missing callback for EventValue. Did you call 'CreateScriptableValueCallbacks()' before subscribing to values?"");
+			}
+#endif
 			EventValue.OnInvoked -= EventValue_1_OnInvoked;
 			hasSubscribedToEventValue_1 = false;
 		}
@@ -320,7 +392,7 @@ partial struct TestStruct
     private void CreateScriptableValueCallbacks()
 	{
 		boolEvent_OnInvoked = OnBoolEventInvoked;
-    	BoolEvent_1_OnInvoked = OnBoolEvent_1Invoked;
+		BoolEvent_1_OnInvoked = OnBoolEvent_1Invoked;
 	}
 
 	private void SubscribeToAllScriptableValues()
@@ -339,6 +411,12 @@ partial struct TestStruct
 	{
 		if (boolEvent != null && !hasSubscribedToBoolEvent)
 		{
+#if DEBUG || UNITY_EDITOR
+			if (boolEvent_OnInvoked == null)
+			{
+				throw new global::System.NullReferenceException(""Missing callback for boolEvent. Did you call 'CreateScriptableValueCallbacks()' before subscribing to values?"");
+			}
+#endif
 			boolEvent.OnInvoked += boolEvent_OnInvoked;
 			hasSubscribedToBoolEvent = true;
 		}
@@ -348,6 +426,12 @@ partial struct TestStruct
 	{
 		if (boolEvent != null && hasSubscribedToBoolEvent)
 		{
+#if DEBUG || UNITY_EDITOR
+			if (boolEvent_OnInvoked == null)
+			{
+				throw new global::System.NullReferenceException(""Missing callback for boolEvent. Did you call 'CreateScriptableValueCallbacks()' before subscribing to values?"");
+			}
+#endif
 			boolEvent.OnInvoked -= boolEvent_OnInvoked;
 			hasSubscribedToBoolEvent = false;
 		}
@@ -359,6 +443,12 @@ partial struct TestStruct
 	{
 		if (BoolEvent != null && !hasSubscribedToBoolEvent_1)
 		{
+#if DEBUG || UNITY_EDITOR
+			if (BoolEvent_1_OnInvoked == null)
+			{
+				throw new global::System.NullReferenceException(""Missing callback for BoolEvent. Did you call 'CreateScriptableValueCallbacks()' before subscribing to values?"");
+			}
+#endif
 			BoolEvent.OnInvoked += BoolEvent_1_OnInvoked;
 			hasSubscribedToBoolEvent_1 = true;
 		}
@@ -368,6 +458,12 @@ partial struct TestStruct
 	{
 		if (BoolEvent != null && hasSubscribedToBoolEvent_1)
 		{
+#if DEBUG || UNITY_EDITOR
+			if (BoolEvent_1_OnInvoked == null)
+			{
+				throw new global::System.NullReferenceException(""Missing callback for BoolEvent. Did you call 'CreateScriptableValueCallbacks()' before subscribing to values?"");
+			}
+#endif
 			BoolEvent.OnInvoked -= BoolEvent_1_OnInvoked;
 			hasSubscribedToBoolEvent_1 = false;
 		}
@@ -411,6 +507,12 @@ partial struct TestStruct
 	{
 		if (eventValue != null && !hasSubscribedToEventValue)
 		{
+#if DEBUG || UNITY_EDITOR
+			if (eventValue_OnInvoked == null)
+			{
+				throw new global::System.NullReferenceException(""Missing callback for eventValue. Did you call 'CreateScriptableValueCallbacks()' before subscribing to values?"");
+			}
+#endif
 			eventValue.OnInvoked += eventValue_OnInvoked;
 			hasSubscribedToEventValue = true;
 		}
@@ -420,6 +522,12 @@ partial struct TestStruct
 	{
 		if (eventValue != null && hasSubscribedToEventValue)
 		{
+#if DEBUG || UNITY_EDITOR
+			if (eventValue_OnInvoked == null)
+			{
+				throw new global::System.NullReferenceException(""Missing callback for eventValue. Did you call 'CreateScriptableValueCallbacks()' before subscribing to values?"");
+			}
+#endif
 			eventValue.OnInvoked -= eventValue_OnInvoked;
 			hasSubscribedToEventValue = false;
 		}
@@ -431,6 +539,12 @@ partial struct TestStruct
 	{
 		if (EventValue != null && !hasSubscribedToEventValue_1)
 		{
+#if DEBUG || UNITY_EDITOR
+			if (EventValue_1_OnInvoked == null)
+			{
+				throw new global::System.NullReferenceException(""Missing callback for EventValue. Did you call 'CreateScriptableValueCallbacks()' before subscribing to values?"");
+			}
+#endif
 			EventValue.OnInvoked += EventValue_1_OnInvoked;
 			hasSubscribedToEventValue_1 = true;
 		}
@@ -440,6 +554,12 @@ partial struct TestStruct
 	{
 		if (EventValue != null && hasSubscribedToEventValue_1)
 		{
+#if DEBUG || UNITY_EDITOR
+			if (EventValue_1_OnInvoked == null)
+			{
+				throw new global::System.NullReferenceException(""Missing callback for EventValue. Did you call 'CreateScriptableValueCallbacks()' before subscribing to values?"");
+			}
+#endif
 			EventValue.OnInvoked -= EventValue_1_OnInvoked;
 			hasSubscribedToEventValue_1 = false;
 		}
