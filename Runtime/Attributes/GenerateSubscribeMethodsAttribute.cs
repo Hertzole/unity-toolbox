@@ -1,4 +1,15 @@
-﻿#if TOOLBOX_SCRIPTABLE_VALUES || (TOOLBOX_SCRIPTABLE_VALUES_2 && UNITY_EDITOR)
+﻿// This mess is to ensure that the attribute is only included when the ScriptableValues < v2.0 package is used.
+// If it's ScriptableValues 2.0 or higher, the attribute is obsolete and should not be used. Only include this file if it's in the unity editor.
+// Else if it's ScriptableValues < v2.0, include the attribute whatsoever.
+#if TOOLBOX_SCRIPTABLE_VALUES_2
+#if UNITY_EDITOR
+#define TOOLBOX_INCLUDE_THIS_FILE
+#endif // UNITY_EDITOR
+#elif TOOLBOX_SCRIPTABLE_VALUES
+#define TOOLBOX_INCLUDE_THIS_FILE
+#endif // TOOLBOX_SCRIPTABLE_VALUES_2
+
+#if TOOLBOX_INCLUDE_THIS_FILE
 using System;
 
 namespace Hertzole.UnityToolbox
@@ -14,4 +25,4 @@ namespace Hertzole.UnityToolbox
 		public GenerateSubscribeMethodsAttribute(bool subscribeToChanging) { }
 	}
 }
-#endif
+#endif // TOOLBOX_INCLUDE_THIS_FILE
