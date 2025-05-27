@@ -162,10 +162,12 @@
       "url": "https://packages.unity.com"
     },
     "se.hertzole.scriptable-values": {
-      "version": "1.2.0",
+      "version": "2.0.0",
       "depth": 0,
       "source": "registry",
-      "dependencies": {},
+      "dependencies": {
+        "com.unity.modules.uielements": "1.0.0"
+      },
       "url": "https://package.openupm.com"
     },
     "se.hertzole.unitytoolbox": {

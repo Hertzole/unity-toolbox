@@ -1,4 +1,6 @@
 ﻿#if TOOLBOX_INPUT_SYSTEM && TOOLBOX_SCRIPTABLE_VALUES
+using System.Collections.Specialized;
+using Hertzole.ScriptableValues;
 using UnityEngine;
 using UnityEngine.InputSystem;
 #if TOOLBOX_ADDRESSABLES
@@ -74,8 +76,12 @@ namespace Hertzole.UnityToolbox
 		{
 			if (inputsList != null && hasSubscribed)
 			{
+#if TOOLBOX_SCRIPTABLE_VALUES_2
+				inputsList.OnCollectionChanged -= OnCollectionChanged;
+#else
 				inputsList.OnAddedOrInserted -= OnInputAdded;
 				inputsList.OnRemoved -= OnInputRemoved;
+#endif
 				hasSubscribed = false;
 			}
 		}
@@ -120,10 +126,34 @@ namespace Hertzole.UnityToolbox
 
 		private void SubscribeToEvents()
 		{
+#if TOOLBOX_SCRIPTABLE_VALUES_2
+			inputsList.OnCollectionChanged += OnCollectionChanged;
+#else
 			inputsList.OnAddedOrInserted += OnInputAdded;
 			inputsList.OnRemoved += OnInputRemoved;
+#endif
 			hasSubscribed = true;
 		}
+
+#if TOOLBOX_SCRIPTABLE_VALUES_2
+		private void OnCollectionChanged(CollectionChangedArgs<IHasPlayerInput> e)
+		{
+			if (e.Action == NotifyCollectionChangedAction.Add)
+			{
+				for (int i = 0; i < e.NewItems.Length; i++)
+				{
+					OnInputAdded(0, e.NewItems.Span[i]);
+				}
+			}
+			else if (e.Action == NotifyCollectionChangedAction.Remove)
+			{
+				for (int i = 0; i < e.OldItems.Length; i++)
+				{
+					OnInputRemoved(0, e.OldItems.Span[i]);
+				}
+			}
+		}
+#endif
 
 		private void OnInputAdded(int index, IHasPlayerInput input)
 		{
