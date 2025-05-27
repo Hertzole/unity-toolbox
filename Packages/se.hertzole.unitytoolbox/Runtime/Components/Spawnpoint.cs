@@ -17,16 +17,16 @@ namespace Hertzole.UnityToolbox
 	public partial class Spawnpoint : MonoBehaviour
 	{
 		[SerializeField]
-		[Tooltip("The possible rotations the object can have when spawned.")]
+		[EditorTooltip("The possible rotations the object can have when spawned.")]
 		private List<Vector3> possibleRotations = new List<Vector3>();
 		[SerializeField]
-		[Tooltip("The position the object will spawn at, relative to the spawnpoint.")]
+		[EditorTooltip("The position the object will spawn at, relative to the spawnpoint.")]
 		private Vector3 spawnPosition = default;
 		[SerializeField]
-		[Tooltip("The size of the spawn boundary box.")]
+		[EditorTooltip("The size of the spawn boundary box.")]
 		private Vector3 size = new Vector3(1f, 2f, 1f);
 		[SerializeField]
-		[Tooltip("The offset of the spawn boundary box.")]
+		[EditorTooltip("The offset of the spawn boundary box.")]
 		private Vector3 offset = new Vector3(0f, 1f, 0f);
 
 		private bool forceUpdateCorners;
@@ -181,16 +181,16 @@ namespace Hertzole.UnityToolbox
 #if TOOLBOX_SCRIPTABLE_VALUES
 #if TOOLBOX_ADDRESSABLES
 		[SerializeField]
-		[Tooltip("If true, the spawnpoints list will be loaded from addressables.")]
+		[EditorTooltip("If true, the spawnpoints list will be loaded from addressables.")]
 		private bool useAddressables = false;
 		[SerializeField]
 		[GenerateLoad]
-		[Tooltip("The addressable reference to the spawnpoints list.")]
+		[EditorTooltip("The addressable reference to the spawnpoints list.")]
 		private AssetReferenceT<ScriptableSpawnpointsList> spawnpointsListReference = default;
 #endif
 		[SerializeField]
 		[CanBeNull]
-		[Tooltip("The spawnpoints list to add to..")]
+		[EditorTooltip("The spawnpoints list to add to..")]
 		private ScriptableSpawnpointsList spawnpointsList = default;
 
 		/// <summary>
@@ -310,10 +310,10 @@ namespace Hertzole.UnityToolbox
 		}
 
 		[SerializeField]
-		[Tooltip("The color of the boundary box.")]
+		[EditorTooltip("The color of the boundary box.")]
 		private Color boxColor = Color.white;
 		[SerializeField]
-		[Tooltip("The color of the direction arrow.")]
+		[EditorTooltip("The color of the direction arrow.")]
 		private Color directionColor = Color.blue;
 
 #if TOOLBOX_ADDRESSABLES && TOOLBOX_SCRIPTABLE_VALUES

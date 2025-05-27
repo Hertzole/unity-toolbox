@@ -51,10 +51,10 @@ namespace Hertzole.UnityToolbox
 	public abstract class MonoSingleton<T> : MonoBehaviour where T : Object
 	{
 		[SerializeField]
-		[Tooltip("If keep alive is true, the singleton will not be destroyed when a new scene is loaded.")]
+		[EditorTooltip("If keep alive is true, the singleton will not be destroyed when a new scene is loaded.")]
 		internal bool keepAlive = true;
 		[SerializeField]
-		[Tooltip(
+		[EditorTooltip(
 			"What should happen if there are multiple instances of the singleton.\nDestroy newest component only removes the component from the newest object.\nDestroy oldest component only removes the component from the oldest object.\nKeep both keeps both components.\nDestroy newest game object destroys the game object with the newest component.\nDestroy oldest game object destroys the game object with the oldest component.")]
 		internal SingletonDestroyStrategy destroyStrategy = SingletonDestroyStrategy.DestroyNewestGameObject;
 
