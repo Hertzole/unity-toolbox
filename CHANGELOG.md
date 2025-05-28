@@ -1,3 +1,16 @@
+## [1.12.7](https://github.com/Hertzole/unity-toolbox/compare/v1.12.6...v1.12.7) (2025-05-28)
+
+
+### Bug Fixes
+
+* GenerateSubscribeMethodsAttribute being included in builds even if obsolete ([67ef64b](https://github.com/Hertzole/unity-toolbox/commit/67ef64b1b2f60100fef67d598defbc8a2690ebec))
+* support for scriptable values 2.0 ([6458b4e](https://github.com/Hertzole/unity-toolbox/commit/6458b4ed69f4ee059f3e7053f703a61d3be476ee))
+
+
+### Performance Improvements
+
+* don't include tooltips in builds ([69a4367](https://github.com/Hertzole/unity-toolbox/commit/69a4367caec965a672d9297f2c1dd385a4ca0189))
+
 ## [1.12.6](https://github.com/Hertzole/unity-toolbox/compare/v1.12.5...v1.12.6) (2024-11-13)
 
 
