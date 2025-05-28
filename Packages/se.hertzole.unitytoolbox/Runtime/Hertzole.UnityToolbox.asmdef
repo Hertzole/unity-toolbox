@@ -95,6 +95,7 @@
             "name": "com.unity.collections",
             "expression": "2.0.0",
             "define": "TOOLBOX_COLLECTIONS_2"
+        },
         {
             "name": "se.hertzole.scriptable-values",
             "expression": "2",
