@@ -13,7 +13,7 @@ public static class GeneratorTest
 	{
 		T generator = new T();
 
-		expected = expected.Replace("    ", "\t");
+		expected = expected.Replace("    ", "\t").ReplaceLineEndings();
 
 		CSharpGeneratorDriver driver = CSharpGeneratorDriver.Create(generator);
 
