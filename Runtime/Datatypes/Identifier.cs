@@ -76,6 +76,17 @@ namespace Hertzole.UnityToolbox
 			return value == other;
 		}
 
+		/// <inheritdoc />
+		public override string ToString()
+		{
+			return
+#if UNITY_EDITOR
+				$"Identifier ({value}, editor string: {stringValue})";
+#else
+				$"Identifier ({value})";
+#endif
+		}
+
 #if UNITY_EDITOR
 		void ISerializationCallbackReceiver.OnBeforeSerialize()
 		{
