@@ -433,7 +433,7 @@ public sealed class InputCallbacksGenerator : IIncrementalGenerator
 									else
 									{
 										ifBlock.Append(field.name);
-										ifBlock.Append(".action.started += ");
+										ifBlock.Append(".action.started -= ");
 										ifBlock.Append(field.startedMethod!);
 										ifBlock.AppendLine(";");
 									}
