@@ -16,7 +16,7 @@ public enum InputCallbackType : byte
 public readonly struct InputCallbackField
 {
 	public readonly string name;
-	public readonly string inputName;
+	public readonly string? inputName;
 	public readonly InputCallbackType callbackType;
 
 	public readonly string hasSubscribedField;
@@ -27,7 +27,7 @@ public readonly struct InputCallbackField
 	public readonly string? canceledMethod;
 	public readonly string? allMethod;
 
-	public InputCallbackField(string name, string inputName, string uniqueName, InputCallbackType callbackType)
+	public InputCallbackField(string name, string? inputName, string uniqueName, InputCallbackType callbackType)
 	{
 		this.name = name;
 		this.inputName = inputName;

@@ -121,46 +121,53 @@ public sealed class InputCallbacksGenerator : IIncrementalGenerator
 	private static (InputCallbacksType, bool reportAttributeFound) GetMemberDeclarationsForSourceGen(GeneratorSyntaxContext context,
 		CancellationToken cancellationToken)
 	{
-		TypeDeclarationSyntax typeDeclaration = (TypeDeclarationSyntax) context.Node;
-
-		if (context.SemanticModel.GetDeclaredSymbol(typeDeclaration) is not INamedTypeSymbol symbol)
+		try
 		{
-			return (default, false);
-		}
+			TypeDeclarationSyntax typeDeclaration = (TypeDeclarationSyntax) context.Node;
 
-		ImmutableArray<InputCallbackField>.Builder fields = ImmutableArray.CreateBuilder<InputCallbackField>();
-		using PoolHandle<HashSet<string>> handle = hashSetPool.Get(out HashSet<string> fieldNames);
-
-		foreach (ISymbol memberDeclaration in symbol.GetMembers())
-		{
-			cancellationToken.ThrowIfCancellationRequested();
-
-			if (memberDeclaration is not IFieldSymbol && memberDeclaration is not IPropertySymbol)
+			if (context.SemanticModel.GetDeclaredSymbol(typeDeclaration) is not INamedTypeSymbol symbol)
 			{
-				continue;
+				return (default, false);
 			}
 
-			foreach (AttributeData? attributeData in memberDeclaration.GetAttributes())
+			ImmutableArray<InputCallbackField>.Builder fields = ImmutableArray.CreateBuilder<InputCallbackField>();
+			using PoolHandle<HashSet<string>> handle = hashSetPool.Get(out HashSet<string> fieldNames);
+
+			foreach (ISymbol memberDeclaration in symbol.GetMembers())
 			{
 				cancellationToken.ThrowIfCancellationRequested();
 
-				if (attributeData.AttributeClass is null)
+				if (memberDeclaration is not IFieldSymbol && memberDeclaration is not IPropertySymbol)
 				{
 					continue;
 				}
 
-				if (!attributeData.AttributeClass.StringEquals(Attributes.GENERATE_INPUT_CALLBACKS))
+				foreach (AttributeData? attributeData in memberDeclaration.GetAttributes())
 				{
-					continue;
-				}
+					cancellationToken.ThrowIfCancellationRequested();
 
-				if (attributeData.ConstructorArguments.Length != 1)
-				{
-					continue;
-				}
+					if (attributeData.AttributeClass is null)
+					{
+						continue;
+					}
 
-				if (attributeData.ConstructorArguments[0].Value is string inputName)
-				{
+					if (!attributeData.AttributeClass.StringEquals(Attributes.GENERATE_INPUT_CALLBACKS))
+					{
+						continue;
+					}
+
+					if (attributeData.ConstructorArguments.Length > 1)
+					{
+						continue;
+					}
+
+					string? inputName = null;
+
+					if (attributeData.ConstructorArguments.Length > 0 && attributeData.ConstructorArguments[0].Value is string)
+					{
+						inputName = (string) attributeData.ConstructorArguments[0].Value!;
+					}
+
 					InputCallbackType callbackType = InputCallbackType.None;
 
 					ImmutableArray<KeyValuePair<string, TypedConstant>> namedArguments = attributeData.NamedArguments;
@@ -227,14 +234,20 @@ public sealed class InputCallbacksGenerator : IIncrementalGenerator
 					fields.Add(new InputCallbackField(name, inputName, uniqueName, callbackType));
 				}
 			}
+
+			if (fields.Count == 0)
+			{
+				return (default, false);
+			}
+
+			return (new InputCallbacksType(symbol, fields.ToImmutable()), true);
 		}
 
-		if (fields.Count == 0)
+		catch (Exception e)
 		{
-			return (default, false);
+			Log.LogError("Error while generating input callbacks: " + e);
+			return default;
 		}
-
-		return (new InputCallbacksType(symbol, fields.ToImmutable()), true);
 	}
 
 	private static void GenerateCode(SourceProductionContext context, ImmutableArray<InputCallbacksType> typesList)
@@ -278,50 +291,108 @@ public sealed class InputCallbacksGenerator : IIncrementalGenerator
 							subscribe.Append(field.hasSubscribedField);
 							subscribe.Append(" && ");
 							subscribe.Append(field.name);
-							subscribe.Append(" != null && ");
-							subscribe.Append(field.inputName);
-							subscribe.AppendLine(" != null)");
+							subscribe.Append(" != null");
+							if (!string.IsNullOrWhiteSpace(field.inputName))
+							{
+								subscribe.Append(" && ");
+								subscribe.Append(field.inputName!);
+								subscribe.AppendLine(" != null");
+							}
+
+							subscribe.AppendLine(")");
 
 							using (BlockScope ifBlock = subscribe.WithBlock())
 							{
 								if ((field.callbackType & InputCallbackType.Started) != 0)
 								{
-									ifBlock.Append(field.inputName);
-									ifBlock.Append(".AddStartedListener(");
-									ifBlock.Append(field.name);
-									ifBlock.Append(", ");
-									ifBlock.Append(field.startedMethod!);
-									ifBlock.AppendLine(");");
+									// Has provided a PlayerInput field.
+									if (!string.IsNullOrWhiteSpace(field.inputName))
+									{
+										ifBlock.Append(field.inputName!);
+										ifBlock.Append(".AddStartedListener(");
+										ifBlock.Append(field.name);
+										ifBlock.Append(", ");
+										ifBlock.Append(field.startedMethod!);
+										ifBlock.AppendLine(");");
+									}
+									else
+									{
+										ifBlock.Append(field.name);
+										ifBlock.Append(".action.started += ");
+										ifBlock.Append(field.startedMethod!);
+										ifBlock.AppendLine(";");
+									}
 								}
 
 								if ((field.callbackType & InputCallbackType.Performed) != 0)
 								{
-									ifBlock.Append(field.inputName);
-									ifBlock.Append(".AddPerformedListener(");
-									ifBlock.Append(field.name);
-									ifBlock.Append(", ");
-									ifBlock.Append(field.performedMethod!);
-									ifBlock.AppendLine(");");
+									// Has provided a PlayerInput field.
+									if (!string.IsNullOrWhiteSpace(field.inputName))
+									{
+										ifBlock.Append(field.inputName!);
+										ifBlock.Append(".AddPerformedListener(");
+										ifBlock.Append(field.name);
+										ifBlock.Append(", ");
+										ifBlock.Append(field.performedMethod!);
+										ifBlock.AppendLine(");");
+									}
+									else
+									{
+										ifBlock.Append(field.name);
+										ifBlock.Append(".action.performed += ");
+										ifBlock.Append(field.performedMethod!);
+										ifBlock.AppendLine(";");
+									}
 								}
 
 								if ((field.callbackType & InputCallbackType.Canceled) != 0)
 								{
-									ifBlock.Append(field.inputName);
-									ifBlock.Append(".AddCanceledListener(");
-									ifBlock.Append(field.name);
-									ifBlock.Append(", ");
-									ifBlock.Append(field.canceledMethod!);
-									ifBlock.AppendLine(");");
+									// Has provided a PlayerInput field.
+									if (!string.IsNullOrWhiteSpace(field.inputName))
+									{
+										ifBlock.Append(field.inputName!);
+										ifBlock.Append(".AddCanceledListener(");
+										ifBlock.Append(field.name);
+										ifBlock.Append(", ");
+										ifBlock.Append(field.canceledMethod!);
+										ifBlock.AppendLine(");");
+									}
+									else
+									{
+										ifBlock.Append(field.name);
+										ifBlock.Append(".action.canceled += ");
+										ifBlock.Append(field.canceledMethod!);
+										ifBlock.AppendLine(";");
+									}
 								}
 
 								if ((field.callbackType & InputCallbackType.All) != 0)
 								{
-									ifBlock.Append(field.inputName);
-									ifBlock.Append(".AddAllListeners(");
-									ifBlock.Append(field.name);
-									ifBlock.Append(", ");
-									ifBlock.Append(field.allMethod!);
-									ifBlock.AppendLine(");");
+									// Has provided a PlayerInput field.
+									if (!string.IsNullOrWhiteSpace(field.inputName))
+									{
+										ifBlock.Append(field.inputName!);
+										ifBlock.Append(".AddAllListeners(");
+										ifBlock.Append(field.name);
+										ifBlock.Append(", ");
+										ifBlock.Append(field.allMethod!);
+										ifBlock.AppendLine(");");
+									}
+									else
+									{
+										ifBlock.Append(field.name);
+										ifBlock.Append(".action.started += ");
+										ifBlock.Append(field.allMethod!);
+										ifBlock.AppendLine(";");
+										ifBlock.Append(field.name);
+										ifBlock.Append(".action.performed += ");
+										ifBlock.Append(field.allMethod!);
+										ifBlock.AppendLine(";");
+										ifBlock.Append(field.name);
+										ifBlock.Append(".action.canceled += ");
+										ifBlock.Append(field.allMethod!);
+										ifBlock.AppendLine(";");
+									}
 								}
 
 								ifBlock.Append(field.hasSubscribedField);
@@ -335,50 +406,108 @@ public sealed class InputCallbacksGenerator : IIncrementalGenerator
 							unsubscribe.Append(field.hasSubscribedField);
 							unsubscribe.Append(" && ");
 							unsubscribe.Append(field.name);
-							unsubscribe.Append(" != null && ");
-							unsubscribe.Append(field.inputName);
-							unsubscribe.AppendLine(" != null)");
+							unsubscribe.Append(" != null");
+							if (!string.IsNullOrWhiteSpace(field.inputName))
+							{
+								unsubscribe.Append(" && ");
+								unsubscribe.Append(field.inputName!);
+								unsubscribe.AppendLine(" != null");
+							}
+
+							unsubscribe.AppendLine(")");
 
 							using (BlockScope ifBlock = unsubscribe.WithBlock())
 							{
 								if ((field.callbackType & InputCallbackType.Started) != 0)
 								{
-									ifBlock.Append(field.inputName);
-									ifBlock.Append(".RemoveStartedListener(");
-									ifBlock.Append(field.name);
-									ifBlock.Append(", ");
-									ifBlock.Append(field.startedMethod!);
-									ifBlock.AppendLine(");");
+									// Has provided a PlayerInput field.
+									if (!string.IsNullOrWhiteSpace(field.inputName))
+									{
+										ifBlock.Append(field.inputName!);
+										ifBlock.Append(".RemoveStartedListener(");
+										ifBlock.Append(field.name);
+										ifBlock.Append(", ");
+										ifBlock.Append(field.startedMethod!);
+										ifBlock.AppendLine(");");
+									}
+									else
+									{
+										ifBlock.Append(field.name);
+										ifBlock.Append(".action.started += ");
+										ifBlock.Append(field.startedMethod!);
+										ifBlock.AppendLine(";");
+									}
 								}
 
 								if ((field.callbackType & InputCallbackType.Performed) != 0)
 								{
-									ifBlock.Append(field.inputName);
-									ifBlock.Append(".RemovePerformedListener(");
-									ifBlock.Append(field.name);
-									ifBlock.Append(", ");
-									ifBlock.Append(field.performedMethod!);
-									ifBlock.AppendLine(");");
+									// Has provided a PlayerInput field.
+									if (!string.IsNullOrWhiteSpace(field.inputName))
+									{
+										ifBlock.Append(field.inputName!);
+										ifBlock.Append(".RemovePerformedListener(");
+										ifBlock.Append(field.name);
+										ifBlock.Append(", ");
+										ifBlock.Append(field.performedMethod!);
+										ifBlock.AppendLine(");");
+									}
+									else
+									{
+										ifBlock.Append(field.name);
+										ifBlock.Append(".action.performed -= ");
+										ifBlock.Append(field.performedMethod!);
+										ifBlock.AppendLine(";");
+									}
 								}
 
 								if ((field.callbackType & InputCallbackType.Canceled) != 0)
 								{
-									ifBlock.Append(field.inputName);
-									ifBlock.Append(".RemoveCanceledListener(");
-									ifBlock.Append(field.name);
-									ifBlock.Append(", ");
-									ifBlock.Append(field.canceledMethod!);
-									ifBlock.AppendLine(");");
+									// Has provided a PlayerInput field.
+									if (!string.IsNullOrWhiteSpace(field.inputName))
+									{
+										ifBlock.Append(field.inputName!);
+										ifBlock.Append(".RemoveCanceledListener(");
+										ifBlock.Append(field.name);
+										ifBlock.Append(", ");
+										ifBlock.Append(field.canceledMethod!);
+										ifBlock.AppendLine(");");
+									}
+									else
+									{
+										ifBlock.Append(field.name);
+										ifBlock.Append(".action.canceled -= ");
+										ifBlock.Append(field.canceledMethod!);
+										ifBlock.AppendLine(";");
+									}
 								}
 
 								if ((field.callbackType & InputCallbackType.All) != 0)
 								{
-									ifBlock.Append(field.inputName);
-									ifBlock.Append(".RemoveAllListeners(");
-									ifBlock.Append(field.name);
-									ifBlock.Append(", ");
-									ifBlock.Append(field.allMethod!);
-									ifBlock.AppendLine(");");
+									// Has provided a PlayerInput field.
+									if (!string.IsNullOrWhiteSpace(field.inputName))
+									{
+										ifBlock.Append(field.inputName!);
+										ifBlock.Append(".RemoveAllListeners(");
+										ifBlock.Append(field.name);
+										ifBlock.Append(", ");
+										ifBlock.Append(field.allMethod!);
+										ifBlock.AppendLine(");");
+									}
+									else
+									{
+										ifBlock.Append(field.name);
+										ifBlock.Append(".action.started -= ");
+										ifBlock.Append(field.allMethod!);
+										ifBlock.AppendLine(";");
+										ifBlock.Append(field.name);
+										ifBlock.Append(".action.performed -= ");
+										ifBlock.Append(field.allMethod!);
+										ifBlock.AppendLine(";");
+										ifBlock.Append(field.name);
+										ifBlock.Append(".action.canceled -= ");
+										ifBlock.Append(field.allMethod!);
+										ifBlock.AppendLine(";");
+									}
 								}
 
 								ifBlock.Append(field.hasSubscribedField);
@@ -419,7 +548,7 @@ public sealed class InputCallbacksGenerator : IIncrementalGenerator
 							}
 						}
 					}
-					
+
 					using (MethodScope subscribe = type.WithMethod("SubscribeToAllInputCallbacks").WithAccessor(MethodAccessor.Private))
 					{
 						foreach (InputCallbackField field in callbackType.fields)
