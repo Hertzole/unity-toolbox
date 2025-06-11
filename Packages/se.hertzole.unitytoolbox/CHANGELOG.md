@@ -1,3 +1,11 @@
+# [1.13.0](https://github.com/Hertzole/unity-toolbox/compare/v1.12.7...v1.13.0) (2025-06-11)
+
+
+### Features
+
+* Identifier.ToString() ([1985650](https://github.com/Hertzole/unity-toolbox/commit/19856500df38739f579c26c1d7ee32fcf6c3766e))
+* you no longer need to provide a PlayerInput for GenerateInputCallbacksAttribute ([3f693fa](https://github.com/Hertzole/unity-toolbox/commit/3f693fa860d359ac463403ff209362883bebad5b))
+
 ## [1.12.7](https://github.com/Hertzole/unity-toolbox/compare/v1.12.6...v1.12.7) (2025-05-28)
 
 
