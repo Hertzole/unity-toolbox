@@ -1,3 +1,10 @@
+## [1.13.1](https://github.com/Hertzole/unity-toolbox/compare/v1.13.0...v1.13.1) (2025-06-11)
+
+
+### Bug Fixes
+
+* correct action subscription operator in InputCallbacksGenerator ([e516c4a](https://github.com/Hertzole/unity-toolbox/commit/e516c4a648739920b4dac4ab550d851a7085a713))
+
 # [1.13.0](https://github.com/Hertzole/unity-toolbox/compare/v1.12.7...v1.13.0) (2025-06-11)
 
 
