@@ -10,6 +10,8 @@ namespace Hertzole.UnityToolbox
 		public bool GenerateCanceled { get; set; } = false;
 		public bool GenerateAll { get; set; } = false;
 
+		public GenerateInputCallbacksAttribute() { }
+
 		public GenerateInputCallbacksAttribute(string inputName) { }
 	}
 }
