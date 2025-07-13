@@ -53,5 +53,16 @@ namespace Hertzole.UnityToolbox
 
 			element.RegisterCallback(callback, userArgs);
 		}
+		
+		public static void UnregisterValueChangedCallback<T, TArgs>(this INotifyValueChanged<T> control,
+			EventCallback<ChangeEvent<T>, TArgs> callback)
+		{
+			if (control is not VisualElement element)
+			{
+				throw new InvalidOperationException("INotifyValueChanged<T> must be a VisualElement to unregister value changed callbacks.");
+			}
+
+			element.UnregisterCallback(callback);
+		}
 	}
 }
