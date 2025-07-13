@@ -1,4 +1,5 @@
-﻿using UnityEngine.UIElements;
+﻿using System;
+using UnityEngine.UIElements;
 
 namespace Hertzole.UnityToolbox
 {
@@ -39,6 +40,18 @@ namespace Hertzole.UnityToolbox
 			}
 
 			return true;
+		}
+		
+		public static void RegisterValueChangedCallback<T, TArgs>(this INotifyValueChanged<T> control,
+			EventCallback<ChangeEvent<T>, TArgs> callback,
+			TArgs userArgs)
+		{
+			if (control is not VisualElement element)
+			{
+				throw new InvalidOperationException("INotifyValueChanged<T> must be a VisualElement to register value changed callbacks.");
+			}
+
+			element.RegisterCallback(callback, userArgs);
 		}
 	}
 }
