@@ -1,3 +1,11 @@
+# [1.14.0](https://github.com/Hertzole/unity-toolbox/compare/v1.13.1...v1.14.0) (2025-07-13)
+
+
+### Features
+
+* access to Identifier.StringValue, but only in the editor! ([c903041](https://github.com/Hertzole/unity-toolbox/commit/c903041dbe0761343b5e3c1f08e6f176ba4d4589))
+* RegisterValueChangeCallback with user args extension method for visual elements ([a310fce](https://github.com/Hertzole/unity-toolbox/commit/a310fce869f08e10f80b7c8d7fb8248cc49421c9))
+
 ## [1.13.1](https://github.com/Hertzole/unity-toolbox/compare/v1.13.0...v1.13.1) (2025-06-11)
 
 
