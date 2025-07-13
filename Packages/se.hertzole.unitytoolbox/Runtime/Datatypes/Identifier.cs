@@ -26,6 +26,16 @@ namespace Hertzole.UnityToolbox
 
 			value = ToStableHash(stringValue);
 		}
+		
+		#if UNITY_EDITOR
+		/// <summary>
+		/// The EDITOR ONLY string value of this identifier. This CAN NOT be used at runtime.
+		/// </summary>
+		public string StringValue
+		{
+			get { return stringValue; }
+		}
+		#endif
 
 		public override int GetHashCode()
 		{
