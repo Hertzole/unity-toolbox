@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace Hertzole.UnityToolbox
 {
+	[Obsolete("Use GizmosScope instead. This will be removed in a future version.")]
 	public readonly struct GizmoColorScope : IDisposable
 	{
 		private readonly Color originalColor;
