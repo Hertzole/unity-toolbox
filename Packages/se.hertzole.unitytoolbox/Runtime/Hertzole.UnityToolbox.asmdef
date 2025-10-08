@@ -97,9 +97,14 @@
             "define": "TOOLBOX_COLLECTIONS_2"
         },
         {
-            "name": "se.hertzole.scriptable-values",
-            "expression": "2",
-            "define": "TOOLBOX_SCRIPTABLE_VALUES_2"
+          "name": "se.hertzole.scriptable-values",
+          "expression": "2",
+          "define": "TOOLBOX_SCRIPTABLE_VALUES_2"
+        },
+        {
+          "name": "com.unity.mathematics",
+          "expression": "",
+          "define": "TOOLBOX_MATHEMATICS"
         }
     ],
     "noEngineReferences": false
