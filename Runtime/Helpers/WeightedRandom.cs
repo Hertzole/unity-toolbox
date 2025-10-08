@@ -7,6 +7,11 @@ namespace Hertzole.UnityToolbox
     {
         public static T GetRandom<T>(IReadOnlyList<T> list, Func<T, int> getWeight)
         {
+            return list[GetRandomIndex(list, getWeight)];
+        }
+
+        public static int GetRandomIndex<T>(IReadOnlyList<T> list, Func<T, int> getWeight)
+        {
             int totalWeight = 0;
             for (int i = 0; i < list.Count; i++)
             {
@@ -18,16 +23,21 @@ namespace Hertzole.UnityToolbox
             {
                 if (random < getWeight(list[i]))
                 {
-                    return list[i];
+                    return i;
                 }
 
                 random -= getWeight(list[i]);
             }
 
-            return list[list.Count - 1];
+            return list.Count - 1;
         }
 
         public static T GetRandom<T>(IReadOnlyList<T> list, Func<T, int> getWeight, Random random)
+        {
+            return list[GetRandomIndex(list, getWeight, random)];
+        }
+
+        public static int GetRandomIndex<T>(IReadOnlyList<T> list, Func<T, int> getWeight, Random random)
         {
             int totalWeight = 0;
             for (int i = 0; i < list.Count; i++)
@@ -40,13 +50,13 @@ namespace Hertzole.UnityToolbox
             {
                 if (randomNumber < getWeight(list[i]))
                 {
-                    return list[i];
+                    return i;
                 }
 
                 randomNumber -= getWeight(list[i]);
             }
 
-            return list[list.Count - 1];
+            return list.Count - 1;
         }
 
         [Obsolete("Use the overload with the getWeight parameter instead.")]
