@@ -4,44 +4,45 @@ using Random = UnityEngine.Random;
 
 namespace Hertzole.UnityToolbox
 {
-	[Serializable]
-	public struct RandomInt : IMinMaxInt
-	{
-		[SerializeField]
-		private int min;
-		[SerializeField]
-		private int max;
+    [Serializable]
+    [Obsolete("Use MinMaxInt with MinMaxExtensions.GetRandomValue() instead.")]
+    public struct RandomInt : IMinMaxInt
+    {
+        [SerializeField]
+        private int min;
+        [SerializeField]
+        private int max;
 
-		public int Value
-		{
-			get { return GetRandom(); }
-		}
+        public int Value
+        {
+            get { return GetRandom(); }
+        }
 
-		public int Min
-		{
-			get { return min; }
-			set { min = value; }
-		}
-		public int Max
-		{
-			get { return max; }
-			set { max = value; }
-		}
+        public int Min
+        {
+            get { return min; }
+            set { min = value; }
+        }
+        public int Max
+        {
+            get { return max; }
+            set { max = value; }
+        }
 
-		public RandomInt(int min, int max)
-		{
-			this.min = min;
-			this.max = max;
-		}
+        public RandomInt(int min, int max)
+        {
+            this.min = min;
+            this.max = max;
+        }
 
-		private int GetRandom()
-		{
-			return Random.Range(min, max);
-		}
+        private int GetRandom()
+        {
+            return Random.Range(min, max);
+        }
 
-		public static implicit operator int(RandomInt random)
-		{
-			return random.GetRandom();
-		}
-	}
+        public static implicit operator int(RandomInt random)
+        {
+            return random.GetRandom();
+        }
+    }
 }
