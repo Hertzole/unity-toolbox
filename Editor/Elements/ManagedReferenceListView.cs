@@ -1,84 +1,81 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using UnityEditor;
-using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Object = UnityEngine.Object;
 
 namespace Hertzole.UnityToolbox.Editor
 {
-	public class ManagedReferenceListView<T> : ListView
-	{
-		private readonly SerializedProperty listProperty;
+    public class ManagedReferenceListView : ListView
+    {
+        private static readonly GUIContent noTypesFound = new GUIContent("No types found.");
 
-		private readonly GUIContent noTypesFound = new GUIContent("No types found.");
+        public static void ShowAddManagedObjectMenu<T>(SerializedProperty listProperty, Action? onTypeSelected = null)
+        {
+            GenericMenu menu = new GenericMenu();
 
-		public ManagedReferenceListView(SerializedProperty listProperty)
-		{
-			this.listProperty = listProperty;
+            TypeCache.TypeCollection types = TypeCache.GetTypesDerivedFrom<T>();
 
-			schedule.Execute(() =>
-			{
-				Button addButton = this.Q<Button>(ussClassName + "__add-button");
-				addButton.clickable = new Clickable(ClickAddManaged);
-			});
+            for (int i = 0; i < types.Count; i++)
+            {
+                Type type = types[i];
 
-			this.BindProperty(listProperty);
-			this.Bind(listProperty.serializedObject);
-		}
+                if (type.IsAbstract || type.IsGenericType || type.IsInterface || !type.IsSerializable)
+                {
+                    continue;
+                }
 
-		private void ClickAddManaged()
-		{
-			GenericMenu menu = new GenericMenu();
+                // Ignore Unity types as they can not be managed references.
+                if (typeof(Object).IsAssignableFrom(type))
+                {
+                    continue;
+                }
 
-			TypeCache.TypeCollection types = TypeCache.GetTypesDerivedFrom<T>();
-			Type last = null;
+                GUIContent typeName = new GUIContent(ObjectNames.NicifyVariableName(type.Name));
 
-			for (int i = 0; i < types.Count; i++)
-			{
-				Type type = types[i];
+                menu.AddItem(typeName, false, OnClickAddItem, new MenuData(type, listProperty, onTypeSelected));
+            }
 
-				if (type.IsAbstract || type.IsGenericType || type.IsInterface || !type.IsSerializable)
-				{
-					continue;
-				}
+            if (menu.GetItemCount() == 0)
+            {
+                menu.AddDisabledItem(noTypesFound);
+                menu.ShowAsContext();
+            }
+            else
+            {
+                menu.ShowAsContext();
+            }
+        }
 
-				// Ignore Unity types as they can not be managed references.
-				if (typeof(Object).IsAssignableFrom(type))
-				{
-					continue;
-				}
+        private static void OnClickAddItem(object data)
+        {
+            MenuData menuData = (MenuData) data;
+            Type type = menuData.type;
+            SerializedProperty listProperty = menuData.listProperty;
 
-				last = type;
+            object instance = Activator.CreateInstance(type);
+            menuData.listProperty.InsertArrayElementAtIndex(listProperty.arraySize);
+            SerializedProperty element = listProperty.GetArrayElementAtIndex(listProperty.arraySize - 1);
+            element.managedReferenceValue = instance;
+            listProperty.serializedObject.ApplyModifiedProperties();
 
-				GUIContent typeName = new GUIContent(ObjectNames.NicifyVariableName(type.Name));
+            menuData.onTypeSelected?.Invoke();
+        }
 
-				menu.AddItem(typeName, false, () => { AddManagedItem(type); });
-			}
+        private readonly struct MenuData
+        {
+            public readonly Type type;
+            public readonly SerializedProperty listProperty;
+            public readonly Action? onTypeSelected;
 
-			if (menu.GetItemCount() == 0)
-			{
-				menu.AddDisabledItem(noTypesFound);
-				menu.ShowAsContext();
-			}
-			else if (menu.GetItemCount() == 1)
-			{
-				AddManagedItem(last);
-			}
-			else
-			{
-				menu.ShowAsContext();
-			}
-		}
-
-		private void AddManagedItem(Type type)
-		{
-			object instance = Activator.CreateInstance(type);
-			listProperty.InsertArrayElementAtIndex(listProperty.arraySize);
-			SerializedProperty element = listProperty.GetArrayElementAtIndex(listProperty.arraySize - 1);
-			element.managedReferenceValue = instance;
-			listProperty.serializedObject.ApplyModifiedProperties();
-			RefreshItems();
-		}
-	}
+            public MenuData(Type type, SerializedProperty listProperty, Action? onTypeSelected)
+            {
+                this.type = type;
+                this.listProperty = listProperty;
+                this.onTypeSelected = onTypeSelected;
+            }
+        }
+    }
 }

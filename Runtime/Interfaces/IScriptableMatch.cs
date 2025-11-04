@@ -3,13 +3,14 @@ using System;
 
 namespace Hertzole.UnityToolbox
 {
-	public interface IScriptableMatch : IDisposable
-	{
-		void Initialize();
+    [Obsolete("Use IMatcher instead. IScriptableMatch will be removed in future versions.")]
+    public interface IScriptableMatch : IDisposable
+    {
+        void Initialize();
 
-		event Action OnValueChanged;
+        event Action OnValueChanged;
 
-		bool Matches();
-	}
+        bool Matches();
+    }
 }
 #endif

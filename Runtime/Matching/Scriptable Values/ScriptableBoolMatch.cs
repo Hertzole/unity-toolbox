@@ -3,7 +3,7 @@ using System;
 
 namespace Hertzole.UnityToolbox.Matches
 {
-	[Serializable]
-	public sealed class ScriptableBoolMatch : ScriptableValueMatch<bool> { }
+    [Serializable]
+    public sealed class ScriptableBoolMatch : ScriptableValueMatch<bool> { }
 }
 #endif
