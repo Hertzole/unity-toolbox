@@ -17,7 +17,6 @@ namespace Hertzole.UnityToolbox.Editor
             {
                 SerializedProperty matchersProperty = property.FindPropertyRelative("matchers");
 
-                Debug.Log("Creating list");
                 list = new ReorderableList(property.serializedObject, matchersProperty, true, false, true, true)
                 {
                     onAddCallback = static l => { ManagedReferenceListView.ShowAddManagedObjectMenu<IMatcher>(l.serializedProperty); },
