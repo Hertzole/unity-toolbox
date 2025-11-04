@@ -1,55 +1,67 @@
 ﻿using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.Pool;
 using UnityEngine.UIElements;
 
 namespace Hertzole.UnityToolbox.Editor
 {
-	/// <summary>
-	///     Base class for toolbox property drawers. This class handles the tooltip and alignment of the property.
-	/// </summary>
-	public abstract class ToolboxPropertyDrawer : PropertyDrawer
-	{
-		protected virtual bool HandleTooltip { get { return true; } }
+    /// <summary>
+    ///     Base class for toolbox property drawers. This class handles the tooltip and alignment of the property.
+    /// </summary>
+    public abstract class ToolboxPropertyDrawer : PropertyDrawer
+    {
+        protected virtual bool HandleTooltip
+        {
+            get { return true; }
+        }
 
-		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-		{
-			DrawGUI(position, property, label);
-		}
+        protected static readonly ObjectPool<GUIContent> guiContentPool =
+            new ObjectPool<GUIContent>(static () => new GUIContent(), actionOnRelease: static content =>
+            {
+                content.text = string.Empty;
+                content.image = null;
+                content.tooltip = string.Empty;
+            });
 
-		public override VisualElement CreatePropertyGUI(SerializedProperty property)
-		{
-			string label =
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            DrawGUI(position, property, label);
+        }
+
+        public override VisualElement CreatePropertyGUI(SerializedProperty property)
+        {
+            string label =
 #if UNITY_2022_2_OR_NEWER
-				preferredLabel;
-			#else
+                preferredLabel;
+#else
 				property.displayName;
-			#endif
-			
-			VisualElement field = CreateGUI(property, label);
-			if (field == null)
-			{
-				return null;
-			}
+#endif
 
-			field.RegisterCallback<AttachToPanelEvent, VisualElement>((evt, args) =>
-			{
-				if (args.parent is PropertyField)
-				{
-					args.AddToClassList(BaseField<object>.alignedFieldUssClassName);
-				}
-			}, field);
+            VisualElement field = CreateGUI(property, label);
+            if (field == null)
+            {
+                return null;
+            }
 
-			if (HandleTooltip && !string.IsNullOrEmpty(property.tooltip))
-			{
-				field.tooltip = property.tooltip;
-			}
+            field.RegisterCallback<AttachToPanelEvent, VisualElement>((evt, args) =>
+            {
+                if (args.parent is PropertyField)
+                {
+                    args.AddToClassList(BaseField<object>.alignedFieldUssClassName);
+                }
+            }, field);
 
-			return field;
-		}
+            if (HandleTooltip && !string.IsNullOrEmpty(property.tooltip))
+            {
+                field.tooltip = property.tooltip;
+            }
 
-		protected abstract void DrawGUI(Rect position, SerializedProperty property, GUIContent label);
-		
-		protected abstract VisualElement CreateGUI(SerializedProperty property, string label);
-	}
+            return field;
+        }
+
+        protected abstract void DrawGUI(Rect position, SerializedProperty property, GUIContent label);
+
+        protected abstract VisualElement CreateGUI(SerializedProperty property, string label);
+    }
 }

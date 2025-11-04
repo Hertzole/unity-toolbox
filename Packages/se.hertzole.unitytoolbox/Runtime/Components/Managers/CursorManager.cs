@@ -1,75 +1,67 @@
 ﻿#if TOOLBOX_SCRIPTABLE_VALUES
 using Hertzole.ScriptableValues;
-using Hertzole.UnityToolbox.Matches;
 using UnityEngine;
 #if TOOLBOX_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
+
 #if TOOLBOX_ADDRESSABLES
 using UnityEngine.AddressableAssets;
 #endif
 
 namespace Hertzole.UnityToolbox
 {
-	[DisallowMultipleComponent]
-	public sealed partial class CursorManager : MonoSingleton<CursorManager>
-	{
-		[SerializeField]
-		private ScriptableValue<bool> lockCursor = default;
-		[SerializeField]
-		private bool handleCursorLocking = true;
+    [DisallowMultipleComponent]
+    public sealed class CursorManager : MonoSingleton<CursorManager>
+    {
+        [SerializeField]
+        private ScriptableValue<bool> lockCursor = default;
+        [SerializeField]
+        private bool handleCursorLocking = true;
 
-		[SerializeReference]
-		private IScriptableMatch[] matches = new IScriptableMatch[0];
+        [SerializeReference]
+        private MatchGroup matches = new MatchGroup();
 
-		private void Start()
-		{
-			OnValueChanged();
-		}
-
-		private void Update()
-		{
-			if (!handleCursorLocking)
-			{
-				return;
-			}
+        private void Update()
+        {
+            if (!handleCursorLocking)
+            {
+                return;
+            }
 
 #if TOOLBOX_INPUT_SYSTEM
 			if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame && lockCursor != null && lockCursor.Value)
 #else
-			if (Input.GetMouseButtonDown(0) && lockCursor != null && lockCursor.Value)
+            if (Input.GetMouseButtonDown(0) && lockCursor != null && lockCursor.Value)
 #endif
-			{
-				LockCursor(true);
-			}
-		}
+            {
+                LockCursor(true);
+            }
+        }
 
-		private void OnDestroy()
-		{
+        private void OnDestroy()
+        {
 #if TOOLBOX_ADDRESSABLES
 			ReleaseAssets();
 #endif
 
-			if (Instance == this)
-			{
-				if (lockCursor != null)
-				{
-					lockCursor.OnValueChanged -= OnLockCursorChanged;
-				}
+            if (Instance == this)
+            {
+                if (lockCursor != null)
+                {
+                    lockCursor.OnValueChanged -= OnLockCursorChanged;
+                }
 
-				for (int i = 0; i < matches.Length; i++)
-				{
-					matches[i].Dispose();
-					matches[i].OnValueChanged -= OnValueChanged;
-				}
+                matches.OnIsMatchingChanged -= OnValueChanged;
+                matches.Dispose();
 
-				Cursor.lockState = CursorLockMode.None;
-				Cursor.visible = true;
-			}
-		}
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+            }
+        }
 
-		protected override void OnAwake()
-		{
+        protected override void OnAwake()
+        {
 #if TOOLBOX_ADDRESSABLES
 			if (useAddressables)
 			{
@@ -77,19 +69,16 @@ namespace Hertzole.UnityToolbox
 			}
 			else
 #endif
-			{
-				if (lockCursor != null)
-				{
-					lockCursor.OnValueChanged += OnLockCursorChanged;
-				}
+            {
+                if (lockCursor != null)
+                {
+                    lockCursor.OnValueChanged += OnLockCursorChanged;
+                }
 
-				for (int i = 0; i < matches.Length; i++)
-				{
-					matches[i].Initialize();
-					matches[i].OnValueChanged += OnValueChanged;
-				}
-			}
-		}
+                matches.OnIsMatchingChanged += OnValueChanged;
+                matches.Initialize();
+            }
+        }
 
 #if TOOLBOX_ADDRESSABLES
 		partial void OnLockCursorLoaded(ScriptableValue<bool> value)
@@ -99,44 +88,31 @@ namespace Hertzole.UnityToolbox
 		}
 #endif
 
-		private void OnValueChanged()
-		{
-			if (lockCursor == null)
-			{
-				return;
-			}
+        private void OnValueChanged(bool isMatching)
+        {
+            if (lockCursor == null)
+            {
+                return;
+            }
 
-			lockCursor.Value = AllMatches();
-		}
+            lockCursor.Value = isMatching;
+        }
 
-		private void OnLockCursorChanged(bool previousValue, bool newValue)
-		{
-			if (!handleCursorLocking)
-			{
-				return;
-			}
+        private void OnLockCursorChanged(bool previousValue, bool newValue)
+        {
+            if (!handleCursorLocking)
+            {
+                return;
+            }
 
-			LockCursor(newValue);
-		}
+            LockCursor(newValue);
+        }
 
-		private static void LockCursor(bool shouldLock)
-		{
-			Cursor.lockState = shouldLock ? CursorLockMode.Locked : CursorLockMode.None;
-			Cursor.visible = !shouldLock;
-		}
-
-		private bool AllMatches()
-		{
-			for (int i = 0; i < matches.Length; i++)
-			{
-				if (!matches[i].Matches())
-				{
-					return false;
-				}
-			}
-
-			return true;
-		}
+        private static void LockCursor(bool shouldLock)
+        {
+            Cursor.lockState = shouldLock ? CursorLockMode.Locked : CursorLockMode.None;
+            Cursor.visible = !shouldLock;
+        }
 
 #if UNITY_EDITOR && TOOLBOX_ADDRESSABLES
 		private void OnValidate()
@@ -160,6 +136,6 @@ namespace Hertzole.UnityToolbox
 		[GenerateLoad]
 		private AssetReferenceT<ScriptableValue<bool>> lockCursorReference = default;
 #endif
-	}
+    }
 }
 #endif
