@@ -11,7 +11,7 @@ using UnityEngine.AddressableAssets;
 namespace Hertzole.UnityToolbox.Matches
 {
     [Serializable]
-    public abstract class ScriptableValueMatch<T> : IMatcher
+    public abstract partial class ScriptableValueMatch<T> : IMatcher
     {
         [SerializeField]
         private ScriptableValue<T> target = null!;
@@ -30,14 +30,14 @@ namespace Hertzole.UnityToolbox.Matches
         }
 
 #if TOOLBOX_ADDRESSABLES
-		partial void OnTargetLoaded(ScriptableValue<T> value)
-		{
-			if (hasInitialized)
-			{
-				value.OnValueChanged += OnValueChangedInternal;
-				OnMatcherUpdated?.Invoke();
-			}
-		}
+        partial void OnTargetLoaded(ScriptableValue<T> value)
+        {
+            if (hasInitialized)
+            {
+                value.OnValueChanged += OnValueChangedInternal;
+                OnMatcherUpdated?.Invoke();
+            }
+        }
 #endif
 
         public void Initialize()
@@ -48,10 +48,10 @@ namespace Hertzole.UnityToolbox.Matches
             }
 
 #if TOOLBOX_ADDRESSABLES
-			if (useAddressables)
-			{
-				LoadAssets();
-			}
+            if (useAddressables)
+            {
+                LoadAssets();
+            }
 #endif
             if (target != null)
             {
@@ -69,8 +69,8 @@ namespace Hertzole.UnityToolbox.Matches
             }
 
 #if TOOLBOX_ADDRESSABLES
-			ReleaseAssets();
-			target = null;
+            ReleaseAssets();
+            target = null;
 #endif
 
             hasInitialized = false;
@@ -81,11 +81,11 @@ namespace Hertzole.UnityToolbox.Matches
             return EqualityHelper.Equals(target.Value, mustMatchValue);
         }
 #if TOOLBOX_ADDRESSABLES
-		[SerializeField]
-		private bool useAddressables = default;
-		[SerializeField]
-		[GenerateLoad]
-		private AssetReferenceT<ScriptableValue<T>> targetReference = default;
+        [SerializeField]
+        private bool useAddressables = default;
+        [SerializeField]
+        [GenerateLoad]
+        private AssetReferenceT<ScriptableValue<T>> targetReference = default;
 #endif
     }
 }
