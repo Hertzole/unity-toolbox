@@ -12,7 +12,7 @@ using UnityEngine.AddressableAssets;
 namespace Hertzole.UnityToolbox
 {
     [DisallowMultipleComponent]
-    public sealed class CursorManager : MonoSingleton<CursorManager>
+    public sealed partial class CursorManager : MonoSingleton<CursorManager>
     {
         [SerializeField]
         private ScriptableValue<bool> lockCursor = default;
@@ -30,7 +30,7 @@ namespace Hertzole.UnityToolbox
             }
 
 #if TOOLBOX_INPUT_SYSTEM
-			if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame && lockCursor != null && lockCursor.Value)
+            if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame && lockCursor != null && lockCursor.Value)
 #else
             if (Input.GetMouseButtonDown(0) && lockCursor != null && lockCursor.Value)
 #endif
@@ -42,7 +42,7 @@ namespace Hertzole.UnityToolbox
         private void OnDestroy()
         {
 #if TOOLBOX_ADDRESSABLES
-			ReleaseAssets();
+            ReleaseAssets();
 #endif
 
             if (Instance == this)
@@ -63,11 +63,11 @@ namespace Hertzole.UnityToolbox
         protected override void OnAwake()
         {
 #if TOOLBOX_ADDRESSABLES
-			if (useAddressables)
-			{
-				LoadAssets();
-			}
-			else
+            if (useAddressables)
+            {
+                LoadAssets();
+            }
+            else
 #endif
             {
                 if (lockCursor != null)
@@ -81,11 +81,11 @@ namespace Hertzole.UnityToolbox
         }
 
 #if TOOLBOX_ADDRESSABLES
-		partial void OnLockCursorLoaded(ScriptableValue<bool> value)
-		{
-			lockCursor.OnValueChanged += OnLockCursorChanged;
-			OnValueChanged();
-		}
+        partial void OnLockCursorLoaded(ScriptableValue<bool> value)
+        {
+            lockCursor.OnValueChanged += OnLockCursorChanged;
+            OnValueChanged(matches.IsMatching);
+        }
 #endif
 
         private void OnValueChanged(bool isMatching)
@@ -115,26 +115,26 @@ namespace Hertzole.UnityToolbox
         }
 
 #if UNITY_EDITOR && TOOLBOX_ADDRESSABLES
-		private void OnValidate()
-		{
-			// We don't want to reset the value while playing.
-			if (Application.isPlaying)
-			{
-				return;
-			}
+        private void OnValidate()
+        {
+            // We don't want to reset the value while playing.
+            if (Application.isPlaying)
+            {
+                return;
+            }
 
-			if (useAddressables)
-			{
-				lockCursor = null;
-			}
-		}
+            if (useAddressables)
+            {
+                lockCursor = null;
+            }
+        }
 #endif
 #if TOOLBOX_ADDRESSABLES
-		[SerializeField]
-		private bool useAddressables = default;
-		[SerializeField]
-		[GenerateLoad]
-		private AssetReferenceT<ScriptableValue<bool>> lockCursorReference = default;
+        [SerializeField]
+        private bool useAddressables = default;
+        [SerializeField]
+        [GenerateLoad]
+        private AssetReferenceT<ScriptableValue<bool>> lockCursorReference = default;
 #endif
     }
 }
