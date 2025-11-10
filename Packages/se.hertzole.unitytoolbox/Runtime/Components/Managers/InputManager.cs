@@ -11,34 +11,34 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 namespace Hertzole.UnityToolbox
 {
 #if UNITY_EDITOR
-	[RequireComponent(typeof(PlayerInput))]
+    [RequireComponent(typeof(PlayerInput))]
 #endif
-	[DefaultExecutionOrder(-1_000_000)]
-	public partial class InputManager : MonoBehaviour
-	{
-		[SerializeField]
-		private ScriptablePlayerInputsList inputsList = default;
-		[SerializeField]
-		[HideInInspector]
-		private PlayerInput playerInput = default;
+    [DefaultExecutionOrder(-1_000_000)]
+    public class InputManager : MonoBehaviour
+    {
+        [SerializeField]
+        private ScriptablePlayerInputsList inputsList = default;
+        [SerializeField]
+        [HideInInspector]
+        private PlayerInput playerInput = default;
 
-		[SerializeField]
-		private bool setInputActions = default;
-		[SerializeField]
-		private InputActionAsset inputActions = default;
+        [SerializeField]
+        private bool setInputActions = default;
+        [SerializeField]
+        private InputActionAsset inputActions = default;
 
-		[SerializeField]
-		private bool enableOnStart = true;
-		[SerializeField]
-		private bool autoEnableNewInputs = true;
-		[SerializeField]
-		private bool autoDisableRemovedInputs = true;
+        [SerializeField]
+        private bool enableOnStart = true;
+        [SerializeField]
+        private bool autoEnableNewInputs = true;
+        [SerializeField]
+        private bool autoDisableRemovedInputs = true;
 
-		private bool isEnabled;
-		private bool hasSubscribed;
+        private bool isEnabled;
+        private bool hasSubscribed;
 
-		private void Start()
-		{
+        private void Start()
+        {
 #if TOOLBOX_ADDRESSABLES
 			if (useAddressables)
 			{
@@ -51,125 +51,132 @@ namespace Hertzole.UnityToolbox
 			}
 			else
 #endif
-			{
-				if (setInputActions)
-				{
-					playerInput.actions = inputActions;
-				}
+            {
+                if (setInputActions)
+                {
+                    playerInput.actions = inputActions;
+                }
 
-				if (enableOnStart)
-				{
-					EnableInput();
-				}
-			}
-		}
+                if (enableOnStart)
+                {
+                    EnableInput();
+                }
+            }
+        }
 
-		private void OnEnable()
-		{
-			if (inputsList != null && !hasSubscribed)
-			{
-				SubscribeToEvents();
-			}
-		}
+        private void OnEnable()
+        {
+            if (inputsList != null && !hasSubscribed)
+            {
+                SubscribeToEvents();
+            }
+        }
 
-		private void OnDisable()
-		{
-			if (inputsList != null && hasSubscribed)
-			{
+        private void OnDisable()
+        {
+            if (inputsList != null && hasSubscribed)
+            {
 #if TOOLBOX_SCRIPTABLE_VALUES_2
-				inputsList.OnCollectionChanged -= OnCollectionChanged;
+                inputsList.OnCollectionChanged -= OnCollectionChanged;
 #else
 				inputsList.OnAddedOrInserted -= OnInputAdded;
 				inputsList.OnRemoved -= OnInputRemoved;
 #endif
-				hasSubscribed = false;
-			}
-		}
+                hasSubscribed = false;
+            }
+        }
 
-		private void OnDestroy()
-		{
-			if (inputsList == null)
-			{
-				return;
-			}
+        private void OnDestroy()
+        {
+            if (inputsList == null)
+            {
+                return;
+            }
 
-			if (isEnabled)
-			{
-				DisableInput();
-			}
+            if (isEnabled)
+            {
+                DisableInput();
+            }
 
 #if TOOLBOX_ADDRESSABLES
-			inputsListHandle.Release();
-			actionsHandle.Release();
+			if (inputsListHandle.IsValid())
+			{
+				inputsListHandle.Release();
+			}
+
+			if (actionsHandle.IsValid())
+			{
+				actionsHandle.Release();
+			}
 #endif
-		}
+        }
 
-		public void EnableInput()
-		{
-			isEnabled = true;
+        public void EnableInput()
+        {
+            isEnabled = true;
 
-			for (int i = 0; i < inputsList.Count; i++)
-			{
-				inputsList[i].EnableInput(playerInput);
-			}
-		}
+            for (int i = 0; i < inputsList.Count; i++)
+            {
+                inputsList[i].EnableInput(playerInput);
+            }
+        }
 
-		public void DisableInput()
-		{
-			isEnabled = false;
+        public void DisableInput()
+        {
+            isEnabled = false;
 
-			for (int i = 0; i < inputsList.Count; i++)
-			{
-				inputsList[i].DisableInput(playerInput);
-			}
-		}
+            for (int i = 0; i < inputsList.Count; i++)
+            {
+                inputsList[i].DisableInput(playerInput);
+            }
+        }
 
-		private void SubscribeToEvents()
-		{
+        private void SubscribeToEvents()
+        {
 #if TOOLBOX_SCRIPTABLE_VALUES_2
-			inputsList.OnCollectionChanged += OnCollectionChanged;
+            inputsList.OnCollectionChanged += OnCollectionChanged;
 #else
 			inputsList.OnAddedOrInserted += OnInputAdded;
 			inputsList.OnRemoved += OnInputRemoved;
 #endif
-			hasSubscribed = true;
-		}
+            hasSubscribed = true;
+        }
 
 #if TOOLBOX_SCRIPTABLE_VALUES_2
-		private void OnCollectionChanged(CollectionChangedArgs<IHasPlayerInput> e)
-		{
-			if (e.Action == NotifyCollectionChangedAction.Add)
-			{
-				for (int i = 0; i < e.NewItems.Length; i++)
-				{
-					OnInputAdded(0, e.NewItems.Span[i]);
-				}
-			}
-			else if (e.Action == NotifyCollectionChangedAction.Remove)
-			{
-				for (int i = 0; i < e.OldItems.Length; i++)
-				{
-					OnInputRemoved(0, e.OldItems.Span[i]);
-				}
-			}
-		}
+        private void OnCollectionChanged(CollectionChangedArgs<IHasPlayerInput> e)
+        {
+            if (e.Action == NotifyCollectionChangedAction.Add)
+            {
+                for (int i = 0; i < e.NewItems.Length; i++)
+                {
+                    OnInputAdded(0, e.NewItems.Span[i]);
+                }
+            }
+            else if (e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                for (int i = 0; i < e.OldItems.Length; i++)
+                {
+                    OnInputRemoved(0, e.OldItems.Span[i]);
+                }
+            }
+        }
 #endif
 
-		private void OnInputAdded(int index, IHasPlayerInput input)
-		{
-			if (autoEnableNewInputs && isEnabled && playerInput.actions != null)
-			{
-				input.EnableInput(playerInput);
-			}
-		}
+        private void OnInputAdded(int index, IHasPlayerInput input)
+        {
+            if (autoEnableNewInputs && isEnabled && playerInput.actions != null)
+            {
+                input.EnableInput(playerInput);
+            }
+        }
 
-		private void OnInputRemoved(int index, IHasPlayerInput input)
-		{
-			if (autoDisableRemovedInputs && isEnabled && playerInput.actions != null)
-			{
-				input.DisableInput(playerInput);
-			}
-		}
+        private void OnInputRemoved(int index, IHasPlayerInput input)
+        {
+            if (autoDisableRemovedInputs && isEnabled && playerInput.actions != null)
+            {
+                input.DisableInput(playerInput);
+            }
+        }
 #if TOOLBOX_ADDRESSABLES
 		[SerializeField]
 		private bool useAddressables = false;
@@ -213,22 +220,22 @@ namespace Hertzole.UnityToolbox
 #endif
 
 #if UNITY_EDITOR
-		private void Reset()
-		{
-			GetStandardComponents();
-		}
+        private void Reset()
+        {
+            GetStandardComponents();
+        }
 
-		private void OnValidate()
-		{
-			GetStandardComponents();
-		}
+        private void OnValidate()
+        {
+            GetStandardComponents();
+        }
 
-		private void GetStandardComponents()
-		{
-			if (playerInput == null)
-			{
-				playerInput = GetComponent<PlayerInput>();
-			}
+        private void GetStandardComponents()
+        {
+            if (playerInput == null)
+            {
+                playerInput = GetComponent<PlayerInput>();
+            }
 
 #if TOOLBOX_ADDRESSABLES
 			if (useAddressables && !Application.isPlaying)
@@ -237,8 +244,8 @@ namespace Hertzole.UnityToolbox
 				inputActions = null;
 			}
 #endif
-		}
+        }
 #endif
-	}
+    }
 }
 #endif
