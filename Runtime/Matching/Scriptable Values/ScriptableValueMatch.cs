@@ -16,6 +16,8 @@ namespace Hertzole.UnityToolbox.Matches
         [SerializeField]
         private ScriptableValue<T> target = null!;
         [SerializeField]
+        private bool invert = false;
+        [SerializeField]
         private T? mustMatchValue = default;
 
         [NonSerialized]
@@ -78,7 +80,7 @@ namespace Hertzole.UnityToolbox.Matches
 
         public bool Matches()
         {
-            return EqualityHelper.Equals(target.Value, mustMatchValue);
+            return invert ^ EqualityHelper.Equals(target.Value, mustMatchValue);
         }
 #if TOOLBOX_ADDRESSABLES
         [SerializeField]
