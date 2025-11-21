@@ -16,6 +16,10 @@ namespace Hertzole.UnityToolbox.Editor
         private static readonly float lineHeight = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
         private static readonly StringBuilder nameBuilder = new StringBuilder();
 
+        private static readonly GUIContent invertLabel = new GUIContent("Invert", "If true, the value should NOT be the specified value to match.");
+        private static readonly GUIContent mustMatchLabel = new GUIContent("Must Match Value", "The value the target should match.");
+        private static readonly GUIContent mustNotMatchLabel = new GUIContent("Must Not Match Value", "The value the target should NOT match.");
+
         protected override void DrawGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             using PooledObject<GUIContent> scope = guiContentPool.Get(out GUIContent? niceLabel);
@@ -32,30 +36,50 @@ namespace Hertzole.UnityToolbox.Editor
             property.isExpanded = EditorGUI.Foldout(r, property.isExpanded, newLabel, true);
             if (property.isExpanded)
             {
+                r.width -= 6;
                 EditorGUI.indentLevel++;
                 r.y += lineHeight;
                 SerializedProperty target = property.FindPropertyRelative("target");
 #if TOOLBOX_ADDRESSABLES
-				SerializedProperty useAddressables = property.FindPropertyRelative("useAddressables");
-				EditorGUI.PropertyField(r, useAddressables);
-				r.y += lineHeight;
-				if (useAddressables.boolValue)
-				{
-					EditorGUI.PropertyField(r, property.FindPropertyRelative("targetReference"));
-					if (!Application.isPlaying)
-					{
-						target.objectReferenceValue = null;
-					}
-				}
-				else
+                SerializedProperty useAddressables = property.FindPropertyRelative("useAddressables");
+                EditorGUI.PropertyField(r, useAddressables);
+                r.y += lineHeight;
+                if (useAddressables.boolValue)
+                {
+                    EditorGUI.PropertyField(r, property.FindPropertyRelative("targetReference"));
+                    if (!Application.isPlaying)
+                    {
+                        target.objectReferenceValue = null;
+                    }
+                }
+                else
 #endif
                 {
                     EditorGUI.PropertyField(r, target);
                 }
 
+                const int invert_control_width = 58;
+                const int invert_label_width = 34;
+                const int invert_toggle_width = 16;
+
+                SerializedProperty? invert = property.FindPropertyRelative("invert");
+
                 r.y += lineHeight;
-                EditorGUI.PropertyField(r, property.FindPropertyRelative("mustMatchValue"));
+                r.width -= invert_control_width;
+                EditorGUI.PropertyField(r, property.FindPropertyRelative("mustMatchValue"), invert.boolValue ? mustNotMatchLabel : mustMatchLabel);
+
+                r.x += r.width + 4;
+                r.width = invert_label_width;
+
+                // Remove indent, or else the label will be indented too much.
                 EditorGUI.indentLevel--;
+
+                EditorGUI.PrefixLabel(r, invertLabel);
+
+                r.x += 40;
+                r.width = invert_toggle_width;
+
+                invert.boolValue = EditorGUI.Toggle(r, invert.boolValue);
             }
 
             EditorGUI.EndProperty();
@@ -72,6 +96,7 @@ namespace Hertzole.UnityToolbox.Editor
             foldout.RegisterExpandedChangedCallback(static (evt, args) => { args.isExpanded = evt.newValue; }, property);
 
             SerializedProperty target = property.FindPropertyRelative("target");
+            SerializedProperty? invert = property.FindPropertyRelative("invert");
 
             foldout.RegisterCallback<AttachToPanelEvent, (SerializedProperty property, SerializedProperty target)>(static (evt, args) =>
             {
@@ -80,38 +105,76 @@ namespace Hertzole.UnityToolbox.Editor
             }, (property, target));
 
             PropertyField targetField = new PropertyField(target);
-            PropertyField mustMatchValueField = new PropertyField(property.FindPropertyRelative("mustMatchValue"));
+            PropertyField mustMatchValueField =
+                new PropertyField(property.FindPropertyRelative("mustMatchValue"), invert.boolValue ? mustNotMatchLabel.text : mustMatchLabel.text)
+                {
+                    tooltip = invert.boolValue ? mustNotMatchLabel.tooltip : mustMatchLabel.tooltip,
+                    style =
+                    {
+                        flexGrow = 1
+                    }
+                };
+
+            Toggle invertField = new Toggle(invertLabel.text)
+            {
+                tooltip = invertLabel.tooltip,
+                style =
+                {
+                    marginLeft = 4,
+                    alignSelf = Align.Center
+                }
+            };
+
+            invertField.labelElement.style.minWidth = new StyleLength(StyleKeyword.Auto);
+            invertField.BindProperty(invert);
+
+            invertField.RegisterValueChangedCallback(static (evt, args) =>
+            {
+                args.label = evt.newValue ? mustNotMatchLabel.text : mustMatchLabel.text;
+                args.tooltip = evt.newValue ? mustNotMatchLabel.tooltip : mustMatchLabel.tooltip;
+            }, mustMatchValueField);
+
+            VisualElement targetFieldContainer = new VisualElement
+            {
+                style =
+                {
+                    flexDirection = FlexDirection.Row
+                }
+            };
 
             targetField.RegisterValueChangeCallback(
                 static (evt, args) => { UpdateFoldoutText(args.foldout, args.property.managedReferenceValue, evt.changedProperty.objectReferenceValue); },
                 (foldout, property));
 
 #if TOOLBOX_ADDRESSABLES
-			SerializedProperty useAddressables = property.FindPropertyRelative("useAddressables");
-			PropertyField useAddressablesField = new PropertyField(useAddressables);
-			PropertyField targetReferenceField = new PropertyField(property.FindPropertyRelative("targetReference"));
+            SerializedProperty useAddressables = property.FindPropertyRelative("useAddressables");
+            PropertyField useAddressablesField = new PropertyField(useAddressables);
+            PropertyField targetReferenceField = new PropertyField(property.FindPropertyRelative("targetReference"));
 
-			useAddressablesField.RegisterCallback<ChangeEvent<bool>, (PropertyField, PropertyField, SerializedProperty)>((evt, args) =>
-			{
-				args.Item1.style.display = evt.newValue ? DisplayStyle.Flex : DisplayStyle.None;
-				args.Item2.style.display = evt.newValue ? DisplayStyle.None : DisplayStyle.Flex;
+            useAddressablesField.RegisterCallback<ChangeEvent<bool>, (PropertyField, PropertyField, SerializedProperty)>((evt, args) =>
+            {
+                args.Item1.style.display = evt.newValue ? DisplayStyle.Flex : DisplayStyle.None;
+                args.Item2.style.display = evt.newValue ? DisplayStyle.None : DisplayStyle.Flex;
 
-				if (evt.newValue)
-				{
-					args.Item3.objectReferenceValue = null;
-					args.Item3.serializedObject.ApplyModifiedProperties();
-				}
-			}, (targetReferenceField, targetField, target));
+                if (evt.newValue)
+                {
+                    args.Item3.objectReferenceValue = null;
+                    args.Item3.serializedObject.ApplyModifiedProperties();
+                }
+            }, (targetReferenceField, targetField, target));
 
-			targetField.style.display = useAddressables.boolValue ? DisplayStyle.None : DisplayStyle.Flex;
-			targetReferenceField.style.display = useAddressables.boolValue ? DisplayStyle.Flex : DisplayStyle.None;
+            targetField.style.display = useAddressables.boolValue ? DisplayStyle.None : DisplayStyle.Flex;
+            targetReferenceField.style.display = useAddressables.boolValue ? DisplayStyle.Flex : DisplayStyle.None;
 
-			foldout.Add(useAddressablesField);
-			foldout.Add(targetReferenceField);
+            foldout.Add(useAddressablesField);
+            foldout.Add(targetReferenceField);
 #endif
 
+            targetFieldContainer.Add(mustMatchValueField);
+            targetFieldContainer.Add(invertField);
+
             foldout.Add(targetField);
-            foldout.Add(mustMatchValueField);
+            foldout.Add(targetFieldContainer);
 
             return foldout;
         }
@@ -153,12 +216,12 @@ namespace Hertzole.UnityToolbox.Editor
             {
                 int lines = 3;
 #if TOOLBOX_ADDRESSABLES
-	            lines++; // For the use addressables field.
-				SerializedProperty useAddressables = property.FindPropertyRelative("useAddressables");
-	            if (useAddressables.boolValue)
-	            {
-		            lines++; // For the target reference field.
-	            }
+                lines++; // For the use addressables field.
+                SerializedProperty useAddressables = property.FindPropertyRelative("useAddressables");
+                if (useAddressables.boolValue)
+                {
+                    lines++; // For the target reference field.
+                }
 #endif
 
                 return lineHeight * lines;
