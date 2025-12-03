@@ -1,11 +1,24 @@
-﻿using System.Collections.Generic;
+﻿#nullable enable
+
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Hertzole.UnityToolbox
 {
-	public abstract class MinMaxField<TValueType, TField, TFieldValue> : BaseField<TValueType>
-		where TValueType : IMinMax<TFieldValue> where TField : BaseField<TFieldValue>, new()
+	public abstract class MinMaxField<TValueType> : BaseField<TValueType>
+	{
+		/// <inheritdoc />
+		protected MinMaxField(string label) : base(label, null) { }
+		
+		public new static readonly string ussClassName = "hertzole-min-max-field";
+		public new static readonly string inputUssClassName = ussClassName + "__input";
+		public static readonly string minInputUssClassName = ussClassName + "__min-input";
+		public static readonly string maxInputUssClassName = ussClassName + "__max-input";
+	}
+	
+	public abstract class MinMaxField<TValueType, TField, TFieldValue> : MinMaxField<TValueType>
+		where TValueType : IMinMax<TFieldValue> where TField : BindableElement, new()
 	{
 		private bool forceUpdateDisplay;
 
@@ -19,7 +32,9 @@ namespace Hertzole.UnityToolbox
 					return;
 				}
 
-				rawValue.Min = value;
+				TValueType current = rawValue;
+				current.Min = value;
+				rawValue = current;
 				forceUpdateDisplay = true;
 				UpdateDisplay();
 			}
@@ -35,7 +50,9 @@ namespace Hertzole.UnityToolbox
 					return;
 				}
 
-				rawValue.Max = value;
+				TValueType current = rawValue;
+				current.Max = value;
+				rawValue = current;
 				forceUpdateDisplay = true;
 				UpdateDisplay();
 			}
@@ -44,40 +61,42 @@ namespace Hertzole.UnityToolbox
 		public TField MinField { get; }
 		public TField MaxField { get; }
 
-		protected MinMaxField(string label) : base(label, null)
+		protected MinMaxField(string label) : base(label)
 		{
 			labelElement.AddToClassList(BaseCompositeField<Vector2, FloatField, float>.labelUssClassName);
 
-			AddToClassList("unity-min-max-field");
+			AddToClassList(ussClassName);
 			AddToClassList(BaseCompositeField<Vector2, FloatField, float>.ussClassName);
 
-			VisualElement input = this.Q<VisualElement>(className: inputUssClassName);
-			input.AddToClassList("unity-min-max-field__input");
+			VisualElement input = this.Q<VisualElement>(className: BaseField<int>.inputUssClassName);
+			input.AddToClassList(inputUssClassName);
 			input.AddToClassList(BaseCompositeField<Vector2, FloatField, float>.inputUssClassName);
 			input.focusable = false;
 			delegatesFocus = false;
 
-			MinField = new TField
-			{
-				name = "min-input",
-				label = "Min",
-				delegatesFocus = true
-			};
+			MinField = CreateField("Min");
+			MinField.name = minInputUssClassName;
+			MinField.delegatesFocus = true;
 
-			MinField.labelElement.style.flexBasis = 28;
-			MinField.labelElement.style.minWidth = 28;
+			if (MinField.TryGetLabelElement(out Label? minLabel))
+			{
+				minLabel.style.flexBasis = 28;
+                minLabel.style.minWidth = 28;
+			}
+
 			MinField.AddToClassList(BaseCompositeField<Vector2, FloatField, float>.fieldUssClassName);
 			MinField.AddToClassList(BaseCompositeField<Vector2, FloatField, float>.firstFieldVariantUssClassName);
 
-			MaxField = new TField
-			{
-				name = "max-input",
-				label = "Max",
-				delegatesFocus = true
-			};
+			MaxField = CreateField("Max");
+            MaxField.name = maxInputUssClassName;
+			MaxField.delegatesFocus = true;
+			
+            if (MaxField.TryGetLabelElement(out Label? maxLabel))
+            {
+                maxLabel.style.flexBasis = 28;
+                maxLabel.style.minWidth = 28;
+            }
 
-			MaxField.labelElement.style.flexBasis = 28;
-			MaxField.labelElement.style.minWidth = 28;
 			MaxField.AddToClassList(BaseCompositeField<Vector2, FloatField, float>.fieldUssClassName);
 
 			VisualElement spacer = new VisualElement();
@@ -90,8 +109,8 @@ namespace Hertzole.UnityToolbox
 
 		private void UpdateDisplay()
 		{
-			MinField.SetValueWithoutNotify(rawValue.Min);
-			MaxField.SetValueWithoutNotify(rawValue.Max);
+			SetFieldValueWithoutNotify(MinField, rawValue.Min);
+            SetFieldValueWithoutNotify(MaxField, rawValue.Max);
 		}
 
 		public override void SetValueWithoutNotify(TValueType newValue)
@@ -105,5 +124,9 @@ namespace Hertzole.UnityToolbox
 
 			forceUpdateDisplay = false;
 		}
+
+		protected abstract TField CreateField(string fieldLabel);
+		
+		protected abstract void SetFieldValueWithoutNotify(TField field, TFieldValue newValue);
 	}
 }

@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="True">
+    <Hertzole.UnityToolbox.MinMaxIntField value="-26,179" />
+    <ui:Vector2IntField label="Vector2Int" value="50,-39" />
+    <ui:Vector3Field label="Vec3 Field" />
+    <ui:Vector4Field label="Vec4 Field" value="1,2,3,4.5" />
+</ui:UXML>
