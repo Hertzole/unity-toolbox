@@ -98,9 +98,9 @@
             "define": "TOOLBOX_COLLECTIONS_2"
         },
         {
-          "name": "se.hertzole.scriptable-values",
-          "expression": "2",
-          "define": "TOOLBOX_SCRIPTABLE_VALUES_2"
+            "name": "se.hertzole.scriptable-values",
+            "expression": "2",
+            "define": "TOOLBOX_SCRIPTABLE_VALUES_2"
         },
         {
             "name": "com.cysharp.zstring",
@@ -111,6 +111,11 @@
             "name": "com.unity.mathematics",
             "expression": "",
             "define": "TOOLBOX_MATHEMATICS"
+        },
+        {
+            "name": "Unity",
+            "expression": "6000.0",
+            "define": "TOOLBOX_UXML_ATTRIBUTES"
         }
     ],
     "noEngineReferences": false

@@ -47,6 +47,11 @@
             "name": "com.unity.addressables",
             "expression": "",
             "define": "TOOLBOX_ADDRESSABLES"
+        },
+        {
+            "name": "Unity",
+            "expression": "6000.0",
+            "define": "TOOLBOX_UXML_ATTRIBUTES"
         }
     ],
     "noEngineReferences": false
