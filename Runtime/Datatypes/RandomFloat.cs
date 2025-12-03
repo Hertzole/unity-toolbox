@@ -5,6 +5,7 @@ using Random = UnityEngine.Random;
 namespace Hertzole.UnityToolbox
 {
 	[Serializable]
+    [Obsolete("Use MinMaxFloat with MinMaxExtensions.GetRandomValue() instead.")]
 	public struct RandomFloat : IMinMaxFloat
 	{
 		[SerializeField]
@@ -26,6 +27,12 @@ namespace Hertzole.UnityToolbox
 		{
 			get { return max; }
 			set { max = value; }
+		}
+
+		/// <inheritdoc />
+		public void Deconstruct(out float minValue, out float maxValue)
+		{
+			throw new NotImplementedException();
 		}
 
 		public RandomFloat(float min, float max)

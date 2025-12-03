@@ -29,6 +29,12 @@ namespace Hertzole.UnityToolbox
             set { max = value; }
         }
 
+        /// <inheritdoc />
+        public void Deconstruct(out int minValue, out int maxValue)
+        {
+	        throw new NotImplementedException();
+        }
+
         public RandomInt(int min, int max)
         {
             this.min = min;
