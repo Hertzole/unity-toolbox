@@ -1,3 +1,37 @@
+# [1.15.0](https://github.com/Hertzole/unity-toolbox/compare/v1.14.0...v1.15.0) (2025-12-04)
+
+
+### Bug Fixes
+
+* compile issues without addressables ([ba14367](https://github.com/Hertzole/unity-toolbox/commit/ba14367b77557e7e6c737b57fac46e4975a16e33))
+* debug log ([40cb3ec](https://github.com/Hertzole/unity-toolbox/commit/40cb3ece93cd0dc3bad4f1ada02431b486010a58))
+* InputManager trying to release invalid addressable handles ([cbc8054](https://github.com/Hertzole/unity-toolbox/commit/cbc8054615b8006d1d05a2ad06c0ed18ffb9fa3c))
+* scriptable value match nullability warnings ([a09fdca](https://github.com/Hertzole/unity-toolbox/commit/a09fdca64703fa019267949d07d9bd9c07d00639))
+
+
+### Features
+
+* (Un)RegisterValueChangeCallback extensions for PropertyField ([8c5bb69](https://github.com/Hertzole/unity-toolbox/commit/8c5bb6937ed823a0cad0e3fac7580507e38ddb96))
+* EqualsApproximately to common vector types ([851ceb0](https://github.com/Hertzole/unity-toolbox/commit/851ceb0636fb2b02e09d2ee4eedc7e5699846d19))
+* GameObject.HasLayer extension methods ([5234749](https://github.com/Hertzole/unity-toolbox/commit/52347491bb0a4f72a9e54df72c20150231b4b6fc))
+* GizmosExtra.DrawArrow(ToPoint) ([042d4d2](https://github.com/Hertzole/unity-toolbox/commit/042d4d200f7be001718a9af0284d2ac73757848e))
+* GizmosScope, replacing GizmoColorScope ([b97cc6c](https://github.com/Hertzole/unity-toolbox/commit/b97cc6c97e92b0dbc62cb0529c8cc8a50056b1d7))
+* invert function to ScriptableValueMatch ([28ae782](https://github.com/Hertzole/unity-toolbox/commit/28ae7825bffd7f8079ce93c90336e1147ee53558))
+* MatchGroup type ([31fe5ec](https://github.com/Hertzole/unity-toolbox/commit/31fe5ecc7dbcfbf81dbde044e99684c46202eee8))
+* MinMax types ([8ae1db7](https://github.com/Hertzole/unity-toolbox/commit/8ae1db77c2a845597863d594bd782eb2773a4dd2))
+* MinMaxInt that replaces RandomInt ([f552daa](https://github.com/Hertzole/unity-toolbox/commit/f552daab9e0089c235feb4a1c915b82e0c446c10))
+* missing UnregisterValueChangedCallback extension method ([a2135a5](https://github.com/Hertzole/unity-toolbox/commit/a2135a58360bd5079e56c4a6ca006b0f596e57e8))
+* new chat manager ([392579e](https://github.com/Hertzole/unity-toolbox/commit/392579e23d9174782164d6d005c213d64ad37b90))
+* new WeightedRandom methods using Func to get weight ([9164667](https://github.com/Hertzole/unity-toolbox/commit/9164667a89e3484385219085dc30f164c02f983a))
+* UI toolkit extensions: TryGetLabelElement, IsFocused, and ClampValue ([64925dc](https://github.com/Hertzole/unity-toolbox/commit/64925dc2be71a65d011e8593a3c3e2cd4b1c4624))
+* WeightedRandom.GetRandomIndex ([58e4516](https://github.com/Hertzole/unity-toolbox/commit/58e451619b507849b5b396f55ef458d4731e297c))
+* WithX extensions to common Unity types ([f326bec](https://github.com/Hertzole/unity-toolbox/commit/f326becdab71fc14b98bf87e73d714894bf19d8c))
+
+
+### Performance Improvements
+
+* less allocations in ColorExtensions.ToHex ([5547b04](https://github.com/Hertzole/unity-toolbox/commit/5547b04631c0cf57bd5b716c4306c0830dad3072))
+
 # [1.14.0](https://github.com/Hertzole/unity-toolbox/compare/v1.13.1...v1.14.0) (2025-07-13)
 
 
