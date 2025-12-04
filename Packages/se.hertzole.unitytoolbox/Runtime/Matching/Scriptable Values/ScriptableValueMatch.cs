@@ -72,7 +72,7 @@ namespace Hertzole.UnityToolbox.Matches
 
 #if TOOLBOX_ADDRESSABLES
             ReleaseAssets();
-            target = null;
+            target = null!;
 #endif
 
             hasInitialized = false;
@@ -84,10 +84,10 @@ namespace Hertzole.UnityToolbox.Matches
         }
 #if TOOLBOX_ADDRESSABLES
         [SerializeField]
-        private bool useAddressables = default;
+        private bool useAddressables = false;
         [SerializeField]
         [GenerateLoad]
-        private AssetReferenceT<ScriptableValue<T>> targetReference = default;
+        private AssetReferenceT<ScriptableValue<T>> targetReference = null!;
 #endif
     }
 }
