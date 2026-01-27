@@ -8,11 +8,6 @@ namespace Hertzole.UnityToolbox
 {
     partial class WeightedRandom
     {
-        public static T GetRandom<T>(IReadOnlyList<T> list, Func<T, int> getWeight, ref Random random)
-        {
-            return list[GetRandomIndex(list, getWeight, ref random)];
-        }
-
         public static int GetRandomIndex<T>(IReadOnlyList<T> list, Func<T, int> getWeight, ref Random random)
         {
             int totalWeight = 0;
@@ -59,6 +54,11 @@ namespace Hertzole.UnityToolbox
 
                 return GetRandomIndex<T>(list, getWeight, ref random);
             }
+        }
+
+        public static T GetRandom<T>(IReadOnlyList<T> list, Func<T, int> getWeight, ref Random random)
+        {
+            return list[GetRandomIndex(list, getWeight, ref random)];
         }
 
         public static T GetRandom<T, TEnumerable>(TEnumerable enumerable, Func<T, int> getWeight, ref Random random) where TEnumerable : IEnumerable<T>

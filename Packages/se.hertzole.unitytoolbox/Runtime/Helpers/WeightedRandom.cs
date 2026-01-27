@@ -6,11 +6,6 @@ namespace Hertzole.UnityToolbox
 {
     public static partial class WeightedRandom
     {
-        public static T GetRandom<T>(IReadOnlyList<T> list, Func<T, int> getWeight)
-        {
-            return list[GetRandomIndex(list, getWeight)];
-        }
-
         public static int GetRandomIndex<T>(IReadOnlyList<T> list, Func<T, int> getWeight)
         {
             int totalWeight = 0;
@@ -59,37 +54,6 @@ namespace Hertzole.UnityToolbox
             }
         }
 
-        public static T GetRandom<T, TEnumerable>(TEnumerable enumerable, Func<T, int> getWeight) where TEnumerable : IEnumerable<T>
-        {
-            using (ListPool<T>.Get(out List<T> list))
-            {
-                foreach (T value in enumerable)
-                {
-                    list.Add(value);
-                }
-
-                return list[GetRandomIndex<T>(list, getWeight)];
-            }
-        }
-
-        public static T GetRandom<T>(IEnumerable<T> enumerable, Func<T, int> getWeight)
-        {
-            using (ListPool<T>.Get(out List<T> list))
-            {
-                foreach (T value in enumerable)
-                {
-                    list.Add(value);
-                }
-
-                return list[GetRandomIndex<T>(list, getWeight)];
-            }
-        }
-
-        public static T GetRandom<T>(IReadOnlyList<T> list, Func<T, int> getWeight, Random random)
-        {
-            return list[GetRandomIndex(list, getWeight, random)];
-        }
-
         public static int GetRandomIndex<T>(IReadOnlyList<T> list, Func<T, int> getWeight, Random random)
         {
             int totalWeight = 0;
@@ -136,6 +100,42 @@ namespace Hertzole.UnityToolbox
 
                 return GetRandomIndex<T>(list, getWeight, random);
             }
+        }
+
+        public static T GetRandom<T>(IReadOnlyList<T> list, Func<T, int> getWeight)
+        {
+            return list[GetRandomIndex(list, getWeight)];
+        }
+
+        public static T GetRandom<T, TEnumerable>(TEnumerable enumerable, Func<T, int> getWeight) where TEnumerable : IEnumerable<T>
+        {
+            using (ListPool<T>.Get(out List<T> list))
+            {
+                foreach (T value in enumerable)
+                {
+                    list.Add(value);
+                }
+
+                return list[GetRandomIndex<T>(list, getWeight)];
+            }
+        }
+
+        public static T GetRandom<T>(IEnumerable<T> enumerable, Func<T, int> getWeight)
+        {
+            using (ListPool<T>.Get(out List<T> list))
+            {
+                foreach (T value in enumerable)
+                {
+                    list.Add(value);
+                }
+
+                return list[GetRandomIndex<T>(list, getWeight)];
+            }
+        }
+
+        public static T GetRandom<T>(IReadOnlyList<T> list, Func<T, int> getWeight, Random random)
+        {
+            return list[GetRandomIndex(list, getWeight, random)];
         }
 
         public static T GetRandom<T, TEnumerable>(TEnumerable enumerable, Func<T, int> getWeight, Random random) where TEnumerable : IEnumerable<T>
