@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System;
+using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.Pool;
@@ -9,8 +10,10 @@ namespace Hertzole.UnityToolbox.Editor
     /// <summary>
     ///     Base class for toolbox property drawers. This class handles the tooltip and alignment of the property.
     /// </summary>
-    public abstract class ToolboxPropertyDrawer : PropertyDrawer
+    public abstract class ToolboxPropertyDrawer : PropertyDrawer, IDisposable
     {
+        private bool isDisposed = false;
+        
         protected static readonly ObjectPool<GUIContent> guiContentPool =
             new ObjectPool<GUIContent>(static () => new GUIContent(), actionOnRelease: static content =>
             {
@@ -66,5 +69,26 @@ namespace Hertzole.UnityToolbox.Editor
         protected abstract void DrawGUI(Rect position, SerializedProperty property, GUIContent label);
 
         protected abstract VisualElement CreateGUI(SerializedProperty property, string label);
+
+        protected virtual void Dispose(bool disposing) { }
+
+        ~ToolboxPropertyDrawer()
+        {
+            Dispose(false);
+        }
+
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            if (isDisposed)
+            {
+                return;
+            }
+            
+            Dispose(true);
+            GC.SuppressFinalize(this);
+
+            isDisposed = true;
+        }
     }
 }
