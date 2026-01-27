@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEngine.Pool;
 
 namespace Hertzole.UnityToolbox
 {
@@ -32,6 +33,58 @@ namespace Hertzole.UnityToolbox
             return list.Count - 1;
         }
 
+        public static int GetRandomIndex<T, TEnumerable>(TEnumerable enumerable, Func<T, int> getWeight) where TEnumerable : IEnumerable<T>
+        {
+            using (ListPool<T>.Get(out List<T> list))
+            {
+                foreach (T value in enumerable)
+                {
+                    list.Add(value);
+                }
+
+                return GetRandomIndex<T>(list, getWeight);
+            }
+        }
+
+        public static int GetRandomIndex<T>(IEnumerable<T> enumerable, Func<T, int> getWeight)
+        {
+            using (ListPool<T>.Get(out List<T> list))
+            {
+                foreach (T value in enumerable)
+                {
+                    list.Add(value);
+                }
+
+                return GetRandomIndex<T>(list, getWeight);
+            }
+        }
+
+        public static T GetRandom<T, TEnumerable>(TEnumerable enumerable, Func<T, int> getWeight) where TEnumerable : IEnumerable<T>
+        {
+            using (ListPool<T>.Get(out List<T> list))
+            {
+                foreach (T value in enumerable)
+                {
+                    list.Add(value);
+                }
+
+                return list[GetRandomIndex<T>(list, getWeight)];
+            }
+        }
+
+        public static T GetRandom<T>(IEnumerable<T> enumerable, Func<T, int> getWeight)
+        {
+            using (ListPool<T>.Get(out List<T> list))
+            {
+                foreach (T value in enumerable)
+                {
+                    list.Add(value);
+                }
+
+                return list[GetRandomIndex<T>(list, getWeight)];
+            }
+        }
+
         public static T GetRandom<T>(IReadOnlyList<T> list, Func<T, int> getWeight, Random random)
         {
             return list[GetRandomIndex(list, getWeight, random)];
@@ -59,6 +112,59 @@ namespace Hertzole.UnityToolbox
             return list.Count - 1;
         }
 
+        public static int GetRandomIndex<T, TEnumerable>(TEnumerable enumerable, Func<T, int> getWeight, Random random) where TEnumerable : IEnumerable<T>
+        {
+            using (ListPool<T>.Get(out List<T> list))
+            {
+                foreach (T value in enumerable)
+                {
+                    list.Add(value);
+                }
+
+                return GetRandomIndex<T>(list, getWeight, random);
+            }
+        }
+
+        public static int GetRandomIndex<T>(IEnumerable<T> enumerable, Func<T, int> getWeight, Random random)
+        {
+            using (ListPool<T>.Get(out List<T> list))
+            {
+                foreach (T value in enumerable)
+                {
+                    list.Add(value);
+                }
+
+                return GetRandomIndex<T>(list, getWeight, random);
+            }
+        }
+
+        public static T GetRandom<T, TEnumerable>(TEnumerable enumerable, Func<T, int> getWeight, Random random) where TEnumerable : IEnumerable<T>
+        {
+            using (ListPool<T>.Get(out List<T> list))
+            {
+                foreach (T value in enumerable)
+                {
+                    list.Add(value);
+                }
+
+                return list[GetRandomIndex<T>(list, getWeight, random)];
+            }
+        }
+
+        public static T GetRandom<T>(IEnumerable<T> enumerable, Func<T, int> getWeight, Random random)
+        {
+            using (ListPool<T>.Get(out List<T> list))
+            {
+                foreach (T value in enumerable)
+                {
+                    list.Add(value);
+                }
+
+                return list[GetRandomIndex<T>(list, getWeight, random)];
+            }
+        }
+
+        #region Obsolete
         [Obsolete("Use the overload with the getWeight parameter instead.")]
         public static T GetRandom<T>(IReadOnlyList<T> list) where T : IWeighted
         {
@@ -104,5 +210,6 @@ namespace Hertzole.UnityToolbox
 
             return list[list.Count - 1];
         }
+        #endregion
     }
 }
