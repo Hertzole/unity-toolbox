@@ -24,12 +24,12 @@ namespace Hertzole.UnityToolbox.Editor
                 content.tooltip = string.Empty;
             });
 
-        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        public sealed override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             DrawGUI(position, property, label);
         }
 
-        public override VisualElement CreatePropertyGUI(SerializedProperty property)
+        public sealed override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
             string label =
 #if UNITY_2022_2_OR_NEWER
