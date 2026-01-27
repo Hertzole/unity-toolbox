@@ -11,18 +11,26 @@ namespace Hertzole.UnityToolbox.Editor
     /// </summary>
     public abstract class ToolboxPropertyDrawer : PropertyDrawer
     {
-        protected virtual bool HandleTooltip
-        {
-            get { return true; }
-        }
-
         protected static readonly ObjectPool<GUIContent> guiContentPool =
             new ObjectPool<GUIContent>(static () => new GUIContent(), actionOnRelease: static content =>
             {
                 content.text = string.Empty;
                 content.image = null;
                 content.tooltip = string.Empty;
-            });
+            }, collectionCheck: false);
+
+        private static readonly EventCallback<AttachToPanelEvent, VisualElement> checkPropertyFieldChildCallback = static (_, args) =>
+        {
+            if (args.parent is PropertyField)
+            {
+                args.AddToClassList(BaseField<object>.alignedFieldUssClassName);
+            }
+        };
+
+        protected virtual bool HandleTooltip
+        {
+            get { return true; }
+        }
 
         public sealed override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
@@ -44,13 +52,8 @@ namespace Hertzole.UnityToolbox.Editor
                 return null;
             }
 
-            field.RegisterCallback<AttachToPanelEvent, VisualElement>((evt, args) =>
-            {
-                if (args.parent is PropertyField)
-                {
-                    args.AddToClassList(BaseField<object>.alignedFieldUssClassName);
-                }
-            }, field);
+            // Check if a field is a child of a PropertyField. If so, it will add the aligned class so it aligns properly in the inspector.
+            field.RegisterCallbackOnce(checkPropertyFieldChildCallback, field);
 
             if (HandleTooltip && !string.IsNullOrEmpty(property.tooltip))
             {
