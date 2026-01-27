@@ -1,3 +1,21 @@
+# [1.16.0](https://github.com/Hertzole/unity-toolbox/compare/v1.15.0...v1.16.0) (2026-01-27)
+
+
+### Bug Fixes
+
+* obsolete types in Detector ([0a06ab2](https://github.com/Hertzole/unity-toolbox/commit/0a06ab26ec0b6866974c5fb8b1a731151d6317cf))
+
+
+### Features
+
+* InputMap attribute ([5e96760](https://github.com/Hertzole/unity-toolbox/commit/5e967601e106d13e7913a7514180c90b7ba78e17))
+* weighted random methods for enumerables ([0c911a4](https://github.com/Hertzole/unity-toolbox/commit/0c911a4d40e3717b842e7e7e2a05ea80eb4f1451))
+
+
+### Performance Improvements
+
+* move property drawer property field check to static callback ([bdc811f](https://github.com/Hertzole/unity-toolbox/commit/bdc811f523084be8d8a7df8ff4a26a1b7940c030))
+
 # [1.15.0](https://github.com/Hertzole/unity-toolbox/compare/v1.14.0...v1.15.0) (2025-12-04)
 
 
