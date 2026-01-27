@@ -1,6 +1,7 @@
 #if TOOLBOX_MATHEMATICS
 using System;
 using System.Collections.Generic;
+using UnityEngine.Pool;
 using Random = Unity.Mathematics.Random;
 
 namespace Hertzole.UnityToolbox
@@ -34,6 +35,59 @@ namespace Hertzole.UnityToolbox
             return list.Count - 1;
         }
 
+        public static int GetRandomIndex<T, TEnumerable>(TEnumerable enumerable, Func<T, int> getWeight, ref Random random) where TEnumerable : IEnumerable<T>
+        {
+            using (ListPool<T>.Get(out List<T> list))
+            {
+                foreach (T value in enumerable)
+                {
+                    list.Add(value);
+                }
+
+                return GetRandomIndex<T>(list, getWeight, ref random);
+            }
+        }
+
+        public static int GetRandomIndex<T>(IEnumerable<T> enumerable, Func<T, int> getWeight, ref Random random)
+        {
+            using (ListPool<T>.Get(out List<T> list))
+            {
+                foreach (T value in enumerable)
+                {
+                    list.Add(value);
+                }
+
+                return GetRandomIndex<T>(list, getWeight, ref random);
+            }
+        }
+
+        public static T GetRandom<T, TEnumerable>(TEnumerable enumerable, Func<T, int> getWeight, ref Random random) where TEnumerable : IEnumerable<T>
+        {
+            using (ListPool<T>.Get(out List<T> list))
+            {
+                foreach (T value in enumerable)
+                {
+                    list.Add(value);
+                }
+
+                return list[GetRandomIndex<T>(list, getWeight, ref random)];
+            }
+        }
+
+        public static T GetRandom<T>(IEnumerable<T> enumerable, Func<T, int> getWeight, ref Random random)
+        {
+            using (ListPool<T>.Get(out List<T> list))
+            {
+                foreach (T value in enumerable)
+                {
+                    list.Add(value);
+                }
+
+                return list[GetRandomIndex<T>(list, getWeight, ref random)];
+            }
+        }
+
+        #region Obsolete
         [Obsolete("Use the overload with the getWeight parameter instead.")]
         public static T GetRandom<T>(IReadOnlyList<T> list, ref Random random) where T : IWeighted
         {
@@ -56,6 +110,7 @@ namespace Hertzole.UnityToolbox
 
             return list[list.Count - 1];
         }
+        #endregion
     }
 }
 #endif
