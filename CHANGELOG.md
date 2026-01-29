@@ -1,3 +1,10 @@
+# [1.17.0](https://github.com/Hertzole/unity-toolbox/compare/v1.16.0...v1.17.0) (2026-01-29)
+
+
+### Features
+
+* NetworkGuard for Netcode for GO ([efaa78e](https://github.com/Hertzole/unity-toolbox/commit/efaa78e51ead6dee5f53f39294a456c5c3069648))
+
 # [1.16.0](https://github.com/Hertzole/unity-toolbox/compare/v1.15.0...v1.16.0) (2026-01-27)
 
 
