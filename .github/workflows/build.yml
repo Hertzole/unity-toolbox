@@ -37,10 +37,9 @@ jobs:
             LibraryFolder
 
       - name: Install .NET
-        uses: actions/setup-dotnet@v4
+        uses: fast-actions/setup-dotnet@v1
         with:
-          dotnet-version: |
-            8.x
+          sdk-version: 'latest'
 
       - name: Build Generator
         run: |
@@ -90,10 +89,9 @@ jobs:
             LibraryFolder
       
       - name: Install .NET
-        uses: actions/setup-dotnet@v4
+        uses: fast-actions/setup-dotnet@v1
         with:
-          dotnet-version: |
-            8.x
+          sdk-version: 'latest'
       
       - name: Set executable permissions for prepare.sh
         run: chmod +x ./ci/prepare.sh
@@ -118,7 +116,7 @@ jobs:
 
       - name: Release
         id: semantic
-        uses: cycjimmy/semantic-release-action@v4.1.1
+        uses: cycjimmy/semantic-release-action@v6
         with:
           extra_plugins: |
             @semantic-release/exec
@@ -177,3 +175,40 @@ jobs:
           git push origin --tags
         env:
           TAG: package/v${{ steps.semantic.outputs.new_release_version }}
+
+      - name: Install Unity UPM CLI
+        if: steps.semantic.outputs.new_release_published == 'true'
+        run: |
+          curl -fsSL https://cdn.packages.unity.com/upm-cli/install.sh -o /tmp/upm-install.sh
+          bash /tmp/upm-install.sh
+          echo "$HOME/.upm/bin" >> "$GITHUB_PATH"
+
+      - name: Sign package
+        if: steps.semantic.outputs.new_release_published == 'true'
+        run: |
+          rm -rf Generator
+          mkdir -p "$DIST_DIR"
+          upm pack ./ --organization-id "$UPM_ORG_ID" --destination "$DIST_DIR"
+
+      - name: Print signed package info
+        if: steps.semantic.outputs.new_release_published == 'true'
+        run: |
+          shopt -s nullglob
+          archives=("$DIST_DIR"/*.tgz "$DIST_DIR"/*.tar.gz)
+          if [ "${#archives[@]}" -ne 1 ]; then
+            printf 'Expected exactly one signed package archive, found %s\n' "${#archives[@]}" >&2
+            exit 1
+          fi
+
+          archive="${archives[0]}"
+          tar -tzf "$archive" | grep -qx 'package/package.json'
+          tar -tzf "$archive" | grep -qx 'package/.attestation.p7m'
+
+          echo "PACKAGE_ARCHIVE=$archive" >> "$GITHUB_ENV"
+          printf 'Archive: %s\n' "$(basename "$archive")"
+          tar -xOzf "$archive" package/package.json | jq '{name, version}'
+
+      - name: Upload package to release
+        if: steps.semantic.outputs.new_release_published == 'true'
+        run: |
+          gh release upload "v${{ steps.semantic.outputs.new_release_version }}" "$PACKAGE_ARCHIVE"
