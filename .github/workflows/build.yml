@@ -125,6 +125,8 @@ jobs:
           signing-key-id: ${{ secrets.UPM_SERVICE_ACCOUNT_KEY_ID }}
           signing-key-secret: ${{ secrets.UPM_SERVICE_ACCOUNT_KEY_SECRET }}
           signing-org-id: ${{ secrets.UPM_ORG_ID }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # - name: Release
       #   id: semantic
