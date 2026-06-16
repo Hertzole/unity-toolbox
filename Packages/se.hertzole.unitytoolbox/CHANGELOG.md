@@ -1,3 +1,10 @@
+## [1.18.1](https://github.com/Hertzole/unity-toolbox/compare/v1.18.0...v1.18.1) (2026-06-16)
+
+
+### Bug Fixes
+
+* no signed archive ([f0e5a37](https://github.com/Hertzole/unity-toolbox/commit/f0e5a37127d171f3dd8891c00e8850f387a20b15))
+
 # [1.18.0](https://github.com/Hertzole/unity-toolbox/compare/v1.17.0...v1.18.0) (2026-06-16)
 
 
