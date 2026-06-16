@@ -1,3 +1,10 @@
+# [1.18.0](https://github.com/Hertzole/unity-toolbox/compare/v1.17.0...v1.18.0) (2026-06-16)
+
+
+### Features
+
+* sign package ([6d47cea](https://github.com/Hertzole/unity-toolbox/commit/6d47cea72cc7dfec9e817ee35eae69918ba30d63))
+
 # [1.17.0](https://github.com/Hertzole/unity-toolbox/compare/v1.16.0...v1.17.0) (2026-01-29)
 
 
