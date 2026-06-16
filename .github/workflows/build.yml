@@ -12,6 +12,10 @@ on:
 
 env:
   UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+  UPM_SERVICE_ACCOUNT_KEY_ID: ${{ secrets.UPM_SERVICE_ACCOUNT_KEY_ID }}
+  UPM_SERVICE_ACCOUNT_KEY_SECRET: ${{ secrets.UPM_SERVICE_ACCOUNT_KEY_SECRET }}
+  UPM_ORG_ID: ${{ secrets.UPM_ORG_ID }}
+  DIST_DIR: /tmp/signed-upm-dist
 
 jobs:
   generator:
