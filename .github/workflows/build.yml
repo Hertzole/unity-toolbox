@@ -71,7 +71,7 @@ jobs:
     needs: generator
     container: unityci/editor:ubuntu-6000.0.25f1-base-3.1.0
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           lfs: true
@@ -95,7 +95,7 @@ jobs:
       - name: Install .NET
         uses: fast-actions/setup-dotnet@v1
         with:
-          sdk-version: 'latest'
+          sdk-version: '8.x'
       
       - name: Set executable permissions for prepare.sh
         run: chmod +x ./ci/prepare.sh
@@ -119,100 +119,108 @@ jobs:
         run: unity-editor -nographics -logFile /dev/stdout -runTests -testPlatform playmode -testResults Tests/playmode.xml -enableCodeCoverage -coverageResultsPath TestCoverage -debugCodeOptimization -coverageOptions "generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+Hertzole.UnityToolbox"
 
       - name: Release
-        id: semantic
-        uses: cycjimmy/semantic-release-action@v6
+        uses: Hertzole/upm-release@master
         with:
-          extra_plugins: |
-            @semantic-release/exec
-            @semantic-release/changelog
-            @semantic-release/git
-          branch: master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          upm-branch-name: package
+          signing-key-id: ${{ secrets.UPM_SERVICE_ACCOUNT_KEY_ID }}
+          signing-key-secret: ${{ secrets.UPM_SERVICE_ACCOUNT_KEY_SECRET }}
+          signing-org-id: ${{ secrets.UPM_ORG_ID }}
 
-      - name: Create Package Branch
-        run: |
-          git branch -d package &> /dev/null || echo package branch not found
-          git subtree split -P "$PKG_ROOT" -b package
-          if [[ -d "Assets/Samples" ]]; then
-            mv "Assets/Samples" /tmp/example
-          fi
-          if [[ -f "README.md" ]]; then
-            mv README.md /tmp/README.md
-          fi
-          mv ./Packages/se.hertzole.unitytoolbox/Plugins/Hertzole.UnityToolbox.Generator.dll /tmp/Generator.dll
-          mv ./Packages/se.hertzole.unitytoolbox/Plugins/Hertzole.UnityToolbox.Analyzers.dll /tmp/Analyzers.dll
-          mv ./Packages/se.hertzole.unitytoolbox/Plugins/Hertzole.UnityToolbox.Shared.dll /tmp/Shared.dll
-          git restore .
-          git checkout package
-          if [[ -d "/tmp/example" ]]; then
-            mkdir "Samples~"
-            mv /tmp/example/* "Samples~/"
-            git add "Samples~"
-          fi
-          if [[ -f "/tmp/README.md" ]]; then
-            mv /tmp/README.md README.md
-            git add README.md
-          fi
-          if [[ -d "Tests" ]]; then
-            rm -rf Tests
-            rm -f Tests.meta
-          fi
-          mv /tmp/Generator.dll ./Plugins/Hertzole.UnityToolbox.Generator.dll 
-          mv /tmp/Analyzers.dll ./Plugins/Hertzole.UnityToolbox.Analyzers.dll 
-          mv /tmp/Shared.dll ./Plugins/Hertzole.UnityToolbox.Shared.dll 
-          git add Plugins/Hertzole.UnityToolbox.Generator.dll
-          git add Plugins/Hertzole.UnityToolbox.Analyzers.dll
-          git add Plugins/Hertzole.UnityToolbox.Shared.dll
-          git config --global user.name 'github-bot'
-          git config --global user.email 'github-bot@users.noreply.github.com'
-          git commit -am "Packaged project"
-          git push -f -u origin package
-        env:
-          PKG_ROOT: "Packages/se.hertzole.unitytoolbox"
-        shell: bash
+      # - name: Release
+      #   id: semantic
+      #   uses: cycjimmy/semantic-release-action@v6
+      #   with:
+      #     extra_plugins: |
+      #       @semantic-release/exec
+      #       @semantic-release/changelog
+      #       @semantic-release/git
+      #     branch: master
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create Release Tag
-        if: steps.semantic.outputs.new_release_published == 'true'
-        run: |
-          git tag $TAG package
-          git push origin --tags
-        env:
-          TAG: package/v${{ steps.semantic.outputs.new_release_version }}
+      # - name: Create Package Branch
+      #   run: |
+      #     git branch -d package &> /dev/null || echo package branch not found
+      #     git subtree split -P "$PKG_ROOT" -b package
+      #     if [[ -d "Assets/Samples" ]]; then
+      #       mv "Assets/Samples" /tmp/example
+      #     fi
+      #     if [[ -f "README.md" ]]; then
+      #       mv README.md /tmp/README.md
+      #     fi
+      #     mv ./Packages/se.hertzole.unitytoolbox/Plugins/Hertzole.UnityToolbox.Generator.dll /tmp/Generator.dll
+      #     mv ./Packages/se.hertzole.unitytoolbox/Plugins/Hertzole.UnityToolbox.Analyzers.dll /tmp/Analyzers.dll
+      #     mv ./Packages/se.hertzole.unitytoolbox/Plugins/Hertzole.UnityToolbox.Shared.dll /tmp/Shared.dll
+      #     git restore .
+      #     git checkout package
+      #     if [[ -d "/tmp/example" ]]; then
+      #       mkdir "Samples~"
+      #       mv /tmp/example/* "Samples~/"
+      #       git add "Samples~"
+      #     fi
+      #     if [[ -f "/tmp/README.md" ]]; then
+      #       mv /tmp/README.md README.md
+      #       git add README.md
+      #     fi
+      #     if [[ -d "Tests" ]]; then
+      #       rm -rf Tests
+      #       rm -f Tests.meta
+      #     fi
+      #     mv /tmp/Generator.dll ./Plugins/Hertzole.UnityToolbox.Generator.dll 
+      #     mv /tmp/Analyzers.dll ./Plugins/Hertzole.UnityToolbox.Analyzers.dll 
+      #     mv /tmp/Shared.dll ./Plugins/Hertzole.UnityToolbox.Shared.dll 
+      #     git add Plugins/Hertzole.UnityToolbox.Generator.dll
+      #     git add Plugins/Hertzole.UnityToolbox.Analyzers.dll
+      #     git add Plugins/Hertzole.UnityToolbox.Shared.dll
+      #     git config --global user.name 'github-bot'
+      #     git config --global user.email 'github-bot@users.noreply.github.com'
+      #     git commit -am "Packaged project"
+      #     git push -f -u origin package
+      #   env:
+      #     PKG_ROOT: "Packages/se.hertzole.unitytoolbox"
+      #   shell: bash
 
-      - name: Install Unity UPM CLI
-        if: steps.semantic.outputs.new_release_published == 'true'
-        run: |
-          curl -fsSL https://cdn.packages.unity.com/upm-cli/install.sh -o /tmp/upm-install.sh
-          bash /tmp/upm-install.sh
-          echo "$HOME/.upm/bin" >> "$GITHUB_PATH"
+      # - name: Create Release Tag
+      #   if: steps.semantic.outputs.new_release_published == 'true'
+      #   run: |
+      #     git tag $TAG package
+      #     git push origin --tags
+      #   env:
+      #     TAG: package/v${{ steps.semantic.outputs.new_release_version }}
 
-      - name: Sign package
-        if: steps.semantic.outputs.new_release_published == 'true'
-        run: |
-          rm -rf Generator
-          mkdir -p "$DIST_DIR"
-          upm pack ./ --organization-id "$UPM_ORG_ID" --destination "$DIST_DIR"
+      # - name: Install Unity UPM CLI
+      #   if: steps.semantic.outputs.new_release_published == 'true'
+      #   run: |
+      #     curl -fsSL https://cdn.packages.unity.com/upm-cli/install.sh -o /tmp/upm-install.sh
+      #     bash /tmp/upm-install.sh
+      #     echo "$HOME/.upm/bin" >> "$GITHUB_PATH"
 
-      - name: Print signed package info
-        if: steps.semantic.outputs.new_release_published == 'true'
-        run: |
-          shopt -s nullglob
-          archives=("$DIST_DIR"/*.tgz "$DIST_DIR"/*.tar.gz)
-          if [ "${#archives[@]}" -ne 1 ]; then
-            printf 'Expected exactly one signed package archive, found %s\n' "${#archives[@]}" >&2
-            exit 1
-          fi
+      # - name: Sign package
+      #   if: steps.semantic.outputs.new_release_published == 'true'
+      #   run: |
+      #     rm -rf Generator
+      #     mkdir -p "$DIST_DIR"
+      #     upm pack ./ --organization-id "$UPM_ORG_ID" --destination "$DIST_DIR"
 
-          archive="${archives[0]}"
-          tar -tzf "$archive" | grep -qx 'package/package.json'
-          tar -tzf "$archive" | grep -qx 'package/.attestation.p7m'
+      # - name: Print signed package info
+      #   if: steps.semantic.outputs.new_release_published == 'true'
+      #   run: |
+      #     shopt -s nullglob
+      #     archives=("$DIST_DIR"/*.tgz "$DIST_DIR"/*.tar.gz)
+      #     if [ "${#archives[@]}" -ne 1 ]; then
+      #       printf 'Expected exactly one signed package archive, found %s\n' "${#archives[@]}" >&2
+      #       exit 1
+      #     fi
 
-          echo "PACKAGE_ARCHIVE=$archive" >> "$GITHUB_ENV"
-          printf 'Archive: %s\n' "$(basename "$archive")"
-          tar -xOzf "$archive" package/package.json | jq '{name, version}'
+      #     archive="${archives[0]}"
+      #     tar -tzf "$archive" | grep -qx 'package/package.json'
+      #     tar -tzf "$archive" | grep -qx 'package/.attestation.p7m'
 
-      - name: Upload package to release
-        if: steps.semantic.outputs.new_release_published == 'true'
-        run: |
-          gh release upload "v${{ steps.semantic.outputs.new_release_version }}" "$PACKAGE_ARCHIVE"
+      #     echo "PACKAGE_ARCHIVE=$archive" >> "$GITHUB_ENV"
+      #     printf 'Archive: %s\n' "$(basename "$archive")"
+      #     tar -xOzf "$archive" package/package.json | jq '{name, version}'
+
+      # - name: Upload package to release
+      #   if: steps.semantic.outputs.new_release_published == 'true'
+      #   run: |
+      #     gh release upload "v${{ steps.semantic.outputs.new_release_version }}" "$PACKAGE_ARCHIVE"
