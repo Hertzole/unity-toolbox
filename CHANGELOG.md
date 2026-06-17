@@ -1,3 +1,10 @@
+## [1.18.4](https://github.com/Hertzole/unity-toolbox/compare/v1.18.3...v1.18.4) (2026-06-17)
+
+
+### Bug Fixes
+
+* license again ([fb69bea](https://github.com/Hertzole/unity-toolbox/commit/fb69bea1b6160e7a58ad0886c6f6c0f31c636718))
+
 ## [1.18.3](https://github.com/Hertzole/unity-toolbox/compare/v1.18.2...v1.18.3) (2026-06-17)
 
 
