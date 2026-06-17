@@ -24,7 +24,7 @@ jobs:
     container: unityci/editor:ubuntu-6000.0.25f1-base-3.1.0
     steps:
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           lfs: true
@@ -33,7 +33,7 @@ jobs:
         run: git config --global --add safe.directory /__w/unity-toolbox/unity-toolbox
 
       - name: Cache Library
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: Library
           key: LibraryFolder
@@ -77,15 +77,15 @@ jobs:
           lfs: true
 
       - name: Install node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Safe repo
         run: git config --global --add safe.directory /__w/unity-toolbox/unity-toolbox
 
       - name: Cache Library
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: Library
           key: LibraryFolder
