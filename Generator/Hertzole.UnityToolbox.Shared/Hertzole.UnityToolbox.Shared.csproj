@@ -7,9 +7,9 @@
     </PropertyGroup>
     
     <PropertyGroup>
-        <AssemblyVersion>1.18.3</AssemblyVersion>
-        <Version>1.18.3</Version>
-        <ProductVersion>1.18.3</ProductVersion>
+        <AssemblyVersion>1.18.4</AssemblyVersion>
+        <Version>1.18.4</Version>
+        <ProductVersion>1.18.4</ProductVersion>
     </PropertyGroup>
     
     <ItemGroup>
