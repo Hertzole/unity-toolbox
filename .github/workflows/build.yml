@@ -118,6 +118,9 @@ jobs:
       - name: Run Play Mode Tests
         run: unity-editor -nographics -logFile /dev/stdout -runTests -testPlatform playmode -testResults Tests/playmode.xml -enableCodeCoverage -coverageResultsPath TestCoverage -debugCodeOptimization -coverageOptions "generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+Hertzole.UnityToolbox"
 
+      - name: Remove license
+        run: rm -f License.ulf
+
       - name: Release
         uses: Hertzole/upm-release@master
         with:
