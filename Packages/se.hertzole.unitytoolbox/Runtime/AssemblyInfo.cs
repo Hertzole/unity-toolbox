@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 
-[assembly: AssemblyVersion("1.18.1")]
-[assembly: AssemblyFileVersion("1.18.1")]
+[assembly: AssemblyVersion("1.18.2")]
+[assembly: AssemblyFileVersion("1.18.2")]
 
 [assembly: InternalsVisibleTo("Hertzole.UnityToolbox.Editor")]
