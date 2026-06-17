@@ -1,3 +1,10 @@
+## [1.18.2](https://github.com/Hertzole/unity-toolbox/compare/v1.18.1...v1.18.2) (2026-06-17)
+
+
+### Bug Fixes
+
+* ci versions ([ec04e42](https://github.com/Hertzole/unity-toolbox/commit/ec04e42567d767bc4ea7c2284e793484e708ea4b))
+
 ## [1.18.1](https://github.com/Hertzole/unity-toolbox/compare/v1.18.0...v1.18.1) (2026-06-16)
 
 
