@@ -1,3 +1,10 @@
+## [1.18.5](https://github.com/Hertzole/unity-toolbox/compare/v1.18.4...v1.18.5) (2026-06-25)
+
+
+### Bug Fixes
+
+* missing license meta file ([ae8b277](https://github.com/Hertzole/unity-toolbox/commit/ae8b27705284407d7f66d5f7bf09cc34e01ca646))
+
 ## [1.18.4](https://github.com/Hertzole/unity-toolbox/compare/v1.18.3...v1.18.4) (2026-06-17)
 
 
