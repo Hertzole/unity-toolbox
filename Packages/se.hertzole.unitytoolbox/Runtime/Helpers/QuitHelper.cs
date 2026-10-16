@@ -2,16 +2,19 @@
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
+#if UNITY_6000_5_OR_NEWER
+using Unity.Scripting.LifecycleManagement;
+#endif
 
 namespace Hertzole.UnityToolbox
 {
 	/// <summary>
 	///     A helper class for helping you quit the application, both at runtime and in the editor.
 	/// </summary>
-	public static class QuitHelper
+	public static partial class QuitHelper
 	{
 		/// <summary>
-		///     Is the application currently quitting?
+		///     <see langword="true"/> if the application is currently in the process of quitting; otherwise <see langword="false"/>.
 		/// </summary>
 		/// <example>
 		///     <code>
@@ -32,7 +35,11 @@ namespace Hertzole.UnityToolbox
 		/// <summary>
 		///     Invoked when entering play mode.
 		/// </summary>
+#if UNITY_6000_5_OR_NEWER
+        [OnEnteringPlayMode]
+#else
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+#endif
 		private static void ResetStatics()
 		{
 			// Resets the static variable when entering play mode.
@@ -43,15 +50,27 @@ namespace Hertzole.UnityToolbox
 		/// <summary>
 		///     Invoked on domain reload in the editor and when the game starts in the player.
 		/// </summary>
+#if UNITY_6000_5_OR_NEWER
+        [OnCodeInitializing]
+#else
 #if UNITY_EDITOR
 		[InitializeOnLoadMethod]
 #else
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
 #endif
+#endif
 		private static void RegisterEvents()
 		{
 			Application.quitting += OnQuitting;
 		}
+        
+#if UNITY_EDITOR && UNITY_6000_5_OR_NEWER
+        [OnCodeDeinitializing]
+        private static void UnregisterEvents()
+        {
+            Application.quitting -= OnQuitting;
+        }
+#endif
 
 		/// <summary>
 		///     Called when the application is quitting.
