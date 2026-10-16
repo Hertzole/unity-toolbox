@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -10,23 +11,23 @@ namespace Hertzole.UnityToolbox
 	public enum SingletonDestroyStrategy
 	{
 		/// <summary>
-		///     Destroy newest component only removes the component from the newest object.
+		///     Only removes the component from the newest object.
 		/// </summary>
 		DestroyNewestComponent = 0,
 		/// <summary>
-		///     Destroy oldest component only removes the component from the oldest object.
+		///     Only removes the component from the oldest object.
 		/// </summary>
 		DestroyOldestComponent = 1,
 		/// <summary>
-		///     Keep both keeps both components.
+		///     Keeps both components on both objects.
 		/// </summary>
 		KeepBoth = 2,
 		/// <summary>
-		///     Destroy newest game object destroys the game object with the newest component.
+		///     Destroys the game object with the newest component.
 		/// </summary>
 		DestroyNewestGameObject = 3,
 		/// <summary>
-		///     Destroy oldest game object destroys the game object with the oldest component.
+		///     Destroys the game object with the oldest component.
 		/// </summary>
 		DestroyOldestGameObject = 4
 	}
@@ -58,10 +59,10 @@ namespace Hertzole.UnityToolbox
 			"What should happen if there are multiple instances of the singleton.\nDestroy newest component only removes the component from the newest object.\nDestroy oldest component only removes the component from the oldest object.\nKeep both keeps both components.\nDestroy newest game object destroys the game object with the newest component.\nDestroy oldest game object destroys the game object with the oldest component.")]
 		internal SingletonDestroyStrategy destroyStrategy = SingletonDestroyStrategy.DestroyNewestGameObject;
 
-		private static T singletonInstance;
+		private static T? singletonInstance;
 
 		/// <summary>
-		///     If keep alive is true, the singleton will not be destroyed when a new scene is loaded.
+		///     If keep alive is <see langword="true"/>, the singleton will not be destroyed when a new scene is loaded.
 		/// </summary>
 		public bool KeepAlive
 		{
@@ -77,16 +78,17 @@ namespace Hertzole.UnityToolbox
 			set { destroyStrategy = value; }
 		}
 
-		/// <summary>
-		///     Returns true if this object is the singleton instance.
-		/// </summary>
-		public bool IsSingletonInstance { get; private set; }
+	    /// <summary>
+	    ///     Gets a value indicating whether this object is the singleton instance.
+	    /// </summary>
+	    /// <value><see langword="true"/> if this object is the singleton instance; otherwise <see langword="false"/>.</value>
+	    public bool IsSingletonInstance { get; private set; }
 
 		/// <summary>
-		///     The current instance of the singleton in the scene.
+		///     Gets the current instance of the singleton in the scene.
 		/// </summary>
-		/// <exception cref="System.NullReferenceException">If the singleton can't be found in the scene.</exception>
-		public static T Instance
+		/// <value>The current instance of the singleton in the scene, or <see langword="null"/> if none is found.</value>
+		public static T? Instance
 		{
 			get
 			{
@@ -103,6 +105,9 @@ namespace Hertzole.UnityToolbox
 			}
 		}
 
+		/// <summary>
+		///     Initializes the singleton instance. If another instance already exists, applies the configured <see cref="DestroyStrategy"/>.
+		/// </summary>
 		protected void Awake()
 		{
 			if (singletonInstance != null && singletonInstance != this)
@@ -136,7 +141,8 @@ namespace Hertzole.UnityToolbox
 
 						break;
 					default:
-						throw new ArgumentOutOfRangeException();
+						Debug.LogError($"Invalid singleton destroy strategy: {destroyStrategy}");
+						return;
 				}
 			}
 
