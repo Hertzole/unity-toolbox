@@ -1,3 +1,112 @@
+## [1.18.5](https://github.com/Hertzole/unity-toolbox/compare/v1.18.4...v1.18.5) (2026-06-25)
+
+
+### Bug Fixes
+
+* missing license meta file ([ae8b277](https://github.com/Hertzole/unity-toolbox/commit/ae8b27705284407d7f66d5f7bf09cc34e01ca646))
+
+## [1.18.4](https://github.com/Hertzole/unity-toolbox/compare/v1.18.3...v1.18.4) (2026-06-17)
+
+
+### Bug Fixes
+
+* license again ([fb69bea](https://github.com/Hertzole/unity-toolbox/commit/fb69bea1b6160e7a58ad0886c6f6c0f31c636718))
+
+## [1.18.3](https://github.com/Hertzole/unity-toolbox/compare/v1.18.2...v1.18.3) (2026-06-17)
+
+
+### Bug Fixes
+
+* license ([fdac8be](https://github.com/Hertzole/unity-toolbox/commit/fdac8be00c02c6b6ec755ecf1cb6350a0dab267a))
+
+## [1.18.2](https://github.com/Hertzole/unity-toolbox/compare/v1.18.1...v1.18.2) (2026-06-17)
+
+
+### Bug Fixes
+
+* ci versions ([ec04e42](https://github.com/Hertzole/unity-toolbox/commit/ec04e42567d767bc4ea7c2284e793484e708ea4b))
+
+## [1.18.1](https://github.com/Hertzole/unity-toolbox/compare/v1.18.0...v1.18.1) (2026-06-16)
+
+
+### Bug Fixes
+
+* no signed archive ([f0e5a37](https://github.com/Hertzole/unity-toolbox/commit/f0e5a37127d171f3dd8891c00e8850f387a20b15))
+
+# [1.18.0](https://github.com/Hertzole/unity-toolbox/compare/v1.17.0...v1.18.0) (2026-06-16)
+
+
+### Features
+
+* sign package ([6d47cea](https://github.com/Hertzole/unity-toolbox/commit/6d47cea72cc7dfec9e817ee35eae69918ba30d63))
+
+# [1.17.0](https://github.com/Hertzole/unity-toolbox/compare/v1.16.0...v1.17.0) (2026-01-29)
+
+
+### Features
+
+* NetworkGuard for Netcode for GO ([efaa78e](https://github.com/Hertzole/unity-toolbox/commit/efaa78e51ead6dee5f53f39294a456c5c3069648))
+
+# [1.16.0](https://github.com/Hertzole/unity-toolbox/compare/v1.15.0...v1.16.0) (2026-01-27)
+
+
+### Bug Fixes
+
+* obsolete types in Detector ([0a06ab2](https://github.com/Hertzole/unity-toolbox/commit/0a06ab26ec0b6866974c5fb8b1a731151d6317cf))
+
+
+### Features
+
+* InputMap attribute ([5e96760](https://github.com/Hertzole/unity-toolbox/commit/5e967601e106d13e7913a7514180c90b7ba78e17))
+* weighted random methods for enumerables ([0c911a4](https://github.com/Hertzole/unity-toolbox/commit/0c911a4d40e3717b842e7e7e2a05ea80eb4f1451))
+
+
+### Performance Improvements
+
+* move property drawer property field check to static callback ([bdc811f](https://github.com/Hertzole/unity-toolbox/commit/bdc811f523084be8d8a7df8ff4a26a1b7940c030))
+
+# [1.15.0](https://github.com/Hertzole/unity-toolbox/compare/v1.14.0...v1.15.0) (2025-12-04)
+
+
+### Bug Fixes
+
+* compile issues without addressables ([ba14367](https://github.com/Hertzole/unity-toolbox/commit/ba14367b77557e7e6c737b57fac46e4975a16e33))
+* debug log ([40cb3ec](https://github.com/Hertzole/unity-toolbox/commit/40cb3ece93cd0dc3bad4f1ada02431b486010a58))
+* InputManager trying to release invalid addressable handles ([cbc8054](https://github.com/Hertzole/unity-toolbox/commit/cbc8054615b8006d1d05a2ad06c0ed18ffb9fa3c))
+* scriptable value match nullability warnings ([a09fdca](https://github.com/Hertzole/unity-toolbox/commit/a09fdca64703fa019267949d07d9bd9c07d00639))
+
+
+### Features
+
+* (Un)RegisterValueChangeCallback extensions for PropertyField ([8c5bb69](https://github.com/Hertzole/unity-toolbox/commit/8c5bb6937ed823a0cad0e3fac7580507e38ddb96))
+* EqualsApproximately to common vector types ([851ceb0](https://github.com/Hertzole/unity-toolbox/commit/851ceb0636fb2b02e09d2ee4eedc7e5699846d19))
+* GameObject.HasLayer extension methods ([5234749](https://github.com/Hertzole/unity-toolbox/commit/52347491bb0a4f72a9e54df72c20150231b4b6fc))
+* GizmosExtra.DrawArrow(ToPoint) ([042d4d2](https://github.com/Hertzole/unity-toolbox/commit/042d4d200f7be001718a9af0284d2ac73757848e))
+* GizmosScope, replacing GizmoColorScope ([b97cc6c](https://github.com/Hertzole/unity-toolbox/commit/b97cc6c97e92b0dbc62cb0529c8cc8a50056b1d7))
+* invert function to ScriptableValueMatch ([28ae782](https://github.com/Hertzole/unity-toolbox/commit/28ae7825bffd7f8079ce93c90336e1147ee53558))
+* MatchGroup type ([31fe5ec](https://github.com/Hertzole/unity-toolbox/commit/31fe5ecc7dbcfbf81dbde044e99684c46202eee8))
+* MinMax types ([8ae1db7](https://github.com/Hertzole/unity-toolbox/commit/8ae1db77c2a845597863d594bd782eb2773a4dd2))
+* MinMaxInt that replaces RandomInt ([f552daa](https://github.com/Hertzole/unity-toolbox/commit/f552daab9e0089c235feb4a1c915b82e0c446c10))
+* missing UnregisterValueChangedCallback extension method ([a2135a5](https://github.com/Hertzole/unity-toolbox/commit/a2135a58360bd5079e56c4a6ca006b0f596e57e8))
+* new chat manager ([392579e](https://github.com/Hertzole/unity-toolbox/commit/392579e23d9174782164d6d005c213d64ad37b90))
+* new WeightedRandom methods using Func to get weight ([9164667](https://github.com/Hertzole/unity-toolbox/commit/9164667a89e3484385219085dc30f164c02f983a))
+* UI toolkit extensions: TryGetLabelElement, IsFocused, and ClampValue ([64925dc](https://github.com/Hertzole/unity-toolbox/commit/64925dc2be71a65d011e8593a3c3e2cd4b1c4624))
+* WeightedRandom.GetRandomIndex ([58e4516](https://github.com/Hertzole/unity-toolbox/commit/58e451619b507849b5b396f55ef458d4731e297c))
+* WithX extensions to common Unity types ([f326bec](https://github.com/Hertzole/unity-toolbox/commit/f326becdab71fc14b98bf87e73d714894bf19d8c))
+
+
+### Performance Improvements
+
+* less allocations in ColorExtensions.ToHex ([5547b04](https://github.com/Hertzole/unity-toolbox/commit/5547b04631c0cf57bd5b716c4306c0830dad3072))
+
+# [1.14.0](https://github.com/Hertzole/unity-toolbox/compare/v1.13.1...v1.14.0) (2025-07-13)
+
+
+### Features
+
+* access to Identifier.StringValue, but only in the editor! ([c903041](https://github.com/Hertzole/unity-toolbox/commit/c903041dbe0761343b5e3c1f08e6f176ba4d4589))
+* RegisterValueChangeCallback with user args extension method for visual elements ([a310fce](https://github.com/Hertzole/unity-toolbox/commit/a310fce869f08e10f80b7c8d7fb8248cc49421c9))
+
 ## [1.13.1](https://github.com/Hertzole/unity-toolbox/compare/v1.13.0...v1.13.1) (2025-06-11)
 
 

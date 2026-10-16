@@ -1,5 +1,10 @@
 ﻿#if TOOLBOX_PHYSICS_3D
 using UnityEngine;
+#if UNITY_6000_3_OR_NEWER
+using EntityId = UnityEngine.EntityId;
+#else
+using EntityId = System.Int32;
+#endif
 
 namespace Hertzole.UnityToolbox
 {
@@ -12,7 +17,7 @@ namespace Hertzole.UnityToolbox
 
 	public static class Detector
 	{
-		public static DetectStatus DetectObject<T>(Vector3 origin, Vector3 direction, float range, int detectMask, QueryTriggerInteraction triggerInteraction, ref int? previousColliderId, out T target)
+		public static DetectStatus DetectObject<T>(Vector3 origin, Vector3 direction, float range, int detectMask, QueryTriggerInteraction triggerInteraction, ref EntityId? previousColliderId, out T target)
 		{
 			if (Physics.Raycast(origin, direction, out RaycastHit hit, range, detectMask, triggerInteraction))
 			{
@@ -20,9 +25,16 @@ namespace Hertzole.UnityToolbox
 				Debug.DrawRay(origin, direction * hit.distance, Color.green, 0);
 #endif
 
-				if (hit.colliderInstanceID != previousColliderId)
+                EntityId hitId;
+#if UNITY_6000_3_OR_NEWER
+                hitId = hit.colliderEntityId;
+#else
+                hitId = hit.colliderInstanceID;
+#endif
+
+				if (hitId != previousColliderId)
 				{
-					previousColliderId = hit.colliderInstanceID;
+					previousColliderId = hitId;
 					if (hit.collider.TryGetComponentInParent(out target))
 					{
 						return DetectStatus.NewObject;

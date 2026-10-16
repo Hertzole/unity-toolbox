@@ -4,6 +4,11 @@ using UnityEngine;
 #if TOOLBOX_SCRIPTABLE_VALUES
 using Hertzole.ScriptableValues;
 #endif
+#if UNITY_6000_3_OR_NEWER
+using EntityId = UnityEngine.EntityId;
+#else
+using EntityId = System.Int32;
+#endif
 
 namespace Hertzole.UnityToolbox
 {
@@ -20,7 +25,7 @@ namespace Hertzole.UnityToolbox
 		[SerializeField]
 		private LayerMask detectMask = default;
 
-		private int? previousColliderId;
+		private EntityId? previousColliderId;
 
 		private T currentTarget;
 

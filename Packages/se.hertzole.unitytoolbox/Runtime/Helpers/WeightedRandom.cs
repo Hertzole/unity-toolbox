@@ -1,35 +1,117 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using UnityEngine.Pool;
 
 namespace Hertzole.UnityToolbox
 {
     public static partial class WeightedRandom
     {
+        private static readonly Func<object?, int, (int, object?)> generateUnityRandom = (_, maxWeight) =>
+        {
+            int result = UnityEngine.Random.Range(0, maxWeight);
+            return (result, null);
+        };
+
+        private static readonly Func<Random, int, (int, Random)> generateSystemRandom = (random, maxWeight) =>
+        {
+            int result = random.Next(0, maxWeight);
+            return (result, random);
+        };
+
+        public static int GetRandomIndex<T>(IReadOnlyList<T> list, Func<T, int> getWeight)
+        {
+            return GetRandomIndexInternal(list, getWeight, null, out _, generateUnityRandom);
+        }
+
+        public static int GetRandomIndex<T, TEnumerable>(TEnumerable enumerable, Func<T, int> getWeight) where TEnumerable : IEnumerable<T>
+        {
+            using (ListPool<T>.Get(out List<T> list))
+            {
+                foreach (T value in enumerable)
+                {
+                    list.Add(value);
+                }
+
+                return GetRandomIndex<T>(list, getWeight);
+            }
+        }
+
+        public static int GetRandomIndex<T>(IEnumerable<T> enumerable, Func<T, int> getWeight)
+        {
+            using (ListPool<T>.Get(out List<T> list))
+            {
+                foreach (T value in enumerable)
+                {
+                    list.Add(value);
+                }
+
+                return GetRandomIndex<T>(list, getWeight);
+            }
+        }
+
+        public static int GetRandomIndex<T>(IReadOnlyList<T> list, Func<T, int> getWeight, Random random)
+        {
+            return GetRandomIndexInternal(list, getWeight, random, out _, generateSystemRandom);
+        }
+
+        public static int GetRandomIndex<T, TEnumerable>(TEnumerable enumerable, Func<T, int> getWeight, Random random) where TEnumerable : IEnumerable<T>
+        {
+            using (ListPool<T>.Get(out List<T> list))
+            {
+                foreach (T value in enumerable)
+                {
+                    list.Add(value);
+                }
+
+                return GetRandomIndex<T>(list, getWeight, random);
+            }
+        }
+
+        public static int GetRandomIndex<T>(IEnumerable<T> enumerable, Func<T, int> getWeight, Random random)
+        {
+            using (ListPool<T>.Get(out List<T> list))
+            {
+                foreach (T value in enumerable)
+                {
+                    list.Add(value);
+                }
+
+                return GetRandomIndex<T>(list, getWeight, random);
+            }
+        }
+
         public static T GetRandom<T>(IReadOnlyList<T> list, Func<T, int> getWeight)
         {
             return list[GetRandomIndex(list, getWeight)];
         }
 
-        public static int GetRandomIndex<T>(IReadOnlyList<T> list, Func<T, int> getWeight)
+        public static T GetRandom<T, TEnumerable>(TEnumerable enumerable, Func<T, int> getWeight) where TEnumerable : IEnumerable<T>
         {
-            int totalWeight = 0;
-            for (int i = 0; i < list.Count; i++)
+            using (ListPool<T>.Get(out List<T> list))
             {
-                totalWeight += getWeight(list[i]);
-            }
-
-            int random = UnityEngine.Random.Range(0, totalWeight);
-            for (int i = 0; i < list.Count; i++)
-            {
-                if (random < getWeight(list[i]))
+                foreach (T value in enumerable)
                 {
-                    return i;
+                    list.Add(value);
                 }
 
-                random -= getWeight(list[i]);
+                return list[GetRandomIndex<T>(list, getWeight)];
             }
+        }
 
-            return list.Count - 1;
+        public static T GetRandom<T>(IEnumerable<T> enumerable, Func<T, int> getWeight)
+        {
+            using (ListPool<T>.Get(out List<T> list))
+            {
+                foreach (T value in enumerable)
+                {
+                    list.Add(value);
+                }
+
+                return list[GetRandomIndex<T>(list, getWeight)];
+            }
         }
 
         public static T GetRandom<T>(IReadOnlyList<T> list, Func<T, int> getWeight, Random random)
@@ -37,7 +119,37 @@ namespace Hertzole.UnityToolbox
             return list[GetRandomIndex(list, getWeight, random)];
         }
 
-        public static int GetRandomIndex<T>(IReadOnlyList<T> list, Func<T, int> getWeight, Random random)
+        public static T GetRandom<T, TEnumerable>(TEnumerable enumerable, Func<T, int> getWeight, Random random) where TEnumerable : IEnumerable<T>
+        {
+            using (ListPool<T>.Get(out List<T> list))
+            {
+                foreach (T value in enumerable)
+                {
+                    list.Add(value);
+                }
+
+                return list[GetRandomIndex<T>(list, getWeight, random)];
+            }
+        }
+
+        public static T GetRandom<T>(IEnumerable<T> enumerable, Func<T, int> getWeight, Random random)
+        {
+            using (ListPool<T>.Get(out List<T> list))
+            {
+                foreach (T value in enumerable)
+                {
+                    list.Add(value);
+                }
+
+                return list[GetRandomIndex<T>(list, getWeight, random)];
+            }
+        }
+
+        private static int GetRandomIndexInternal<T, TRandom>(IReadOnlyList<T> list,
+            Func<T, int> getWeight,
+            TRandom random,
+            out TRandom newRandom,
+            Func<TRandom, int, (int, TRandom)> generateRandom)
         {
             int totalWeight = 0;
             for (int i = 0; i < list.Count; i++)
@@ -45,7 +157,10 @@ namespace Hertzole.UnityToolbox
                 totalWeight += getWeight(list[i]);
             }
 
-            int randomNumber = random.Next(0, totalWeight);
+            (int, TRandom) randomResult = generateRandom(random, totalWeight);
+            int randomNumber = randomResult.Item1;
+            newRandom = randomResult.Item2;
+
             for (int i = 0; i < list.Count; i++)
             {
                 if (randomNumber < getWeight(list[i]))
@@ -59,7 +174,9 @@ namespace Hertzole.UnityToolbox
             return list.Count - 1;
         }
 
+        #region Obsolete
         [Obsolete("Use the overload with the getWeight parameter instead.")]
+        [ExcludeFromCodeCoverage]
         public static T GetRandom<T>(IReadOnlyList<T> list) where T : IWeighted
         {
             int totalWeight = 0;
@@ -83,6 +200,7 @@ namespace Hertzole.UnityToolbox
         }
 
         [Obsolete("Use the overload with the getWeight parameter instead.")]
+        [ExcludeFromCodeCoverage]
         public static T GetRandom<T>(IReadOnlyList<T> list, Random random) where T : IWeighted
         {
             int totalWeight = 0;
@@ -104,5 +222,6 @@ namespace Hertzole.UnityToolbox
 
             return list[list.Count - 1];
         }
+        #endregion
     }
 }
